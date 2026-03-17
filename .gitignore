@@ -1,0 +1,69 @@
+# ── Build ──────────────────────────────────────
+build/
+out/
+.gradle/
+*.class
+*.jar
+*.war
+*.ear
+
+# ── Claude Code ────────────────────────────────
+.claude/
+
+# ── IDE ────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ── OS ─────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── 보안 / 환경설정 (절대 커밋 금지) ───────────
+application-local.yml
+application-prod.yml
+application-secret.yml
+.env
+.env.*
+*.env
+secrets/
+secret.properties
+keystore/
+*.jks
+*.p12
+*.pem
+*.key
+*.crt
+*.cer
+
+# ── 데이터베이스 ────────────────────────────────
+*.db
+*.sqlite
+*.sql.bak
+data/
+db-data/
+postgres-data/
+*.dump
+
+# ── Docker ─────────────────────────────────────
+docker-compose.override.yml
+docker-compose.prod.yml
+docker-compose.local.yml
+.dockerignore
+
+# ── 로그 ───────────────────────────────────────
+logs/
+*.log
+*.log.*
+
+# ── 테스트 / 커버리지 ────────────────────────────
+*.exec
+jacoco/
+test-results/
