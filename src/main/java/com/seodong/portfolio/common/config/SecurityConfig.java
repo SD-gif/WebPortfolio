@@ -46,7 +46,9 @@ public class SecurityConfig {
                                 "/api/profile",
                                 "/api/projects",
                                 "/api/projects/**",
-                                "/api/skills").permitAll()
+                                "/api/skills",
+                                "/api/educations",
+                                "/api/certifications").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/contact",
                                 "/api/admin/login").permitAll()

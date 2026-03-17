@@ -813,11 +813,11 @@
     switch (type) {
       case 'edu':
         title.textContent = '🎓 학위 / 교육과정';
-        body.innerHTML = _eduCardHTML();
+        body.innerHTML = '<p style="color:var(--muted);font-size:.85rem">로딩 중...</p>';
         break;
       case 'cert':
         title.textContent = '🏆 자격증 / 공모전';
-        body.innerHTML = _certCardHTML();
+        body.innerHTML = '<p style="color:var(--muted);font-size:.85rem">로딩 중...</p>';
         break;
       case 'skills':
         title.textContent = '📚 기술 스택';
@@ -831,6 +831,8 @@
     }
     overlay.style.display = 'flex';
     requestAnimationFrame(() => overlay.classList.add('visible'));
+    if (type === 'edu')  _loadEduCard();
+    if (type === 'cert') _loadCertCard();
     window._cardOpen = true;
     const scene = getGameScene();
     if (scene?.input?.keyboard) scene.input.keyboard.disableGlobalCapture();
@@ -845,62 +847,61 @@
     if (scene?.input?.keyboard) scene.input.keyboard.enableGlobalCapture();
   }
 
-  function _eduCardHTML() {
-    return `
-      <div class="license-card">
+  async function _loadEduCard() {
+    const body = document.getElementById('card-body');
+    try {
+      const list = await fetch('/api/educations').then(r => r.json());
+      if (!list.length) {
+        body.innerHTML = '<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:1rem">등록된 학력 정보가 없습니다.</p>';
+        return;
+      }
+      body.innerHTML = `<div class="license-card">
         <div class="license-section">
           <div class="license-section-title">🏛️ 학력</div>
-          <div class="license-item">
-            <div class="license-degree">컴퓨터공학 학사</div>
-            <div class="license-school">OO 대학교 / OO 학과</div>
-            <div class="license-period">20XX.03 — 20XX.02 졸업</div>
-          </div>
-        </div>
-        <div class="license-section">
-          <div class="license-section-title">📘 주요 교육과정</div>
-          <div class="course-tags">
-            <span class="course-tag">알고리즘</span>
-            <span class="course-tag">자료구조</span>
-            <span class="course-tag">운영체제</span>
-            <span class="course-tag">컴퓨터네트워크</span>
-            <span class="course-tag">데이터베이스</span>
-            <span class="course-tag">소프트웨어공학</span>
-            <span class="course-tag">객체지향프로그래밍</span>
-            <span class="course-tag">시스템프로그래밍</span>
-          </div>
-        </div>
-        <div class="license-section">
-          <div class="license-section-title">🎒 기타 활동</div>
-          <div class="course-tags">
-            <span class="course-tag">교내 개발 동아리</span>
-            <span class="course-tag">스터디 그룹</span>
-          </div>
+          ${list.map(e => `
+            <div class="license-item">
+              <div class="license-degree">${e.degree}</div>
+              <div class="license-school">${e.institution} · ${e.major}</div>
+              <div class="license-period">${e.startDate ?? ''} ${e.endDate ? '— ' + e.endDate : ''}</div>
+            </div>`).join('')}
         </div>
       </div>`;
+    } catch {
+      body.innerHTML = '<p style="color:var(--muted);font-size:.85rem">불러오기 실패</p>';
+    }
   }
 
-  function _certCardHTML() {
-    return `
-      <div class="license-card">
+  async function _loadCertCard() {
+    const body = document.getElementById('card-body');
+    try {
+      const list = await fetch('/api/certifications').then(r => r.json());
+      const certs  = list.filter(c => c.type === 'CERT');
+      const awards = list.filter(c => c.type === 'AWARD');
+      if (!list.length) {
+        body.innerHTML = '<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:1rem">등록된 자격증/수상 정보가 없습니다.</p>';
+        return;
+      }
+      body.innerHTML = `<div class="license-card">
+        ${certs.length ? `
         <div class="license-section">
           <div class="license-section-title">📜 자격증</div>
-          <div class="license-item">
-            <div class="license-degree">정보처리기사</div>
-            <div class="license-school">한국산업인력공단</div>
-            <div class="license-period">취득연도: 20XX</div>
-          </div>
-          <div class="license-item">
-            <div class="license-degree">자격증 이름</div>
-            <div class="license-school">발급기관</div>
-            <div class="license-period">취득연도: 20XX</div>
-          </div>
-        </div>
+          ${certs.map(c => `
+            <div class="license-item">
+              <div class="license-degree">${c.name}</div>
+              ${c.issuer ? `<div class="license-school">${c.issuer}</div>` : ''}
+              ${c.acquiredDate ? `<div class="license-period">취득: ${c.acquiredDate}</div>` : ''}
+            </div>`).join('')}
+        </div>` : ''}
+        ${awards.length ? `
         <div class="license-section">
           <div class="license-section-title">🥇 공모전 / 수상</div>
-          <div class="license-badge">🏅 공모전 이름 <span class="badge-year">20XX</span></div>
-          <div class="license-badge">🏅 공모전 이름 <span class="badge-year">20XX</span></div>
-        </div>
+          ${awards.map(a => `
+            <div class="license-badge">🏅 ${a.name}${a.acquiredDate ? ` <span class="badge-year">${a.acquiredDate}</span>` : ''}</div>`).join('')}
+        </div>` : ''}
       </div>`;
+    } catch {
+      body.innerHTML = '<p style="color:var(--muted);font-size:.85rem">불러오기 실패</p>';
+    }
   }
 
   async function _loadCardSkills() {
