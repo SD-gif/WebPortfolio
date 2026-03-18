@@ -27,4 +27,19 @@ public class SkillCategory {
     @OrderBy("sortOrder ASC")
     @Builder.Default
     private List<Skill> skills = new ArrayList<>();
+
+    public void update(String name, int sortOrder) {
+        this.name      = name;
+        this.sortOrder = sortOrder;
+    }
+
+    public Skill addSkill(String name, int sortOrder) {
+        Skill skill = Skill.builder()
+                .category(this)
+                .name(name)
+                .sortOrder(sortOrder)
+                .build();
+        this.skills.add(skill);
+        return skill;
+    }
 }
