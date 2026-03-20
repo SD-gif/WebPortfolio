@@ -180,4 +180,35 @@ class SkillServiceTest {
         assertThatThrownBy(() -> adminSkillService.deleteSkill(999L))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
+
+    @Test
+    @DisplayName("관리자 스킬 카테고리 목록 조회 시 SkillCategoryResponse 목록을 반환한다")
+    void getCategories_returnsSkillCategoryResponses() {
+        // given
+        SkillCategory category = SkillCategory.builder().name("Backend").sortOrder(1).build();
+        given(categoryRepository.findAllByOrderBySortOrderAsc()).willReturn(List.of(category));
+
+        // when
+        List<SkillCategoryResponse> result = adminSkillService.getCategories();
+
+        // then
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).name()).isEqualTo("Backend");
+    }
+
+    @Test
+    @DisplayName("스킬이 포함된 카테고리 조회 시 스킬 목록도 반환한다")
+    void getSkills_withSkills_returnsSkillsInCategory() {
+        // given
+        SkillCategory category = SkillCategory.builder().name("Backend").sortOrder(1).build();
+        category.addSkill("Java", 1);
+        category.addSkill("Spring", 2);
+        given(categoryRepository.findAllByOrderBySortOrderAsc()).willReturn(List.of(category));
+
+        // when
+        SkillListResponse response = skillService.getSkills();
+
+        // then
+        assertThat(response.categories().get(0).skills()).hasSize(2);
+    }
 }
