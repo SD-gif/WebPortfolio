@@ -27,7 +27,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run tests
-        run: ./gradlew test --no-daemon
+        run: ./gradlew test jacocoTestReport --no-daemon
         env:
           DB_USERNAME: postgres
           DB_PASSWORD: postgres
@@ -36,6 +36,13 @@ jobs:
           MAIL_PASSWORD: test
           JWT_SECRET: test-secret-key-minimum-32-characters-long!!
           FRONTEND_URL: http://localhost:8080
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: build/reports/jacoco/test/jacocoTestReport.xml
+          fail_ci_if_error: false
 
   # ── 2. Docker 빌드 & Push ────────────────────────────
   docker:
