@@ -84,7 +84,8 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_KEY }}
           script: |
-            cd ~/portfolio
+            cd ~
             docker-compose pull app
+            docker rm -f portfolio-app 2>/dev/null || true
             docker-compose up -d
             docker image prune -f
