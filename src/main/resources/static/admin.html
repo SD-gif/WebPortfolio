@@ -54,6 +54,7 @@
     .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
     .form-group label { font-size: 0.78rem; font-weight: 600; color: var(--accent); }
     .form-group input, .form-group textarea, .form-group select {
+      width: 100%;
       background: rgba(15,15,30,0.9);
       border: 1px solid var(--border);
       border-radius: 0.6rem;
@@ -190,10 +191,14 @@
     .modal-backdrop {
       position: fixed; inset: 0; z-index: 400;
       background: rgba(0,0,0,0.7);
-      display: none; align-items: flex-start; justify-content: center;
+      display: flex; align-items: flex-start; justify-content: center;
       padding: 3rem 1rem; overflow-y: auto;
+      opacity: 0; visibility: hidden; pointer-events: none;
+      transition: opacity 0.2s ease, visibility 0.2s ease;
     }
-    .modal-backdrop.open { display: flex; }
+    .modal-backdrop.open {
+      opacity: 1; visibility: visible; pointer-events: auto;
+    }
     .modal {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -201,6 +206,11 @@
       padding: 2rem;
       width: 100%; max-width: 540px;
       box-shadow: 0 0 50px rgba(99,102,241,0.18);
+      transform: translateY(-16px) scale(0.97);
+      transition: transform 0.2s ease;
+    }
+    .modal-backdrop.open .modal {
+      transform: translateY(0) scale(1);
     }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -316,6 +326,15 @@
       <div class="sidebar-item" data-tab="contacts" onclick="switchTab('contacts')">
         <span class="ico">✉️</span> Contacts
       </div>
+      <div class="sidebar-item" data-tab="skills" onclick="switchTab('skills')">
+        <span class="ico">⚡</span> Skills
+      </div>
+      <div class="sidebar-item" data-tab="education" onclick="switchTab('education')">
+        <span class="ico">🎓</span> Education
+      </div>
+      <div class="sidebar-item" data-tab="certification" onclick="switchTab('certification')">
+        <span class="ico">🏆</span> Certification
+      </div>
       <div class="sidebar-item" data-tab="profile" onclick="switchTab('profile')">
         <span class="ico">👤</span> Profile
       </div>
@@ -376,6 +395,47 @@
           </table>
         </div>
         <div class="pagination" id="contacts-pagination"></div>
+      </div>
+
+      <!-- Skills Tab -->
+      <div class="tab-panel" id="tab-skills">
+        <div class="panel-header">
+          <span class="panel-title">Skills</span>
+          <button class="btn btn-primary btn-sm" onclick="openCategoryModal()">+ 카테고리 추가</button>
+        </div>
+        <div id="skills-categories"></div>
+      </div>
+
+      <!-- Education Tab -->
+      <div class="tab-panel" id="tab-education">
+        <div class="panel-header">
+          <span class="panel-title">Education</span>
+          <button class="btn btn-primary btn-sm" onclick="openEduModal()">+ 학력 추가</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>학위</th><th>학교</th><th>전공</th><th>기간</th><th>순서</th><th>관리</th></tr>
+            </thead>
+            <tbody id="edu-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Certification Tab -->
+      <div class="tab-panel" id="tab-certification">
+        <div class="panel-header">
+          <span class="panel-title">Certification / Award</span>
+          <button class="btn btn-primary btn-sm" onclick="openCertModal()">+ 추가</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>구분</th><th>이름</th><th>발급기관</th><th>취득일</th><th>순서</th><th>관리</th></tr>
+            </thead>
+            <tbody id="cert-tbody"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Profile Tab -->
@@ -478,6 +538,89 @@
   </div>
 </div>
 
+<!-- ── Category Modal ── -->
+<div class="modal-backdrop" id="category-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="category-modal-title">카테고리 추가</span>
+      <button class="modal-close" onclick="closeCategoryModal()">✕</button>
+    </div>
+    <div class="form-group"><label>카테고리명 *</label><input id="cat-name" type="text" placeholder="Backend" /></div>
+    <div class="form-group"><label>정렬 순서</label><input id="cat-order" type="number" min="0" placeholder="1" /></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeCategoryModal()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="saveCategory()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Skill Modal ── -->
+<div class="modal-backdrop" id="skill-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title">스킬 추가</span>
+      <button class="modal-close" onclick="closeSkillModal()">✕</button>
+    </div>
+    <div class="form-group"><label>스킬명 *</label><input id="skill-name" type="text" placeholder="Java" /></div>
+    <div class="form-group"><label>정렬 순서</label><input id="skill-order" type="number" min="0" placeholder="1" /></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeSkillModal()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="saveSkill()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Education Modal ── -->
+<div class="modal-backdrop" id="edu-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="edu-modal-title">학력 추가</span>
+      <button class="modal-close" onclick="closeEduModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>학교명 *</label><input id="edu-institution" type="text" placeholder="OO 대학교" /></div>
+      <div class="form-group"><label>학위 *</label><input id="edu-degree" type="text" placeholder="컴퓨터공학 학사" /></div>
+    </div>
+    <div class="form-group"><label>전공 *</label><input id="edu-major" type="text" placeholder="컴퓨터공학과" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>시작일</label><input id="edu-start" type="text" placeholder="2018.03" /></div>
+      <div class="form-group"><label>종료일</label><input id="edu-end" type="text" placeholder="2023.02 또는 재학중" /></div>
+    </div>
+    <div class="form-group"><label>정렬 순서</label><input id="edu-order" type="number" min="0" placeholder="1" /></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeEduModal()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEdu()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Certification Modal ── -->
+<div class="modal-backdrop" id="cert-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="cert-modal-title">자격증 / 수상 추가</span>
+      <button class="modal-close" onclick="closeCertModal()">✕</button>
+    </div>
+    <div class="form-group">
+      <label>구분 *</label>
+      <select id="cert-type">
+        <option value="CERT">자격증 (CERT)</option>
+        <option value="AWARD">공모전 / 수상 (AWARD)</option>
+      </select>
+    </div>
+    <div class="form-group"><label>이름 *</label><input id="cert-name" type="text" placeholder="정보처리기사" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>발급기관</label><input id="cert-issuer" type="text" placeholder="한국산업인력공단" /></div>
+      <div class="form-group"><label>취득일</label><input id="cert-date" type="text" placeholder="2022.06" /></div>
+    </div>
+    <div class="form-group"><label>정렬 순서</label><input id="cert-order" type="number" min="0" placeholder="1" /></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeCertModal()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="saveCert()">저장</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const API = '';
 let token = sessionStorage.getItem('admin_token') || '';
@@ -539,9 +682,12 @@ function switchTab(tab) {
   document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   document.querySelector(`.sidebar-item[data-tab="${tab}"]`).classList.add('active');
-  if (tab === 'contacts') loadContacts(0);
-  if (tab === 'profile')  loadProfile();
-  if (tab === 'projects') loadProjects(0);
+  if (tab === 'contacts')     loadContacts(0);
+  if (tab === 'profile')      loadProfile();
+  if (tab === 'projects')     loadProjects(0);
+  if (tab === 'skills')       loadSkills();
+  if (tab === 'education')    loadEducation();
+  if (tab === 'certification') loadCertification();
 }
 
 /* ── Toast ── */
@@ -815,6 +961,256 @@ async function saveProfile() {
   } catch {
     toast('요청 중 오류가 발생했습니다.', 'error');
   }
+}
+
+/* ─────────────────────────────────────────────
+   SKILLS
+───────────────────────────────────────────── */
+let editingCategoryId = null;
+let targetCategoryId  = null;
+
+async function loadSkills() {
+  try {
+    const data = await fetch(`${API}/api/admin/skills`, { headers: authHeader() }).then(r => r.json());
+    const wrap = document.getElementById('skills-categories');
+    if (!data.length) { wrap.innerHTML = '<p class="empty">등록된 카테고리가 없습니다.</p>'; return; }
+    wrap.innerHTML = data.map(cat => `
+      <div style="margin-bottom:1.5rem;border:1px solid var(--border);border-radius:0.8rem;overflow:hidden">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(99,102,241,0.06)">
+          <strong style="font-size:0.95rem">${esc(cat.name)}</strong>
+          <div style="display:flex;gap:0.5rem">
+            <button class="btn btn-edit btn-sm" onclick="openSkillModal(${cat.id})">+ 스킬</button>
+            <button class="btn btn-edit btn-sm" onclick="openCategoryModal(${cat.id},'${esc(cat.name)}',${cat.sortOrder})">수정</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteCategory(${cat.id},'${esc(cat.name)}')">삭제</button>
+          </div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;padding:0.75rem 1rem">
+          ${cat.skills.length ? cat.skills.map(s => `
+            <span style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(99,102,241,0.1);border:1px solid var(--border);border-radius:2rem;padding:0.25rem 0.7rem;font-size:0.82rem">
+              ${esc(s.name)}
+              <button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.7rem" onclick="deleteSkill(${s.id},'${esc(s.name)}')">✕</button>
+            </span>`).join('') : '<span style="color:var(--muted);font-size:0.82rem">스킬 없음</span>'}
+        </div>
+      </div>`).join('');
+  } catch { toast('스킬 목록을 불러오지 못했습니다.', 'error'); }
+}
+
+function openCategoryModal(id = null, name = '', sortOrder = 0) {
+  editingCategoryId = id;
+  document.getElementById('category-modal-title').textContent = id ? '카테고리 수정' : '카테고리 추가';
+  document.getElementById('cat-name').value  = name;
+  document.getElementById('cat-order').value = sortOrder;
+  document.getElementById('category-modal').classList.add('open');
+}
+function closeCategoryModal() { document.getElementById('category-modal').classList.remove('open'); }
+
+async function saveCategory() {
+  const name = document.getElementById('cat-name').value.trim();
+  if (!name) { toast('카테고리명을 입력해주세요.', 'error'); return; }
+  const body = { name, sortOrder: parseInt(document.getElementById('cat-order').value) || 0 };
+  const url    = editingCategoryId ? `${API}/api/admin/skills/categories/${editingCategoryId}` : `${API}/api/admin/skills/categories`;
+  const method = editingCategoryId ? 'PUT' : 'POST';
+  try {
+    const res = await fetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
+    if (res.ok) { toast(editingCategoryId ? '수정되었습니다.' : '추가되었습니다.'); closeCategoryModal(); loadSkills(); }
+    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
+    else toast('저장 실패', 'error');
+  } catch { toast('오류 발생', 'error'); }
+}
+
+async function deleteCategory(id, name) {
+  if (!confirm(`"${name}" 카테고리(및 하위 스킬)를 삭제할까요?`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/skills/categories/${id}`, { method: 'DELETE', headers: authHeader() });
+    if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadSkills(); }
+    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
+    else toast('삭제 실패', 'error');
+  } catch { toast('오류 발생', 'error'); }
+}
+
+function openSkillModal(categoryId) {
+  targetCategoryId = categoryId;
+  document.getElementById('skill-name').value  = '';
+  document.getElementById('skill-order').value = '';
+  document.getElementById('skill-modal').classList.add('open');
+}
+function closeSkillModal() { document.getElementById('skill-modal').classList.remove('open'); }
+
+async function saveSkill() {
+  const name = document.getElementById('skill-name').value.trim();
+  if (!name) { toast('스킬명을 입력해주세요.', 'error'); return; }
+  const body = { name, sortOrder: parseInt(document.getElementById('skill-order').value) || 0 };
+  try {
+    const res = await fetch(`${API}/api/admin/skills/categories/${targetCategoryId}/skills`,
+      { method: 'POST', headers: authHeader(), body: JSON.stringify(body) });
+    if (res.ok) { toast('스킬이 추가되었습니다.'); closeSkillModal(); loadSkills(); }
+    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
+    else toast('추가 실패', 'error');
+  } catch { toast('오류 발생', 'error'); }
+}
+
+async function deleteSkill(id, name) {
+  if (!confirm(`"${name}" 스킬을 삭제할까요?`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/skills/${id}`, { method: 'DELETE', headers: authHeader() });
+    if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadSkills(); }
+    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
+    else toast('삭제 실패', 'error');
+  } catch { toast('오류 발생', 'error'); }
+}
+
+/* ─────────────────────────────────────────────
+   EDUCATION
+───────────────────────────────────────────── */
+let editingEduId = null;
+
+async function loadEducation() {
+  try {
+    const list = await fetch(`${API}/api/educations`).then(r => r.json());
+    const tbody = document.getElementById('edu-tbody');
+    if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">등록된 학력이 없습니다.</td></tr>'; return; }
+    tbody.innerHTML = list.map(e => `
+      <tr>
+        <td><strong>${esc(e.degree)}</strong></td>
+        <td>${esc(e.institution)}</td>
+        <td style="color:var(--muted)">${esc(e.major)}</td>
+        <td style="color:var(--muted);font-size:0.82rem">${esc(e.startDate||'')} ${e.endDate ? '~ '+esc(e.endDate) : ''}</td>
+        <td>${e.sortOrder}</td>
+        <td><div class="td-actions">
+          <button class="btn btn-edit btn-sm" onclick="openEduModal(${e.id})">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteEdu(${e.id},'${esc(e.degree)}')">삭제</button>
+        </div></td>
+      </tr>`).join('');
+  } catch { toast('학력 목록을 불러오지 못했습니다.', 'error'); }
+}
+
+function openEduModal(id = null) {
+  editingEduId = id;
+  document.getElementById('edu-modal-title').textContent = id ? '학력 수정' : '학력 추가';
+  if (!id) {
+    ['edu-institution','edu-degree','edu-major','edu-start','edu-end','edu-order'].forEach(i => document.getElementById(i).value = '');
+    document.getElementById('edu-modal').classList.add('open'); return;
+  }
+  fetch(`${API}/api/educations`).then(r => r.json()).then(list => {
+    const e = list.find(x => x.id === id);
+    if (!e) return;
+    document.getElementById('edu-institution').value = e.institution || '';
+    document.getElementById('edu-degree').value      = e.degree      || '';
+    document.getElementById('edu-major').value       = e.major       || '';
+    document.getElementById('edu-start').value       = e.startDate   || '';
+    document.getElementById('edu-end').value         = e.endDate     || '';
+    document.getElementById('edu-order').value       = e.sortOrder   ?? '';
+    document.getElementById('edu-modal').classList.add('open');
+  });
+}
+function closeEduModal() { document.getElementById('edu-modal').classList.remove('open'); }
+
+async function saveEdu() {
+  const institution = document.getElementById('edu-institution').value.trim();
+  const degree      = document.getElementById('edu-degree').value.trim();
+  const major       = document.getElementById('edu-major').value.trim();
+  if (!institution || !degree || !major) { toast('학교명, 학위, 전공은 필수입니다.', 'error'); return; }
+  const body = { institution, degree, major,
+    startDate: document.getElementById('edu-start').value.trim() || null,
+    endDate:   document.getElementById('edu-end').value.trim()   || null,
+    sortOrder: parseInt(document.getElementById('edu-order').value) || 0 };
+  const url = editingEduId ? `${API}/api/admin/educations/${editingEduId}` : `${API}/api/admin/educations`;
+  const method = editingEduId ? 'PUT' : 'POST';
+  try {
+    const res = await fetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
+    if (res.ok) { toast(editingEduId ? '수정되었습니다.' : '추가되었습니다.'); closeEduModal(); loadEducation(); }
+    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
+    else { const err = await res.json().catch(()=>({})); toast(err.message||'저장 실패', 'error'); }
+  } catch { toast('오류 발생', 'error'); }
+}
+
+async function deleteEdu(id, name) {
+  if (!confirm(`"${name}" 학력을 삭제할까요?`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/educations/${id}`, { method: 'DELETE', headers: authHeader() });
+    if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadEducation(); }
+    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
+    else toast('삭제 실패', 'error');
+  } catch { toast('오류 발생', 'error'); }
+}
+
+/* ─────────────────────────────────────────────
+   CERTIFICATION
+───────────────────────────────────────────── */
+let editingCertId = null;
+
+async function loadCertification() {
+  try {
+    const list = await fetch(`${API}/api/certifications`).then(r => r.json());
+    const tbody = document.getElementById('cert-tbody');
+    if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">등록된 자격증/수상이 없습니다.</td></tr>'; return; }
+    tbody.innerHTML = list.map(c => `
+      <tr>
+        <td><span class="badge ${c.type==='CERT'?'badge-unread':'badge-read'}">${c.type==='CERT'?'자격증':'수상'}</span></td>
+        <td><strong>${esc(c.name)}</strong></td>
+        <td style="color:var(--muted)">${esc(c.issuer||'-')}</td>
+        <td style="color:var(--muted);font-size:0.82rem">${esc(c.acquiredDate||'-')}</td>
+        <td>${c.sortOrder}</td>
+        <td><div class="td-actions">
+          <button class="btn btn-edit btn-sm" onclick="openCertModal(${c.id})">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteCert(${c.id},'${esc(c.name)}')">삭제</button>
+        </div></td>
+      </tr>`).join('');
+  } catch { toast('자격증 목록을 불러오지 못했습니다.', 'error'); }
+}
+
+function openCertModal(id = null) {
+  editingCertId = id;
+  document.getElementById('cert-modal-title').textContent = id ? '수정' : '자격증 / 수상 추가';
+  if (!id) {
+    document.getElementById('cert-type').value   = 'CERT';
+    document.getElementById('cert-name').value   = '';
+    document.getElementById('cert-issuer').value = '';
+    document.getElementById('cert-date').value   = '';
+    document.getElementById('cert-order').value  = '';
+    document.getElementById('cert-modal').classList.add('open'); return;
+  }
+  fetch(`${API}/api/certifications`).then(r => r.json()).then(list => {
+    const c = list.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('cert-type').value   = c.type         || 'CERT';
+    document.getElementById('cert-name').value   = c.name         || '';
+    document.getElementById('cert-issuer').value = c.issuer        || '';
+    document.getElementById('cert-date').value   = c.acquiredDate  || '';
+    document.getElementById('cert-order').value  = c.sortOrder     ?? '';
+    document.getElementById('cert-modal').classList.add('open');
+  });
+}
+function closeCertModal() { document.getElementById('cert-modal').classList.remove('open'); }
+
+async function saveCert() {
+  const name = document.getElementById('cert-name').value.trim();
+  if (!name) { toast('이름을 입력해주세요.', 'error'); return; }
+  const body = {
+    type:         document.getElementById('cert-type').value,
+    name,
+    issuer:       document.getElementById('cert-issuer').value.trim() || null,
+    acquiredDate: document.getElementById('cert-date').value.trim()   || null,
+    sortOrder:    parseInt(document.getElementById('cert-order').value) || 0,
+  };
+  const url    = editingCertId ? `${API}/api/admin/certifications/${editingCertId}` : `${API}/api/admin/certifications`;
+  const method = editingCertId ? 'PUT' : 'POST';
+  try {
+    const res = await fetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
+    if (res.ok) { toast(editingCertId ? '수정되었습니다.' : '추가되었습니다.'); closeCertModal(); loadCertification(); }
+    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
+    else { const err = await res.json().catch(()=>({})); toast(err.message||'저장 실패', 'error'); }
+  } catch { toast('오류 발생', 'error'); }
+}
+
+async function deleteCert(id, name) {
+  if (!confirm(`"${name}"을 삭제할까요?`)) return;
+  try {
+    const res = await fetch(`${API}/api/admin/certifications/${id}`, { method: 'DELETE', headers: authHeader() });
+    if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadCertification(); }
+    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
+    else toast('삭제 실패', 'error');
+  } catch { toast('오류 발생', 'error'); }
 }
 
 /* ─────────────────────────────────────────────
