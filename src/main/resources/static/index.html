@@ -754,9 +754,21 @@
     if (e.key === 'ArrowDown') { menuIdx = (menuIdx + 1) % menuItems.length; updateCursor(); sfx.step(); }
     if (e.key === 'ArrowUp')   { menuIdx = (menuIdx - 1 + menuItems.length) % menuItems.length; updateCursor(); sfx.step(); }
     if (e.key === ' ' || e.key === 'Enter') selectItem();
-    if (e.key === 'Escape') closeMenu();
+    if (e.key === 'Escape') { e.preventDefault(); closeMenu(); }
   });
   window.addEventListener('openPCMenu', openMenu);
+
+  // ESC 키: 카드/페이지 닫기 + fullscreen 해제 방지
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    e.preventDefault(); // fullscreen 해제 차단
+    if (document.getElementById('card-overlay').classList.contains('visible')) { closeCard(); return; }
+    if (document.getElementById('page-overlay').classList.contains('visible')) { closePage(); return; }
+    // 아무것도 열려있지 않으면 fullscreen 재진입 시도
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }, true); // capture phase로 브라우저 기본 동작보다 먼저 처리
 
   /* ═══════════════════════════════════════════════════
      PAGE OVERLAY
@@ -795,13 +807,6 @@
     document.querySelector('.page-content').scrollTop = 0;
   }
 
-  // ESC 키로 카드/페이지 닫기
-  document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') {
-      if (document.getElementById('card-overlay').classList.contains('visible')) { closeCard(); return; }
-      if (document.getElementById('page-overlay').classList.contains('visible')) { closePage(); return; }
-    }
-  });
 
   /* ── Card Overlay ── */
   let _githubUrl = 'https://github.com/YOUR_GITHUB_ID';
