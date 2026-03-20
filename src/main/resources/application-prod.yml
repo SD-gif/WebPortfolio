@@ -1,0 +1,56 @@
+spring:
+  # ── PostgreSQL (EC2 RDS or 로컬 Docker) ───────────────
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  # ── Redis ─────────────────────────────────────────────
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+
+  # ── 네이버 SMTP ───────────────────────────────────────
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+          auth: true
+
+# ── JWT ──────────────────────────────────────────────────
+jwt:
+  secret: ${JWT_SECRET}
+
+# ── CORS ─────────────────────────────────────────────────
+cors:
+  allowed-origins:
+    - ${FRONTEND_URL}
+
+# ── Rate Limiting ─────────────────────────────────────────
+rate-limit:
+  contact:
+    capacity: 3
+    refill-minutes: 1
+
+# ── Logging ──────────────────────────────────────────────
+logging:
+  level:
+    com.seodong.portfolio: INFO
