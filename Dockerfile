@@ -13,7 +13,8 @@ COPY src ./src
 RUN ./gradlew bootJar --no-daemon -x test
 
 # ── Stage 2: Runtime ─────────────────────────────────────────
-FROM --platform=linux/amd64 eclipse-temurin:17-jre-alpine
+ARG TARGETPLATFORM=linux/amd64
+FROM --platform=$TARGETPLATFORM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
