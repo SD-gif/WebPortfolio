@@ -41,6 +41,12 @@ public class SecurityConfig {
                         // 정적 리소스 (static/ 폴더 전체)
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
                         .requestMatchers("/", "/index.html", "/admin.html").permitAll()
+                        // Swagger UI
+                        .requestMatchers(
+                                "/swagger-ui/**", "/swagger-ui.html",
+                                "/v3/api-docs/**", "/v3/api-docs",
+                                "/webjars/**"
+                        ).permitAll()
                         // 공개 API
                         .requestMatchers(HttpMethod.GET,
                                 "/api/profile",
