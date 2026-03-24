@@ -111,7 +111,7 @@ class AdminControllerTest {
     }
 
     private ProjectRequest sampleProjectReq() {
-        return new ProjectRequest("프로젝트", "설명", "https://github.com",
+        return new ProjectRequest("프로젝트", "간략 소개", "설명", "https://github.com",
                 "https://demo.com", 1, List.of("Java"), List.of("기능1"));
     }
 
