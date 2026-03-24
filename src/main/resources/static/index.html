@@ -746,7 +746,7 @@
 
         content.innerHTML = `
           <div class="modal-title">${title || ''}</div>
-          <p class="modal-desc">${description || ''}</p>
+          <p class="modal-desc">${(description || '').replace(/\n/g, '<br>')}</p>
           ${tagsHtml}
           ${featuresHtml}
           ${linksHtml}
