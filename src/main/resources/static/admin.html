@@ -498,6 +498,10 @@
       <input id="proj-title" type="text" placeholder="프로젝트명" />
     </div>
     <div class="form-group">
+      <label>간략 소개 (카드 표시용, 최대 200자)</label>
+      <input id="proj-summary" type="text" maxlength="200" placeholder="프로젝트 한 줄 소개" />
+    </div>
+    <div class="form-group">
       <label>설명 *</label>
       <textarea id="proj-desc" rows="3" placeholder="프로젝트 설명"></textarea>
     </div>
@@ -753,9 +757,10 @@ async function editProject(id) {
     const p = await res.json();
     editingProjectId = id;
     document.getElementById('project-modal-title').textContent = '프로젝트 수정';
-    document.getElementById('proj-title').value  = p.title || '';
-    document.getElementById('proj-desc').value   = p.description || '';
-    document.getElementById('proj-github').value = p.githubUrl || '';
+    document.getElementById('proj-title').value   = p.title || '';
+    document.getElementById('proj-summary').value = p.summary || '';
+    document.getElementById('proj-desc').value    = p.description || '';
+    document.getElementById('proj-github').value  = p.githubUrl || '';
     document.getElementById('proj-demo').value   = p.demoUrl || '';
     document.getElementById('proj-order').value  = p.sortOrder ?? '';
     techTags = [...(p.techStack || [])];
@@ -794,6 +799,7 @@ async function saveProject() {
 
   const body = {
     title,
+    summary:     document.getElementById('proj-summary').value.trim() || null,
     description: desc,
     githubUrl:   document.getElementById('proj-github').value.trim() || null,
     demoUrl:     document.getElementById('proj-demo').value.trim() || null,
@@ -826,9 +832,10 @@ function openProjectModal() {
   editingProjectId = null;
   techTags = []; featTags = [];
   document.getElementById('project-modal-title').textContent = '새 프로젝트';
-  document.getElementById('proj-title').value  = '';
-  document.getElementById('proj-desc').value   = '';
-  document.getElementById('proj-github').value = '';
+  document.getElementById('proj-title').value   = '';
+  document.getElementById('proj-summary').value = '';
+  document.getElementById('proj-desc').value    = '';
+  document.getElementById('proj-github').value  = '';
   document.getElementById('proj-demo').value   = '';
   document.getElementById('proj-order').value  = '';
   renderTagChips('tech');
