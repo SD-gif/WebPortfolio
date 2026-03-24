@@ -107,10 +107,8 @@
     }
     .hero-inner {
       position: relative; max-width: 900px; width: 100%;
-      display: grid; grid-template-columns: 1fr auto;
-      align-items: center; gap: 3rem;
+      display: flex; flex-direction: column; gap: 2.5rem;
     }
-    @media (max-width: 760px) { .hero-inner { grid-template-columns: 1fr; } }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 0.5rem;
       background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25);
@@ -156,14 +154,12 @@
     }
     .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
     .hero-stats {
-      display: flex; flex-direction: column; gap: 1rem;
-      flex-shrink: 0;
+      display: flex; flex-direction: row; gap: 1.2rem; flex-wrap: wrap;
     }
-    @media (max-width: 760px) { .hero-stats { flex-direction: row; flex-wrap: wrap; } }
     .hero-stat {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 1rem; padding: 1.2rem 1.6rem; text-align: center;
-      min-width: 120px;
+      border-radius: 1rem; padding: 1.2rem 2rem; text-align: center;
+      flex: 1; min-width: 130px;
     }
     .hero-stat-val {
       font-size: 2rem; font-weight: 800;
@@ -200,36 +196,88 @@
     /* ── Projects ── */
     #projects { background: rgba(99,102,241,0.02); }
     .projects-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
       gap: 1.4rem;
     }
     .proj-card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 1.1rem; padding: 1.8rem;
       transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-      display: flex; flex-direction: column; gap: 1rem;
+      display: flex; flex-direction: column; gap: 0.8rem;
+      cursor: pointer;
     }
     .proj-card:hover {
       transform: translateY(-4px);
-      border-color: rgba(99,102,241,0.45);
-      box-shadow: 0 10px 40px rgba(79,70,229,0.14);
+      border-color: rgba(99,102,241,0.5);
+      box-shadow: 0 10px 40px rgba(79,70,229,0.16);
     }
-    .proj-card-top { display: flex; justify-content: space-between; align-items: flex-start; }
+    .proj-card:hover .proj-more { color: var(--accent); }
     .proj-title { font-size: 1.05rem; font-weight: 700; color: var(--text); }
-    .proj-links { display: flex; gap: 0.6rem; }
-    .proj-links a {
-      color: var(--muted); font-size: 0.82rem; font-weight: 600;
-      text-decoration: none; transition: color 0.2s;
-    }
-    .proj-links a:hover { color: var(--accent); }
     .proj-desc { color: #94a3b8; font-size: 0.88rem; line-height: 1.7; flex: 1; }
-    .proj-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .proj-more {
+      font-size: 0.82rem; font-weight: 600; color: var(--muted);
+      margin-top: 0.4rem; transition: color 0.2s;
+    }
     .proj-tag {
       background: rgba(99,102,241,0.1); color: #a5b4fc;
       padding: 0.2rem 0.65rem; border-radius: 2rem;
       font-size: 0.74rem; border: 1px solid rgba(99,102,241,0.2);
     }
     #projects-loading { text-align: center; color: var(--muted); padding: 3rem; font-size: 0.9rem; }
+
+    /* ── Project Modal ── */
+    .proj-modal-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 500;
+      background: rgba(0,0,0,0.72); backdrop-filter: blur(6px);
+      align-items: center; justify-content: center; padding: 1.5rem;
+    }
+    .proj-modal-backdrop.open { display: flex; }
+    .proj-modal-box {
+      background: var(--surface); border: 1px solid rgba(99,102,241,0.3);
+      border-radius: 1.4rem; padding: 2.5rem 2.8rem;
+      max-width: 700px; width: 100%; max-height: 88vh;
+      overflow-y: auto; position: relative;
+      animation: modalIn 0.25s cubic-bezier(0.34,1.2,0.64,1);
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: none; }
+    }
+    .proj-modal-close {
+      position: absolute; top: 1.3rem; right: 1.3rem;
+      background: none; border: 1px solid var(--border);
+      color: var(--muted); width: 34px; height: 34px;
+      border-radius: 50%; cursor: pointer; font-size: 0.9rem;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s, border-color 0.2s;
+    }
+    .proj-modal-close:hover { color: var(--text); border-color: var(--accent); }
+    .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.02em; }
+    .modal-desc { color: #94a3b8; font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.5rem; }
+    .modal-section-label {
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--cyan); margin-bottom: 0.7rem;
+    }
+    .modal-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.5rem; }
+    .modal-tag {
+      background: rgba(99,102,241,0.12); color: #a5b4fc;
+      padding: 0.28rem 0.75rem; border-radius: 2rem;
+      font-size: 0.8rem; border: 1px solid rgba(99,102,241,0.25);
+    }
+    .modal-features { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.8rem; }
+    .modal-features li { display: flex; gap: 0.6rem; font-size: 0.9rem; color: #94a3b8; line-height: 1.6; }
+    .modal-features li::before { content: '▸'; color: var(--accent); flex-shrink: 0; margin-top: 0.05rem; }
+    .modal-links { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+    .modal-link-btn {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      padding: 0.6rem 1.3rem; border-radius: 0.6rem;
+      font-size: 0.88rem; font-weight: 600; text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .modal-link-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .modal-link-github { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid rgba(255,255,255,0.15); }
+    .modal-link-demo   { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; }
+    .modal-loading { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.9rem; }
 
     /* ── Skills ── */
     .skills-grid {
@@ -414,6 +462,14 @@
         </div>
       </div>
     </div>
+
+  <!-- ── Project Detail Modal ── -->
+  <div id="proj-modal" class="proj-modal-backdrop" onclick="handleModalBackdropClick(event)">
+    <div class="proj-modal-box">
+      <button class="proj-modal-close" onclick="closeProjectModal()" aria-label="닫기">✕</button>
+      <div id="proj-modal-content"><div class="modal-loading">불러오는 중...</div></div>
+    </div>
+  </div>
     <div class="scroll-hint">SCROLL</div>
   </section>
 
@@ -641,23 +697,19 @@
       }
 
       grid.innerHTML = '';
-      content.forEach(({ title, description, githubUrl, demoUrl, techStack = [] }) => {
-        const links = [
-          githubUrl ? `<a href="${githubUrl}" target="_blank" rel="noopener">GitHub →</a>` : '',
-          demoUrl   ? `<a href="${demoUrl}"   target="_blank" rel="noopener">Live →</a>`   : '',
-        ].join('');
-        const tags = techStack.map(t => `<span class="proj-tag">${t}</span>`).join('');
+      content.forEach(({ id, title, description }) => {
+        const shortDesc = description && description.length > 80
+          ? description.slice(0, 80) + '…'
+          : (description || '');
 
         const card = document.createElement('div');
         card.className = 'proj-card fade-in';
         card.innerHTML = `
-          <div class="proj-card-top">
-            <span class="proj-title">${title || ''}</span>
-            <div class="proj-links">${links}</div>
-          </div>
-          <p class="proj-desc">${description || ''}</p>
-          <div class="proj-tags">${tags}</div>
+          <div class="proj-title">${title || ''}</div>
+          <p class="proj-desc">${shortDesc}</p>
+          <div class="proj-more">자세히 보기 →</div>
         `;
+        card.addEventListener('click', () => openProjectModal(id));
         grid.appendChild(card);
         observer.observe(card);
       });
@@ -665,6 +717,58 @@
       grid.innerHTML = '<p style="color:var(--muted)">프로젝트를 불러오지 못했습니다.</p>';
     }
   }
+
+  /* ── Project Modal ── */
+  function openProjectModal(id) {
+    const modal = document.getElementById('proj-modal');
+    const content = document.getElementById('proj-modal-content');
+    content.innerHTML = '<div class="modal-loading">불러오는 중...</div>';
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    fetch(API_BASE + '/api/projects/' + id)
+      .then(r => { if (!r.ok) throw new Error(); return r.json(); })
+      .then(({ title, description, techStack = [], features = [], githubUrl, demoUrl }) => {
+        const tagsHtml = techStack.length
+          ? `<div class="modal-section-label">Tech Stack</div>
+             <div class="modal-tags">${techStack.map(t => `<span class="modal-tag">${t}</span>`).join('')}</div>`
+          : '';
+        const featuresHtml = features.length
+          ? `<div class="modal-section-label">주요 기능</div>
+             <ul class="modal-features">${features.map(f => `<li>${f}</li>`).join('')}</ul>`
+          : '';
+        const linksHtml = (githubUrl || demoUrl)
+          ? `<div class="modal-links">
+               ${githubUrl ? `<a class="modal-link-btn modal-link-github" href="${githubUrl}" target="_blank" rel="noopener">🔗 GitHub</a>` : ''}
+               ${demoUrl   ? `<a class="modal-link-btn modal-link-demo"   href="${demoUrl}"   target="_blank" rel="noopener">▶ Live Demo</a>` : ''}
+             </div>`
+          : '';
+
+        content.innerHTML = `
+          <div class="modal-title">${title || ''}</div>
+          <p class="modal-desc">${description || ''}</p>
+          ${tagsHtml}
+          ${featuresHtml}
+          ${linksHtml}
+        `;
+      })
+      .catch(() => {
+        content.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">불러오기 실패</p>';
+      });
+  }
+
+  function closeProjectModal() {
+    document.getElementById('proj-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleModalBackdropClick(e) {
+    if (e.target === document.getElementById('proj-modal')) closeProjectModal();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeProjectModal();
+  });
 
   /* ── Skills ── */
   async function fetchSkills() {
