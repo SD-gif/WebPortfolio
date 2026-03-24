@@ -25,7 +25,7 @@ class AdminProjectServiceTest {
     @InjectMocks AdminProjectService adminProjectService;
 
     private ProjectRequest sampleRequest() {
-        return new ProjectRequest("포트폴리오", "설명", "https://github.com/test", null, 1,
+        return new ProjectRequest("포트폴리오", "간략 소개", "설명", "https://github.com/test", null, 1,
                 List.of("Java", "Spring"), List.of("기능1"));
     }
 
@@ -35,7 +35,7 @@ class AdminProjectServiceTest {
         // given
         ProjectRequest req = sampleRequest();
         Project saved = Project.builder()
-                .title(req.title()).description(req.description())
+                .title(req.title()).summary(req.summary()).description(req.description())
                 .githubUrl(req.githubUrl()).sortOrder(req.sortOrder())
                 .build();
         given(projectRepository.save(any())).willReturn(saved);
@@ -53,11 +53,11 @@ class AdminProjectServiceTest {
     void update_existingProject_returnsUpdated() {
         // given
         Project existing = Project.builder()
-                .title("기존 제목").description("기존 설명").sortOrder(1).build();
+                .title("기존 제목").summary("기존 소개").description("기존 설명").sortOrder(1).build();
         given(projectRepository.findById(1L)).willReturn(Optional.of(existing));
         given(projectRepository.save(any())).willReturn(existing);
 
-        ProjectRequest req = new ProjectRequest("변경 제목", "변경 설명", null, null, 2,
+        ProjectRequest req = new ProjectRequest("변경 제목", "변경 소개", "변경 설명", null, null, 2,
                 List.of("Kotlin"), List.of("기능A"));
 
         // when

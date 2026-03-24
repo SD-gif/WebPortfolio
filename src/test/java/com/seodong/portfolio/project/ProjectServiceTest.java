@@ -29,6 +29,7 @@ class ProjectServiceTest {
     private Project sampleProject() {
         return Project.builder()
                 .title("테스트 프로젝트")
+                .summary("간략 소개")
                 .description("설명")
                 .githubUrl("https://github.com/test")
                 .demoUrl("https://demo.test.com")

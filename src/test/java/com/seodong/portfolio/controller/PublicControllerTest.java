@@ -102,7 +102,7 @@ class PublicControllerTest {
     @DisplayName("GET /api/projects - 프로젝트 목록 조회 200 반환")
     void getProjects_returns200() throws Exception {
         ProjectSummaryResponse summary = new ProjectSummaryResponse(1L, "프로젝트",
-                "설명", List.of("Java"), "https://github.com", "https://demo.com",
+                "간략 소개", List.of("Java"), "https://github.com", "https://demo.com",
                 LocalDate.of(2024, 1, 1));
         PageResponse<ProjectSummaryResponse> page = new PageResponse<>(
                 List.of(summary), 1L, 1, 0);
@@ -111,6 +111,7 @@ class PublicControllerTest {
         mockMvc.perform(get("/api/projects"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].title").value("프로젝트"))
+                .andExpect(jsonPath("$.content[0].summary").value("간략 소개"))
                 .andExpect(jsonPath("$.totalElements").value(1));
     }
 
