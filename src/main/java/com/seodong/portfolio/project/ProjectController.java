@@ -6,8 +6,10 @@ import com.seodong.portfolio.project.dto.ProjectSummaryResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "프로젝트")
 @RestController
 @RequestMapping("/api/projects")
 @RequiredArgsConstructor

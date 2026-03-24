@@ -3,10 +3,12 @@ package com.seodong.portfolio.profile;
 import com.seodong.portfolio.profile.dto.ProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "프로필")
 @RestController
 @RequestMapping("/api/profile")
 @RequiredArgsConstructor
