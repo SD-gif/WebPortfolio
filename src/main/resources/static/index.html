@@ -106,9 +106,11 @@
       mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
     }
     .hero-inner {
-      position: relative; max-width: 900px; width: 100%;
-      display: flex; flex-direction: column; gap: 2.5rem;
+      position: relative; max-width: 960px; width: 100%;
+      display: grid; grid-template-columns: 1fr auto;
+      align-items: center; gap: 3rem;
     }
+    @media (max-width: 800px) { .hero-inner { grid-template-columns: 1fr; } }
     .hero-badge {
       display: inline-flex; align-items: center; gap: 0.5rem;
       background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25);
@@ -154,19 +156,20 @@
     }
     .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
     .hero-stats {
-      display: flex; flex-direction: row; gap: 1.2rem; flex-wrap: wrap;
+      display: flex; flex-direction: row; gap: 0.75rem; flex-wrap: wrap;
+      align-self: center;
     }
     .hero-stat {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 1rem; padding: 1.2rem 2rem; text-align: center;
-      flex: 1; min-width: 130px;
+      border-radius: 0.9rem; padding: 0.9rem 1.1rem; text-align: center;
+      min-width: 90px;
     }
     .hero-stat-val {
-      font-size: 2rem; font-weight: 800;
+      font-size: 1.5rem; font-weight: 800;
       background: linear-gradient(90deg, var(--accent), var(--cyan));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .hero-stat-lbl { font-size: 0.78rem; color: var(--muted); margin-top: 0.25rem; }
+    .hero-stat-lbl { font-size: 0.7rem; color: var(--muted); margin-top: 0.2rem; }
     .scroll-hint {
       position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
       display: flex; flex-direction: column; align-items: center; gap: 0.4rem;
@@ -697,16 +700,12 @@
       }
 
       grid.innerHTML = '';
-      content.forEach(({ id, title, description }) => {
-        const shortDesc = description && description.length > 80
-          ? description.slice(0, 80) + '…'
-          : (description || '');
-
+      content.forEach(({ id, title, summary }) => {
         const card = document.createElement('div');
         card.className = 'proj-card fade-in';
         card.innerHTML = `
           <div class="proj-title">${title || ''}</div>
-          <p class="proj-desc">${shortDesc}</p>
+          <p class="proj-desc">${summary || ''}</p>
           <div class="proj-more">자세히 보기 →</div>
         `;
         card.addEventListener('click', () => openProjectModal(id));

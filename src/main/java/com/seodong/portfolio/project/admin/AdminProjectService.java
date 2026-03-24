@@ -23,6 +23,7 @@ public class AdminProjectService {
     public ProjectDetailResponse create(ProjectRequest req) {
         Project project = Project.builder()
                 .title(req.title())
+                .summary(req.summary())
                 .description(req.description())
                 .githubUrl(req.githubUrl())
                 .demoUrl(req.demoUrl())
@@ -40,7 +41,7 @@ public class AdminProjectService {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 프로젝트를 찾을 수 없습니다."));
 
-        project.update(req.title(), req.description(), req.githubUrl(), req.demoUrl(), req.sortOrder());
+        project.update(req.title(), req.summary(), req.description(), req.githubUrl(), req.demoUrl(), req.sortOrder());
 
         project.getTechStacks().clear();
         addTechStacks(project, req.techStack());
