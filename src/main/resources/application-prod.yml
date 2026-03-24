@@ -1,3 +1,6 @@
+server:
+  forward-headers-strategy: native
+
 spring:
   # ── PostgreSQL (EC2 RDS or 로컬 Docker) ───────────────
   datasource:
@@ -42,7 +45,8 @@ jwt:
 # ── CORS ─────────────────────────────────────────────────
 cors:
   allowed-origins:
-    - ${FRONTEND_URL}
+    - https://seodong.me
+    - https://www.seodong.me
 
 # ── Rate Limiting ─────────────────────────────────────────
 rate-limit:
