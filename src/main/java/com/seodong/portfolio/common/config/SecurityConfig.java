@@ -57,7 +57,8 @@ public class SecurityConfig {
                                 "/api/certifications").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/contact",
-                                "/api/admin/login").permitAll()
+                                "/api/admin/login",
+                                "/api/admin/logout").permitAll()
                         // 관리자 API — JWT 필요
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

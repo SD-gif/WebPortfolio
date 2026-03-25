@@ -2,6 +2,7 @@ package com.seodong.portfolio.common.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 @RequiredArgsConstructor
@@ -44,8 +46,22 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    /** Authorization: Bearer {token} 에서 토큰 추출 */
+    /** 쿠키(admin_token) 또는 Authorization 헤더에서 토큰 추출 */
     private String resolveToken(HttpServletRequest request) {
+        // 1. HttpOnly 쿠키에서 먼저 확인
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            return Arrays.stream(cookies)
+                    .filter(c -> "admin_token".equals(c.getName()))
+                    .map(Cookie::getValue)
+                    .findFirst()
+                    .orElse(resolveFromHeader(request));
+        }
+        // 2. fallback: Authorization 헤더
+        return resolveFromHeader(request);
+    }
+
+    private String resolveFromHeader(HttpServletRequest request) {
         String bearer = request.getHeader("Authorization");
         if (StringUtils.hasText(bearer) && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);

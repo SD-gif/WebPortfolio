@@ -1,7 +1,6 @@
 package com.seodong.portfolio.admin;
 
 import com.seodong.portfolio.admin.dto.LoginRequest;
-import com.seodong.portfolio.admin.dto.LoginResponse;
 import com.seodong.portfolio.common.security.JwtProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,10 +15,10 @@ public class AdminAuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtProvider jwtProvider;
 
-    public LoginResponse login(LoginRequest req) {
+    public String login(LoginRequest req) {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.username(), req.password())
         );
-        return new LoginResponse(jwtProvider.generateToken(auth.getName()));
+        return jwtProvider.generateToken(auth.getName());
     }
 }
