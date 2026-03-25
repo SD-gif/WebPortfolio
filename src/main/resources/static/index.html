@@ -280,8 +280,9 @@
       background: var(--surface); border: 1px solid rgba(99,102,241,0.3);
       border-radius: 1.4rem; padding: 2.5rem 2.8rem;
       max-width: min(1100px, 92vw); width: 100%; max-height: 90vh;
-      overflow-y: auto; position: relative;
+      overflow: hidden; position: relative;
       animation: modalIn 0.25s cubic-bezier(0.34,1.2,0.64,1);
+      display: flex; flex-direction: column;
     }
     @keyframes modalIn { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: none; } }
     .proj-modal-close {
@@ -293,14 +294,22 @@
       transition: color 0.2s, border-color 0.2s;
     }
     .proj-modal-close:hover { color: var(--text); border-color: var(--accent); }
-    .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -0.02em; }
+    .modal-header { flex-shrink: 0; margin-bottom: 1.5rem; }
+    .modal-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.02em; }
     /* 2단 레이아웃 */
     .modal-body {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+      flex: 1; overflow: hidden; min-height: 0;
     }
-    @media (max-width: 640px) { .modal-body { grid-template-columns: 1fr; } }
-    .modal-left {}
-    .modal-right {}
+    @media (max-width: 640px) { .modal-body { grid-template-columns: 1fr; overflow-y: auto; } }
+    .modal-left {
+      position: sticky; top: 0; align-self: start;
+    }
+    .modal-right {
+      overflow-y: auto; max-height: 100%; padding-right: 0.25rem;
+    }
+    .modal-right::-webkit-scrollbar { width: 4px; }
+    .modal-right::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 2px; }
     .modal-divider { border: none; border-top: 1px solid var(--border); margin: 1.2rem 0; }
     .modal-desc { color: #cbd5e1; font-size: 0.97rem; line-height: 1.85; margin-bottom: 1.2rem; }
     /* ── Media Slideshow ── */
@@ -930,7 +939,7 @@
            ${demoUrl   ? `<a class="modal-link-btn modal-link-demo" href="${demoUrl}" target="_blank" rel="noopener">▶ Live Demo</a>` : ''}
          </div>` : '';
     content.innerHTML = `
-      <div class="modal-title">${title || ''}</div>
+      <div class="modal-header"><div class="modal-title">${title || ''}</div></div>
       <div class="modal-body">
         <div class="modal-left">
           ${mediaHtml || '<div style="height:1px"></div>'}
