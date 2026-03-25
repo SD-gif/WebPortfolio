@@ -535,6 +535,16 @@
       </div>
       <span class="tag-hint">Enter 또는 쉼표로 태그 추가</span>
     </div>
+    <div id="proj-media-section" style="display:none;">
+      <div class="form-group">
+        <label>미디어 (이미지 / 동영상)</label>
+        <div id="proj-media-list" style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:0.6rem;"></div>
+        <label class="btn btn-outline btn-sm" style="cursor:pointer;display:inline-block;">
+          + 파일 추가
+          <input type="file" id="proj-media-input" accept="image/*,video/*" multiple style="display:none;" onchange="uploadMedia(event)" />
+        </label>
+      </div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-outline btn-sm" onclick="closeProjectModal()">취소</button>
       <button class="btn btn-primary btn-sm" onclick="saveProject()">저장</button>
@@ -767,6 +777,8 @@ async function editProject(id) {
     featTags = [...(p.features || [])];
     renderTagChips('tech');
     renderTagChips('feat');
+    document.getElementById('proj-media-section').style.display = 'block';
+    renderMediaList(p.media || []);
     document.getElementById('project-modal').classList.add('open');
   } catch {
     toast('프로젝트 정보를 불러오지 못했습니다.', 'error');
@@ -840,6 +852,8 @@ function openProjectModal() {
   document.getElementById('proj-order').value  = '';
   renderTagChips('tech');
   renderTagChips('feat');
+  document.getElementById('proj-media-section').style.display = 'none';
+  document.getElementById('proj-media-list').innerHTML = '';
   document.getElementById('project-modal').classList.add('open');
 }
 
@@ -1000,6 +1014,73 @@ async function loadSkills() {
         </div>
       </div>`).join('');
   } catch { toast('스킬 목록을 불러오지 못했습니다.', 'error'); }
+}
+
+/* ── Media ── */
+function renderMediaList(mediaItems) {
+  const container = document.getElementById('proj-media-list');
+  container.innerHTML = mediaItems.map(m => `
+    <div style="position:relative;width:120px;">
+      ${m.mediaType === 'VIDEO'
+        ? `<video src="${m.url}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;background:#0f172a;" preload="metadata"></video>`
+        : `<img src="${m.url}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;" />`
+      }
+      <button onclick="deleteMedia(${m.id}, this.parentElement)"
+        style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;line-height:1;">✕</button>
+    </div>
+  `).join('');
+}
+
+async function uploadMedia(event) {
+  if (!editingProjectId) return;
+  const files = Array.from(event.target.files);
+  for (const file of files) {
+    const formData = new FormData();
+    formData.append('file', file);
+    try {
+      const res = await fetch(`${API}/api/admin/projects/${editingProjectId}/media`, {
+        method: 'POST', headers: authHeaderMultipart(), body: formData
+      });
+      if (res.ok) {
+        const media = await res.json();
+        const container = document.getElementById('proj-media-list');
+        const div = document.createElement('div');
+        div.style.cssText = 'position:relative;width:120px;';
+        div.innerHTML = media.mediaType === 'VIDEO'
+          ? `<video src="${media.url}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;background:#0f172a;" preload="metadata"></video>`
+          : `<img src="${media.url}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;" />`;
+        const btn = document.createElement('button');
+        btn.textContent = '✕';
+        btn.style.cssText = 'position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;line-height:1;';
+        btn.onclick = () => deleteMedia(media.id, div);
+        div.appendChild(btn);
+        container.appendChild(div);
+        toast('업로드 완료');
+      } else {
+        toast('업로드 실패', 'error');
+      }
+    } catch {
+      toast('업로드 중 오류 발생', 'error');
+    }
+  }
+  event.target.value = '';
+}
+
+async function deleteMedia(id, el) {
+  if (!confirm('미디어를 삭제할까요?')) return;
+  try {
+    const res = await fetch(`${API}/api/admin/media/${id}`, {
+      method: 'DELETE', headers: authHeader()
+    });
+    if (res.ok) { el.remove(); toast('삭제되었습니다.'); }
+    else toast('삭제 실패', 'error');
+  } catch {
+    toast('요청 중 오류 발생', 'error');
+  }
+}
+
+function authHeaderMultipart() {
+  return { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') };
 }
 
 function openCategoryModal(id = null, name = '', sortOrder = 0) {

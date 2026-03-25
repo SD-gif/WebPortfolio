@@ -257,6 +257,9 @@
     .proj-modal-close:hover { color: var(--text); border-color: var(--accent); }
     .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.02em; }
     .modal-desc { color: #94a3b8; font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.5rem; }
+    .modal-media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
+    .modal-media-item { width: 100%; border-radius: 8px; object-fit: cover; max-height: 300px; background: #0f172a; cursor: pointer; }
+    .modal-media-item:hover { opacity: 0.9; }
     .modal-section-label {
       font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
       text-transform: uppercase; color: var(--cyan); margin-bottom: 0.7rem;
@@ -727,7 +730,16 @@
 
     fetch(API_BASE + '/api/projects/' + id)
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(({ title, description, techStack = [], features = [], githubUrl, demoUrl }) => {
+      .then(({ title, description, techStack = [], features = [], githubUrl, demoUrl, media = [] }) => {
+        const mediaHtml = media.length
+          ? `<div class="modal-section-label">미디어</div>
+             <div class="modal-media-grid">
+               ${media.map(m => m.mediaType === 'VIDEO'
+                 ? `<video class="modal-media-item" controls preload="metadata"><source src="${m.url}"></video>`
+                 : `<img class="modal-media-item" src="${m.url}" alt="프로젝트 이미지" loading="lazy">`
+               ).join('')}
+             </div>`
+          : '';
         const tagsHtml = techStack.length
           ? `<div class="modal-section-label">Tech Stack</div>
              <div class="modal-tags">${techStack.map(t => `<span class="modal-tag">${t}</span>`).join('')}</div>`
@@ -745,6 +757,7 @@
 
         content.innerHTML = `
           <div class="modal-title">${title || ''}</div>
+          ${mediaHtml}
           <p class="modal-desc">${(description || '').replace(/\n/g, '<br>')}</p>
           ${tagsHtml}
           ${featuresHtml}

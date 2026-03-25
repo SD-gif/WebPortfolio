@@ -2,6 +2,12 @@ server:
   forward-headers-strategy: native
 
 spring:
+  # ── Multipart (파일 업로드) ────────────────────────────
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
   # ── PostgreSQL (EC2 RDS or 로컬 Docker) ───────────────
   datasource:
     url: ${DB_URL}
@@ -37,6 +43,14 @@ spring:
           ssl:
             enable: true
           auth: true
+
+# ── AWS S3 ───────────────────────────────────────────────
+aws:
+  s3:
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    region: ap-southeast-2
+    bucket: web-portfolio-s3-421856467388-ap-southeast-2-an
 
 # ── JWT ──────────────────────────────────────────────────
 jwt:
