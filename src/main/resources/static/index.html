@@ -295,9 +295,36 @@
     .proj-modal-close:hover { color: var(--text); border-color: var(--accent); }
     .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.02em; }
     .modal-desc { color: #94a3b8; font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.5rem; }
-    .modal-media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
-    .modal-media-item { width: 100%; border-radius: 8px; object-fit: cover; max-height: 300px; background: #0f172a; cursor: pointer; transition: opacity 0.2s; }
-    .modal-media-item:hover { opacity: 0.88; }
+    /* ── Media Slideshow ── */
+    .modal-slideshow { position: relative; margin-bottom: 1.5rem; border-radius: 10px; overflow: hidden; background: #0a0a1a; }
+    .modal-slide { display: none; }
+    .modal-slide.active { display: block; }
+    .modal-slide img { width: 100%; max-height: 400px; object-fit: contain; cursor: pointer; display: block; }
+    .modal-slide video { width: 100%; max-height: 400px; display: block; }
+    .slideshow-controls {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 100%; display: flex; justify-content: space-between; pointer-events: none; padding: 0 0.5rem;
+    }
+    .slideshow-btn {
+      pointer-events: all; background: rgba(0,0,0,0.5); border: none; color: #fff;
+      width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s;
+    }
+    .slideshow-btn:hover { background: rgba(79,70,229,0.7); }
+    .slideshow-counter {
+      position: absolute; bottom: 0.6rem; right: 0.75rem;
+      font-size: 0.72rem; color: rgba(255,255,255,0.7);
+      background: rgba(0,0,0,0.4); padding: 0.15rem 0.5rem; border-radius: 1rem;
+    }
+    .slideshow-dots {
+      display: flex; justify-content: center; gap: 0.4rem; padding: 0.6rem 0 0;
+    }
+    .slideshow-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: var(--border); cursor: pointer;
+      transition: background 0.2s, width 0.2s; border: none;
+    }
+    .slideshow-dot.active { background: var(--accent); width: 20px; border-radius: 4px; }
     .modal-section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); margin-bottom: 0.7rem; }
     .modal-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.5rem; }
     .modal-tag { background: rgba(99,102,241,0.12); color: #a5b4fc; padding: 0.28rem 0.75rem; border-radius: 2rem; font-size: 0.8rem; border: 1px solid rgba(99,102,241,0.25); }
@@ -861,12 +888,23 @@
   function renderModal(content, { title, description, techStack = [], features = [], githubUrl, demoUrl, media = [] }) {
     const mediaHtml = media.length
       ? `<div class="modal-section-label">미디어</div>
-         <div class="modal-media-grid">
-           ${media.map(m => m.mediaType === 'VIDEO'
-             ? `<video class="modal-media-item" controls preload="metadata"><source src="${m.url}"></video>`
-             : `<img class="modal-media-item" src="${m.url}" alt="프로젝트 이미지" loading="lazy" onclick="openLightbox('${m.url}')">`
-           ).join('')}
-         </div>` : '';
+         <div class="modal-slideshow" id="modal-slideshow">
+           ${media.map((m, i) => `
+             <div class="modal-slide${i === 0 ? ' active' : ''}">
+               ${m.mediaType === 'VIDEO'
+                 ? `<video controls preload="metadata"><source src="${m.url}"></video>`
+                 : `<img src="${m.url}" alt="프로젝트 이미지" loading="lazy" onclick="openLightbox('${m.url}')">`}
+             </div>`).join('')}
+           ${media.length > 1 ? `
+           <div class="slideshow-controls">
+             <button class="slideshow-btn" onclick="slideshowMove(-1)">&#8249;</button>
+             <button class="slideshow-btn" onclick="slideshowMove(1)">&#8250;</button>
+           </div>
+           <div class="slideshow-counter" id="slideshow-counter">1 / ${media.length}</div>` : ''}
+         </div>
+         ${media.length > 1 ? `<div class="slideshow-dots" id="slideshow-dots">
+           ${media.map((_, i) => `<button class="slideshow-dot${i === 0 ? ' active' : ''}" onclick="slideshowGo(${i})"></button>`).join('')}
+         </div>` : ''}` : '';
     const tagsHtml = techStack.length
       ? `<div class="modal-section-label">Tech Stack</div>
          <div class="modal-tags">${techStack.map(t => `<span class="modal-tag">${t}</span>`).join('')}</div>` : '';
@@ -886,9 +924,26 @@
     `;
   }
 
+  /* ── Slideshow ── */
+  let slideshowIndex = 0;
+  function slideshowGo(idx) {
+    const slides = document.querySelectorAll('#modal-slideshow .modal-slide');
+    const dots   = document.querySelectorAll('#slideshow-dots .slideshow-dot');
+    if (!slides.length) return;
+    slides[slideshowIndex].classList.remove('active');
+    if (dots.length) dots[slideshowIndex].classList.remove('active');
+    slideshowIndex = (idx + slides.length) % slides.length;
+    slides[slideshowIndex].classList.add('active');
+    if (dots.length) dots[slideshowIndex].classList.add('active');
+    const counter = document.getElementById('slideshow-counter');
+    if (counter) counter.textContent = `${slideshowIndex + 1} / ${slides.length}`;
+  }
+  function slideshowMove(dir) { slideshowGo(slideshowIndex + dir); }
+
   function closeProjectModal() {
     document.getElementById('proj-modal').classList.remove('open');
     document.body.style.overflow = '';
+    slideshowIndex = 0;
   }
   function handleModalBackdropClick(e) {
     if (e.target === document.getElementById('proj-modal')) closeProjectModal();
