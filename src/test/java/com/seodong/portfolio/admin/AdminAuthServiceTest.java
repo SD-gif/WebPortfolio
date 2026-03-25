@@ -1,7 +1,6 @@
 package com.seodong.portfolio.admin;
 
 import com.seodong.portfolio.admin.dto.LoginRequest;
-import com.seodong.portfolio.admin.dto.LoginResponse;
 import com.seodong.portfolio.common.security.JwtProvider;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,10 +35,10 @@ class AdminAuthServiceTest {
         given(jwtProvider.generateToken("admin")).willReturn("mocked.jwt.token");
 
         // when
-        LoginResponse response = adminAuthService.login(req);
+        String token = adminAuthService.login(req);
 
         // then
-        assertThat(response.token()).isEqualTo("mocked.jwt.token");
+        assertThat(token).isEqualTo("mocked.jwt.token");
         then(authenticationManager).should().authenticate(
                 new UsernamePasswordAuthenticationToken("admin", "admin1234")
         );

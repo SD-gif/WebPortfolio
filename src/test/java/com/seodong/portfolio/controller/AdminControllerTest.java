@@ -6,7 +6,6 @@ import com.seodong.portfolio.admin.AdminAuthService;
 import com.seodong.portfolio.common.security.CustomUserDetailsService;
 import com.seodong.portfolio.common.security.JwtProvider;
 import com.seodong.portfolio.admin.dto.LoginRequest;
-import com.seodong.portfolio.admin.dto.LoginResponse;
 import com.seodong.portfolio.certification.admin.AdminCertificationController;
 import com.seodong.portfolio.certification.admin.AdminCertificationService;
 import com.seodong.portfolio.certification.dto.CertificationRequest;
@@ -72,15 +71,15 @@ class AdminControllerTest {
     // ── Auth ─────────────────────────────────────────────────
 
     @Test
-    @DisplayName("POST /api/admin/login - 로그인 성공 시 200과 토큰 반환")
+    @DisplayName("POST /api/admin/login - 로그인 성공 시 200과 쿠키 설정")
     void login_success_returns200() throws Exception {
-        given(adminAuthService.login(any())).willReturn(new LoginResponse("jwt.token.here"));
+        given(adminAuthService.login(any())).willReturn("jwt.token.here");
 
         mockMvc.perform(post("/api/admin/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new LoginRequest("admin", "pass"))))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value("jwt.token.here"));
+                .andExpect(jsonPath("$.success").value(true));
     }
 
     // ── Profile ──────────────────────────────────────────────

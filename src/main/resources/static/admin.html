@@ -637,7 +637,6 @@
 
 <script>
 const API = '';
-let token = sessionStorage.getItem('admin_token') || '';
 let editingProjectId = null;
 let techTags = [], featTags = [];
 
@@ -653,15 +652,13 @@ async function doLogin() {
   errEl.textContent = '';
 
   try {
-    const res = await fetch(API + '/api/admin/login', {
+    const res = await adminFetch(API + '/api/admin/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ username, password }),
     });
-    const data = await res.json();
     if (!res.ok) { errEl.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.'; return; }
-    token = data.token;
-    sessionStorage.setItem('admin_token', token);
     document.getElementById('topbar-user').textContent = username;
     showDashboard();
   } catch {
@@ -671,16 +668,19 @@ async function doLogin() {
   }
 }
 
-function doLogout() {
-  token = '';
-  sessionStorage.removeItem('admin_token');
+async function doLogout() {
+  await adminFetch(API + '/api/admin/logout', { method: 'POST', credentials: 'include' });
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('login-password').value = '';
 }
 
 function authHeader() {
-  return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+  return { 'Content-Type': 'application/json' };
+}
+
+function adminFetch(url, options = {}) {
+  return fetch(url, { ...options, credentials: 'include' });
 }
 
 async function showDashboard() {
@@ -788,7 +788,7 @@ async function editProject(id) {
 async function deleteProject(id, title) {
   if (!confirm(`"${title}" 프로젝트를 삭제할까요?`)) return;
   try {
-    const res = await fetch(`${API}/api/admin/projects/${id}`, {
+    const res = await adminFetch(`${API}/api/admin/projects/${id}`, {
       method: 'DELETE', headers: authHeader()
     });
     if (res.status === 204 || res.ok) {
@@ -870,7 +870,7 @@ async function loadContacts(page = 0) {
   contactsPage = page;
   const unreadOnly = document.getElementById('unread-only')?.checked ?? false;
   try {
-    const res  = await fetch(`${API}/api/admin/contacts?page=${page}&size=15&unreadOnly=${unreadOnly}`, {
+    const res  = await adminFetch(`${API}/api/admin/contacts?page=${page}&size=15&unreadOnly=${unreadOnly}`, {
       headers: authHeader()
     });
     if (res.status === 401) { toast('인증이 만료되었습니다.', 'error'); doLogout(); return; }
@@ -923,7 +923,7 @@ function toggleMsg(id) {
 
 async function markRead(id) {
   try {
-    const res = await fetch(`${API}/api/admin/contacts/${id}/read`, {
+    const res = await adminFetch(`${API}/api/admin/contacts/${id}/read`, {
       method: 'PATCH', headers: authHeader()
     });
     if (res.status === 401) { toast('인증이 만료되었습니다.', 'error'); doLogout(); return; }
@@ -969,7 +969,7 @@ async function saveProfile() {
     projectCount: parseInt(document.getElementById('pf-count').value) || 0,
   };
   try {
-    const res = await fetch(API + '/api/admin/profile', {
+    const res = await adminFetch(API + '/api/admin/profile', {
       method: 'PUT', headers: authHeader(), body: JSON.stringify(body)
     });
     if (res.status === 401) { toast('인증이 만료되었습니다.', 'error'); doLogout(); return; }
@@ -992,7 +992,7 @@ let targetCategoryId  = null;
 
 async function loadSkills() {
   try {
-    const data = await fetch(`${API}/api/admin/skills`, { headers: authHeader() }).then(r => r.json());
+    const data = await adminFetch(`${API}/api/admin/skills`, { headers: authHeader() }).then(r => r.json());
     const wrap = document.getElementById('skills-categories');
     if (!data.length) { wrap.innerHTML = '<p class="empty">등록된 카테고리가 없습니다.</p>'; return; }
     wrap.innerHTML = data.map(cat => `
@@ -1038,7 +1038,7 @@ async function uploadMedia(event) {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch(`${API}/api/admin/projects/${editingProjectId}/media`, {
+      const res = await adminFetch(`${API}/api/admin/projects/${editingProjectId}/media`, {
         method: 'POST', headers: authHeaderMultipart(), body: formData
       });
       if (res.ok) {
@@ -1069,7 +1069,7 @@ async function uploadMedia(event) {
 async function deleteMedia(id, el) {
   if (!confirm('미디어를 삭제할까요?')) return;
   try {
-    const res = await fetch(`${API}/api/admin/media/${id}`, {
+    const res = await adminFetch(`${API}/api/admin/media/${id}`, {
       method: 'DELETE', headers: authHeader()
     });
     if (res.ok) { el.remove(); toast('삭제되었습니다.'); }
@@ -1080,7 +1080,7 @@ async function deleteMedia(id, el) {
 }
 
 function authHeaderMultipart() {
-  return { 'Authorization': 'Bearer ' + localStorage.getItem('jwt') };
+  return {};
 }
 
 function openCategoryModal(id = null, name = '', sortOrder = 0) {
@@ -1109,7 +1109,7 @@ async function saveCategory() {
 async function deleteCategory(id, name) {
   if (!confirm(`"${name}" 카테고리(및 하위 스킬)를 삭제할까요?`)) return;
   try {
-    const res = await fetch(`${API}/api/admin/skills/categories/${id}`, { method: 'DELETE', headers: authHeader() });
+    const res = await adminFetch(`${API}/api/admin/skills/categories/${id}`, { method: 'DELETE', headers: authHeader() });
     if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadSkills(); }
     else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
     else toast('삭제 실패', 'error');
@@ -1129,7 +1129,7 @@ async function saveSkill() {
   if (!name) { toast('스킬명을 입력해주세요.', 'error'); return; }
   const body = { name, sortOrder: parseInt(document.getElementById('skill-order').value) || 0 };
   try {
-    const res = await fetch(`${API}/api/admin/skills/categories/${targetCategoryId}/skills`,
+    const res = await adminFetch(`${API}/api/admin/skills/categories/${targetCategoryId}/skills`,
       { method: 'POST', headers: authHeader(), body: JSON.stringify(body) });
     if (res.ok) { toast('스킬이 추가되었습니다.'); closeSkillModal(); loadSkills(); }
     else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
@@ -1140,7 +1140,7 @@ async function saveSkill() {
 async function deleteSkill(id, name) {
   if (!confirm(`"${name}" 스킬을 삭제할까요?`)) return;
   try {
-    const res = await fetch(`${API}/api/admin/skills/${id}`, { method: 'DELETE', headers: authHeader() });
+    const res = await adminFetch(`${API}/api/admin/skills/${id}`, { method: 'DELETE', headers: authHeader() });
     if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadSkills(); }
     else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
     else toast('삭제 실패', 'error');
@@ -1215,7 +1215,7 @@ async function saveEdu() {
 async function deleteEdu(id, name) {
   if (!confirm(`"${name}" 학력을 삭제할까요?`)) return;
   try {
-    const res = await fetch(`${API}/api/admin/educations/${id}`, { method: 'DELETE', headers: authHeader() });
+    const res = await adminFetch(`${API}/api/admin/educations/${id}`, { method: 'DELETE', headers: authHeader() });
     if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadEducation(); }
     else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
     else toast('삭제 실패', 'error');
@@ -1294,7 +1294,7 @@ async function saveCert() {
 async function deleteCert(id, name) {
   if (!confirm(`"${name}"을 삭제할까요?`)) return;
   try {
-    const res = await fetch(`${API}/api/admin/certifications/${id}`, { method: 'DELETE', headers: authHeader() });
+    const res = await adminFetch(`${API}/api/admin/certifications/${id}`, { method: 'DELETE', headers: authHeader() });
     if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadCertification(); }
     else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
     else toast('삭제 실패', 'error');
