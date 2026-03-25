@@ -15,6 +15,7 @@
       --accent:    #818cf8;
       --dark:      #080812;
       --surface:   #0f0f1e;
+      --surface2:  #13132a;
       --border:    rgba(99,102,241,0.2);
       --text:      #e2e8f0;
       --muted:     #64748b;
@@ -38,11 +39,16 @@
     nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 100;
       height: 60px;
-      background: rgba(8,8,18,0.85);
+      background: rgba(8,8,18,0.6);
       backdrop-filter: blur(16px);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid transparent;
       display: flex; align-items: center; justify-content: space-between;
       padding: 0 clamp(1.5rem, 5vw, 4rem);
+      transition: background 0.3s, border-color 0.3s;
+    }
+    nav.scrolled {
+      background: rgba(8,8,18,0.95);
+      border-bottom-color: var(--border);
     }
     .nav-logo {
       font-size: 1.1rem; font-weight: 800;
@@ -54,18 +60,24 @@
     .nav-links a {
       color: #94a3b8; text-decoration: none;
       font-size: 0.92rem; font-weight: 500;
-      transition: color 0.2s;
+      transition: color 0.2s; position: relative; padding-bottom: 2px;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+      height: 2px; background: var(--accent);
+      transform: scaleX(0); transition: transform 0.2s; border-radius: 1px;
     }
     .nav-links a:hover { color: var(--text); }
+    .nav-links a.active { color: var(--accent); }
+    .nav-links a.active::after { transform: scaleX(1); }
     .nav-cta {
       background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: #fff !important;
-      padding: 0.45rem 1.1rem;
-      border-radius: 0.5rem;
-      font-weight: 600 !important;
+      color: #fff !important; padding: 0.45rem 1.1rem;
+      border-radius: 0.5rem; font-weight: 600 !important;
       transition: opacity 0.2s !important;
     }
     .nav-cta:hover { opacity: 0.85; color: #fff !important; }
+    .nav-cta::after { display: none !important; }
     .nav-hamburger {
       display: none; flex-direction: column; gap: 5px;
       background: none; border: none; cursor: pointer; padding: 4px;
@@ -76,10 +88,12 @@
       transition: transform 0.25s, opacity 0.25s;
     }
     @media (max-width: 640px) {
-      .nav-links { display: none; flex-direction: column; gap: 1.2rem;
+      .nav-links {
+        display: none; flex-direction: column; gap: 1.2rem;
         position: absolute; top: 60px; left: 0; right: 0;
-        background: rgba(8,8,18,0.97); border-bottom: 1px solid var(--border);
-        padding: 1.5rem 2rem; }
+        background: rgba(8,8,18,0.98); border-bottom: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+      }
       .nav-links.open { display: flex; }
       .nav-hamburger { display: flex; }
     }
@@ -94,8 +108,8 @@
     .hero-bg {
       position: absolute; inset: 0; pointer-events: none;
       background:
-        radial-gradient(ellipse 70% 60% at 20% 50%, rgba(79,70,229,0.12), transparent),
-        radial-gradient(ellipse 50% 40% at 80% 30%, rgba(34,211,238,0.07), transparent);
+        radial-gradient(ellipse 70% 60% at 20% 50%, rgba(79,70,229,0.14), transparent),
+        radial-gradient(ellipse 50% 40% at 80% 30%, rgba(34,211,238,0.08), transparent);
     }
     .hero-grid {
       position: absolute; inset: 0; pointer-events: none;
@@ -111,6 +125,7 @@
       align-items: center; gap: 3rem;
     }
     @media (max-width: 800px) { .hero-inner { grid-template-columns: 1fr; } }
+
     .hero-badge {
       display: inline-flex; align-items: center; gap: 0.5rem;
       background: rgba(34,211,238,0.08); border: 1px solid rgba(34,211,238,0.25);
@@ -129,15 +144,9 @@
       background: linear-gradient(90deg, var(--accent), var(--cyan));
       -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
-    .hero-role {
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
-      color: var(--muted); font-weight: 500; margin-bottom: 1.5rem;
-    }
-    .hero-bio {
-      font-size: 0.97rem; color: #94a3b8; line-height: 1.8;
-      max-width: 520px; margin-bottom: 2.2rem;
-    }
-    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .hero-role { font-size: clamp(1rem, 2.5vw, 1.2rem); color: var(--muted); font-weight: 500; margin-bottom: 1.5rem; }
+    .hero-bio { font-size: 0.97rem; color: #94a3b8; line-height: 1.8; max-width: 520px; margin-bottom: 2rem; }
+    .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
     .btn-primary {
       background: linear-gradient(135deg, var(--primary), var(--secondary));
       color: #fff; border: none; padding: 0.8rem 1.8rem;
@@ -155,14 +164,12 @@
       text-decoration: none; transition: border-color 0.2s, color 0.2s, transform 0.15s;
     }
     .btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
-    .hero-stats {
-      display: flex; flex-direction: row; gap: 0.75rem; flex-wrap: wrap;
-      align-self: center;
-    }
+    /* Hero right: stats */
+    .hero-right { display: flex; flex-direction: column; align-items: center; gap: 1.5rem; }
+    .hero-stats { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
     .hero-stat {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: 0.9rem; padding: 0.9rem 1.1rem; text-align: center;
-      min-width: 90px;
+      border-radius: 0.9rem; padding: 0.9rem 1.1rem; text-align: center; min-width: 90px;
     }
     .hero-stat-val {
       font-size: 1.5rem; font-weight: 800;
@@ -185,53 +192,87 @@
     /* ── Section base ── */
     section { padding: 5rem clamp(1.5rem, 5vw, 4rem); }
     .section-inner { max-width: 1000px; margin: 0 auto; }
-    .section-label {
-      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.15em;
-      color: var(--cyan); text-transform: uppercase; margin-bottom: 0.6rem;
-    }
-    .section-title {
-      font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800;
-      letter-spacing: -0.02em; margin-bottom: 0.5rem;
-    }
+    .section-label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.15em; color: var(--cyan); text-transform: uppercase; margin-bottom: 0.6rem; }
+    .section-title { font-size: clamp(1.8rem, 4vw, 2.4rem); font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.5rem; }
     .section-desc { color: var(--muted); font-size: 0.95rem; max-width: 520px; margin-bottom: 3rem; }
     .section-divider { width: 48px; height: 3px; border-radius: 2px; background: linear-gradient(90deg, var(--primary), var(--cyan)); margin-bottom: 1rem; }
 
     /* ── Projects ── */
-    #projects { background: rgba(99,102,241,0.02); }
-    .projects-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.4rem;
+    #projects {
+      background: linear-gradient(180deg, var(--dark) 0%, rgba(79,70,229,0.04) 50%, var(--dark) 100%);
     }
+    .carousel-outer {
+      position: relative;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .carousel-arrow {
+      width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); font-size: 1.3rem;
+      cursor: pointer; z-index: 2;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s;
+    }
+    .carousel-arrow:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+    .carousel-arrow:disabled { opacity: 0.2; cursor: default; }
+    .carousel-wrap { overflow: hidden; flex: 1; padding: 1rem 0 1.2rem; }
+    .carousel-track {
+      display: flex; gap: 1.5rem;
+      transition: transform 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      will-change: transform;
+    }
+    .carousel-footer {
+      display: flex; align-items: center; justify-content: center;
+      gap: 1.2rem; margin-top: 1.2rem;
+    }
+    .carousel-counter { font-size: 0.82rem; color: var(--muted); font-weight: 600; min-width: 40px; text-align: center; }
+    .carousel-dots { display: flex; gap: 0.45rem; }
+    .carousel-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border); border: none; cursor: pointer;
+      transition: all 0.2s; padding: 0;
+    }
+    .carousel-dot.active { background: var(--accent); width: 24px; border-radius: 4px; }
+
     .proj-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 1.1rem; padding: 1.8rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 1.1rem; padding: 1.8rem 2rem;
+      width: min(680px, calc(100vw - 8rem));
+      height: 315px; flex-shrink: 0;
       transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-      display: flex; flex-direction: column; gap: 0.8rem;
-      cursor: pointer;
+      display: flex; flex-direction: column; gap: 0.6rem;
+      cursor: pointer; box-sizing: border-box;
+      position: relative;
     }
     .proj-card:hover {
       transform: translateY(-4px);
       border-color: rgba(99,102,241,0.5);
-      box-shadow: 0 10px 40px rgba(79,70,229,0.16);
+      box-shadow: 0 10px 40px rgba(79,70,229,0.18);
     }
     .proj-card:hover .proj-more { color: var(--accent); }
+    .proj-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.5rem; }
     .proj-title { font-size: 1.05rem; font-weight: 700; color: var(--text); }
-    .proj-desc { color: #94a3b8; font-size: 0.88rem; line-height: 1.7; flex: 1; }
-    .proj-more {
-      font-size: 0.82rem; font-weight: 600; color: var(--muted);
-      margin-top: 0.4rem; transition: color 0.2s;
+    .proj-date { font-size: 0.75rem; color: var(--muted); white-space: nowrap; flex-shrink: 0; margin-top: 0.15rem; }
+    .proj-desc {
+      color: #94a3b8; font-size: 0.88rem; line-height: 1.7; flex: 1;
+      overflow: hidden; display: -webkit-box;
+      -webkit-line-clamp: 4; -webkit-box-orient: vertical;
     }
+    .proj-card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; }
+    .proj-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
     .proj-tag {
       background: rgba(99,102,241,0.1); color: #a5b4fc;
-      padding: 0.2rem 0.65rem; border-radius: 2rem;
-      font-size: 0.74rem; border: 1px solid rgba(99,102,241,0.2);
+      padding: 0.18rem 0.6rem; border-radius: 2rem;
+      font-size: 0.73rem; border: 1px solid rgba(99,102,241,0.2);
     }
+    .proj-more { font-size: 0.82rem; font-weight: 600; color: var(--muted); transition: color 0.2s; white-space: nowrap; }
     #projects-loading { text-align: center; color: var(--muted); padding: 3rem; font-size: 0.9rem; }
 
     /* ── Project Modal ── */
     .proj-modal-backdrop {
       display: none; position: fixed; inset: 0; z-index: 500;
-      background: rgba(0,0,0,0.72); backdrop-filter: blur(6px);
+      background: rgba(0,0,0,0.75); backdrop-filter: blur(6px);
       align-items: center; justify-content: center; padding: 1.5rem;
     }
     .proj-modal-backdrop.open { display: flex; }
@@ -242,10 +283,7 @@
       overflow-y: auto; position: relative;
       animation: modalIn 0.25s cubic-bezier(0.34,1.2,0.64,1);
     }
-    @keyframes modalIn {
-      from { opacity: 0; transform: translateY(24px) scale(0.97); }
-      to   { opacity: 1; transform: none; }
-    }
+    @keyframes modalIn { from { opacity: 0; transform: translateY(24px) scale(0.97); } to { opacity: 1; transform: none; } }
     .proj-modal-close {
       position: absolute; top: 1.3rem; right: 1.3rem;
       background: none; border: 1px solid var(--border);
@@ -258,90 +296,77 @@
     .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -0.02em; }
     .modal-desc { color: #94a3b8; font-size: 0.95rem; line-height: 1.8; margin-bottom: 1.5rem; }
     .modal-media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 0.75rem; margin-bottom: 1.5rem; }
-    .modal-media-item { width: 100%; border-radius: 8px; object-fit: cover; max-height: 300px; background: #0f172a; cursor: pointer; }
-    .modal-media-item:hover { opacity: 0.9; }
-    .modal-section-label {
-      font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em;
-      text-transform: uppercase; color: var(--cyan); margin-bottom: 0.7rem;
-    }
+    .modal-media-item { width: 100%; border-radius: 8px; object-fit: cover; max-height: 300px; background: #0f172a; cursor: pointer; transition: opacity 0.2s; }
+    .modal-media-item:hover { opacity: 0.88; }
+    .modal-section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan); margin-bottom: 0.7rem; }
     .modal-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-bottom: 1.5rem; }
-    .modal-tag {
-      background: rgba(99,102,241,0.12); color: #a5b4fc;
-      padding: 0.28rem 0.75rem; border-radius: 2rem;
-      font-size: 0.8rem; border: 1px solid rgba(99,102,241,0.25);
-    }
+    .modal-tag { background: rgba(99,102,241,0.12); color: #a5b4fc; padding: 0.28rem 0.75rem; border-radius: 2rem; font-size: 0.8rem; border: 1px solid rgba(99,102,241,0.25); }
     .modal-features { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; margin-bottom: 1.8rem; }
     .modal-features li { display: flex; gap: 0.6rem; font-size: 0.9rem; color: #94a3b8; line-height: 1.6; }
     .modal-features li::before { content: '▸'; color: var(--accent); flex-shrink: 0; margin-top: 0.05rem; }
     .modal-links { display: flex; gap: 0.8rem; flex-wrap: wrap; }
-    .modal-link-btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.6rem 1.3rem; border-radius: 0.6rem;
-      font-size: 0.88rem; font-weight: 600; text-decoration: none;
-      transition: opacity 0.2s, transform 0.15s;
-    }
+    .modal-link-btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1.3rem; border-radius: 0.6rem; font-size: 0.88rem; font-weight: 600; text-decoration: none; transition: opacity 0.2s, transform 0.15s; }
     .modal-link-btn:hover { opacity: 0.85; transform: translateY(-1px); }
     .modal-link-github { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid rgba(255,255,255,0.15); }
     .modal-link-demo   { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; }
     .modal-loading { text-align: center; color: var(--muted); padding: 2rem; font-size: 0.9rem; }
 
-    /* ── Skills ── */
-    .skills-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1.2rem;
+    /* ── Lightbox ── */
+    .lightbox {
+      display: none; position: fixed; inset: 0; z-index: 600;
+      background: rgba(0,0,0,0.92); align-items: center; justify-content: center;
     }
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: 8px; }
+    .lightbox-close {
+      position: absolute; top: 1.5rem; right: 1.5rem;
+      background: none; border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; width: 38px; height: 38px; border-radius: 50%;
+      cursor: pointer; font-size: 1rem;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ── Skills ── */
+    #skills { background: var(--surface2); }
+    .skills-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.2rem; }
     .skill-card {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: 1rem; padding: 1.5rem;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      border-top: 3px solid var(--card-color, var(--accent));
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
     }
-    .skill-card:hover { border-color: rgba(99,102,241,0.4); box-shadow: 0 4px 24px rgba(79,70,229,0.1); }
-    .skill-category {
-      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--accent); margin-bottom: 1rem;
-    }
-    .skill-tags { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+    .skill-card:hover { box-shadow: 0 4px 24px rgba(79,70,229,0.12); transform: translateY(-2px); }
+    .skill-category-header { display: flex; align-items: center; margin-bottom: 1rem; }
+    .skill-category { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); }
+    .skill-tags { display: flex; flex-direction: column; gap: 0.4rem; }
     .skill-tag {
       background: rgba(99,102,241,0.08); color: #c7d2fe;
-      padding: 0.28rem 0.7rem; border-radius: 2rem;
-      font-size: 0.8rem; font-weight: 500;
+      padding: 0.28rem 0.7rem; border-radius: 0.4rem;
+      font-size: 0.82rem; font-weight: 500;
+      width: 100%;
     }
 
     /* ── About ── */
-    #about { background: rgba(99,102,241,0.02); }
-    .about-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
-    }
-    @media (max-width: 700px) { .about-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
+    #about { background: linear-gradient(180deg, var(--dark) 0%, rgba(34,211,238,0.02) 100%); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    @media (max-width: 640px) { .about-grid { grid-template-columns: 1fr; gap: 2.5rem; } }
     .about-bio p { color: #94a3b8; line-height: 1.9; font-size: 0.95rem; margin-bottom: 1.2rem; }
     .about-stats { display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap; }
     .about-stat-val { font-size: 1.9rem; font-weight: 800; color: var(--accent); }
     .about-stat-lbl { font-size: 0.8rem; color: var(--muted); margin-top: 0.1rem; }
-    .about-info-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 1.2rem; padding: 2rem;
-      display: flex; flex-direction: column; gap: 1.4rem;
-    }
+    .about-info-card { background: var(--surface); border: 1px solid var(--border); border-radius: 1.2rem; padding: 2rem; display: flex; flex-direction: column; gap: 1.4rem; }
     .info-row { display: flex; align-items: center; gap: 1rem; }
     .info-icon { font-size: 1.3rem; flex-shrink: 0; }
     .info-title { font-size: 0.8rem; font-weight: 600; color: #c7d2fe; margin-bottom: 0.15rem; }
     .info-val { font-size: 0.85rem; color: var(--muted); }
 
     /* ── Education & Certifications ── */
-    #edu-cert { padding: 5rem clamp(1.5rem, 5vw, 4rem); }
+    #edu-cert { background: var(--surface2); padding: 5rem clamp(1.5rem, 5vw, 4rem); }
     .edu-cert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    @media (max-width: 700px) { .edu-cert-grid { grid-template-columns: 1fr; } }
-    .edu-cert-card {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: 1.1rem; padding: 1.8rem;
-    }
-    .edu-cert-card-title {
-      font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em;
-      text-transform: uppercase; color: var(--cyan); margin-bottom: 1.4rem;
-    }
-    .edu-item, .cert-item {
-      padding: 1rem 0; border-bottom: 1px solid rgba(99,102,241,0.1);
-    }
+    @media (max-width: 640px) { .edu-cert-grid { grid-template-columns: 1fr; } }
+    .edu-cert-card { background: var(--surface); border: 1px solid var(--border); border-radius: 1.1rem; padding: 1.8rem; }
+    .edu-cert-card-title { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cyan); margin-bottom: 1.4rem; }
+    .edu-item, .cert-item { padding: 1rem 0; border-bottom: 1px solid rgba(99,102,241,0.1); }
     .edu-item:last-child, .cert-item:last-child { border-bottom: none; padding-bottom: 0; }
     .edu-degree { font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 0.25rem; }
     .edu-school { font-size: 0.85rem; color: var(--accent); margin-bottom: 0.15rem; }
@@ -349,69 +374,44 @@
     .cert-name { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
     .cert-issuer { font-size: 0.82rem; color: var(--muted); }
     .cert-date { font-size: 0.78rem; color: var(--accent); margin-top: 0.15rem; }
-    .award-badge {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2);
-      color: #fbbf24; padding: 0.4rem 0.8rem; border-radius: 2rem;
-      font-size: 0.8rem; font-weight: 600; margin: 0.3rem 0.3rem 0 0;
-    }
+    .award-badge { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24; padding: 0.4rem 0.8rem; border-radius: 2rem; font-size: 0.8rem; font-weight: 600; margin: 0.3rem 0.3rem 0 0; }
 
     /* ── Contact ── */
-    #contact { background: rgba(99,102,241,0.02); }
-    .contact-wrapper {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start;
-    }
-    @media (max-width: 700px) { .contact-wrapper { grid-template-columns: 1fr; gap: 2.5rem; } }
-    .contact-info { }
+    #contact { background: linear-gradient(180deg, var(--dark) 0%, rgba(79,70,229,0.04) 100%); }
+    .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: start; }
+    @media (max-width: 640px) { .contact-wrapper { grid-template-columns: 1fr; gap: 2.5rem; } }
     .contact-info p { color: #94a3b8; line-height: 1.8; font-size: 0.95rem; margin-bottom: 1.5rem; }
     .contact-socials { display: flex; flex-direction: column; gap: 0.8rem; }
-    .contact-social-link {
-      display: flex; align-items: center; gap: 0.75rem;
-      color: var(--muted); text-decoration: none;
-      font-size: 0.9rem; font-weight: 500; transition: color 0.2s;
-    }
+    .contact-social-link { display: flex; align-items: center; gap: 0.75rem; color: var(--muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
     .contact-social-link:hover { color: var(--accent); }
-    .contact-social-icon {
-      width: 36px; height: 36px; border-radius: 50%;
-      background: var(--surface); border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0; transition: border-color 0.2s;
-    }
+    .contact-social-icon { width: 36px; height: 36px; border-radius: 50%; background: var(--surface); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; transition: border-color 0.2s; }
     .contact-social-link:hover .contact-social-icon { border-color: var(--accent); }
     .contact-form { display: flex; flex-direction: column; gap: 1rem; }
     .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
     .form-label { font-size: 0.82rem; font-weight: 600; color: #c7d2fe; }
-    .form-input, .form-textarea {
-      background: var(--surface); border: 1px solid rgba(99,102,241,0.25);
-      border-radius: 0.75rem; padding: 0.8rem 1rem;
-      color: var(--text); font-size: 0.92rem; font-family: inherit;
-      outline: none; transition: border-color 0.2s;
-    }
+    .form-input, .form-textarea { background: var(--surface2); border: 1px solid rgba(99,102,241,0.25); border-radius: 0.75rem; padding: 0.8rem 1rem; color: var(--text); font-size: 0.92rem; font-family: inherit; outline: none; transition: border-color 0.2s; }
     .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
     .form-textarea { resize: vertical; min-height: 120px; }
-    .form-submit {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: #fff; border: none; padding: 0.9rem;
-      border-radius: 0.75rem; font-size: 0.97rem; font-weight: 700;
-      cursor: pointer; box-shadow: 0 4px 20px rgba(79,70,229,0.3);
-      transition: opacity 0.2s, transform 0.15s; margin-top: 0.3rem;
-    }
+    .form-submit { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; border: none; padding: 0.9rem; border-radius: 0.75rem; font-size: 0.97rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(79,70,229,0.3); transition: opacity 0.2s, transform 0.15s; margin-top: 0.3rem; }
     .form-submit:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
     .form-submit:disabled { opacity: 0.5; cursor: not-allowed; }
-    .form-success {
-      text-align: center; color: var(--cyan);
-      font-size: 0.9rem; font-weight: 600; padding: 2rem;
-      background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.2);
-      border-radius: 0.75rem;
-    }
-    .form-error { color: #f87171; font-size: 0.82rem; margin-top: 0.3rem; }
+    .form-success { text-align: center; color: var(--cyan); font-size: 0.9rem; font-weight: 600; padding: 2rem; background: rgba(34,211,238,0.06); border: 1px solid rgba(34,211,238,0.2); border-radius: 0.75rem; }
 
     /* ── Footer ── */
     footer {
-      text-align: center; padding: 2.5rem;
-      color: var(--muted); font-size: 0.8rem;
+      background: var(--surface2);
       border-top: 1px solid var(--border);
+      padding: 2.5rem clamp(1.5rem, 5vw, 4rem);
     }
+    .footer-inner {
+      max-width: 1000px; margin: 0 auto;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.2rem;
+    }
+    .footer-left { color: var(--muted); font-size: 0.82rem; }
+    .footer-left span { color: var(--accent); font-weight: 600; }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.82rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--accent); }
 
     /* ── Fade-in on scroll ── */
     .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.55s ease, transform 0.55s ease; }
@@ -421,17 +421,17 @@
 <body>
 
   <!-- ── Navbar ── -->
-  <nav>
+  <nav id="navbar">
     <span class="nav-logo">&lt;SD /&gt;</span>
     <button class="nav-hamburger" id="hamburger" aria-label="메뉴">
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="nav-links">
-      <li><a href="#projects">Projects</a></li>
-      <li><a href="#skills">Skills</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#edu-cert">Education</a></li>
-      <li><a href="#contact" class="nav-cta">Contact</a></li>
+      <li><a href="#projects" data-section="projects">Projects</a></li>
+      <li><a href="#skills"   data-section="skills">Skills</a></li>
+      <li><a href="#about"    data-section="about">About</a></li>
+      <li><a href="#edu-cert" data-section="edu-cert">Education</a></li>
+      <li><a href="#contact"  class="nav-cta">Contact</a></li>
     </ul>
   </nav>
 
@@ -450,32 +450,26 @@
         <p class="hero-bio" id="hero-bio">Java/Spring Boot를 주력으로 클라우드 인프라와 DevOps 자동화에 관심이 많은 백엔드 개발자입니다.</p>
         <div class="hero-actions">
           <a href="#projects" class="btn-primary">프로젝트 보기</a>
-          <a href="#contact" class="btn-outline">연락하기</a>
+          <a href="#contact"  class="btn-outline">연락하기</a>
         </div>
       </div>
-      <div class="hero-stats">
-        <div class="hero-stat">
-          <div class="hero-stat-val" id="stat-projects">20+</div>
-          <div class="hero-stat-lbl">프로젝트</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-val" id="stat-exp">3년</div>
-          <div class="hero-stat-lbl">경력</div>
-        </div>
-        <div class="hero-stat">
-          <div class="hero-stat-val">15+</div>
-          <div class="hero-stat-lbl">기술 스택</div>
+      <div class="hero-right">
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-val" id="stat-projects">20+</div>
+            <div class="hero-stat-lbl">프로젝트</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val" id="stat-exp">3년</div>
+            <div class="hero-stat-lbl">경력</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-val">15+</div>
+            <div class="hero-stat-lbl">기술 스택</div>
+          </div>
         </div>
       </div>
     </div>
-
-  <!-- ── Project Detail Modal ── -->
-  <div id="proj-modal" class="proj-modal-backdrop" onclick="handleModalBackdropClick(event)">
-    <div class="proj-modal-box">
-      <button class="proj-modal-close" onclick="closeProjectModal()" aria-label="닫기">✕</button>
-      <div id="proj-modal-content"><div class="modal-loading">불러오는 중...</div></div>
-    </div>
-  </div>
     <div class="scroll-hint">SCROLL</div>
   </section>
 
@@ -488,8 +482,18 @@
         <h2 class="section-title">Projects</h2>
         <p class="section-desc">다양한 환경에서 진행한 프로젝트들입니다.</p>
       </div>
-      <div class="projects-grid" id="projects-grid">
-        <div id="projects-loading">불러오는 중...</div>
+      <div class="carousel-outer">
+        <button class="carousel-arrow" id="carousel-prev" onclick="carouselMove(-1)">&#8249;</button>
+        <div class="carousel-wrap" id="carousel-wrap">
+          <div class="carousel-track" id="projects-grid">
+            <div id="projects-loading">불러오는 중...</div>
+          </div>
+        </div>
+        <button class="carousel-arrow" id="carousel-next" onclick="carouselMove(1)">&#8250;</button>
+      </div>
+      <div class="carousel-footer">
+        <span class="carousel-counter" id="carousel-counter">1 / 1</span>
+        <div class="carousel-dots" id="carousel-dots"></div>
       </div>
     </div>
   </section>
@@ -517,8 +521,7 @@
       </div>
       <div class="about-grid fade-in">
         <div class="about-bio">
-          <p id="about-bio-1">3년 이상의 백엔드 개발 경험을 보유하고 있으며, 스타트업부터 대기업까지 다양한 환경에서 프로젝트를 진행해 왔습니다.</p>
-          <p id="about-bio-2">Java/Spring Boot를 주력으로 사용하며, DevOps 자동화와 클라우드 인프라 최적화에 관심이 많습니다.</p>
+          <p id="about-bio-text">Java/Spring Boot를 주력으로 클라우드 인프라와 DevOps 자동화에 관심이 많은 백엔드 개발자입니다.</p>
           <div class="about-stats">
             <div>
               <div class="about-stat-val" id="about-stat-projects">20+</div>
@@ -531,13 +534,6 @@
           </div>
         </div>
         <div class="about-info-card">
-          <div class="info-row">
-            <span class="info-icon">🎓</span>
-            <div>
-              <div class="info-title">학력</div>
-              <div class="info-val">컴퓨터공학 학사</div>
-            </div>
-          </div>
           <div class="info-row">
             <span class="info-icon">💼</span>
             <div>
@@ -559,6 +555,13 @@
               <div class="info-val" id="about-email">alem6516@gmail.com</div>
             </div>
           </div>
+          <div class="info-row">
+            <span class="info-icon">🐙</span>
+            <div>
+              <div class="info-title">GitHub</div>
+              <a class="info-val" id="about-github" href="https://github.com" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;">github.com</a>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -570,7 +573,7 @@
       <div class="fade-in">
         <p class="section-label">Background</p>
         <div class="section-divider"></div>
-        <h2 class="section-title">학력 & 자격증</h2>
+        <h2 class="section-title">학력 &amp; 자격증</h2>
         <p class="section-desc">교육 이력과 자격증/수상 내역입니다.</p>
       </div>
       <div class="edu-cert-grid fade-in">
@@ -579,7 +582,7 @@
           <div id="edu-list"><p style="color:var(--muted);font-size:.85rem">불러오는 중...</p></div>
         </div>
         <div class="edu-cert-card">
-          <div class="edu-cert-card-title">🏆 자격증 & 수상</div>
+          <div class="edu-cert-card-title">🏆 자격증 &amp; 수상</div>
           <div id="cert-list"><p style="color:var(--muted);font-size:.85rem">불러오는 중...</p></div>
         </div>
       </div>
@@ -599,8 +602,7 @@
           <p>새로운 기회나 협업 제안을 언제나 환영합니다. 아래 폼이나 이메일로 연락해 주세요.</p>
           <div class="contact-socials">
             <a class="contact-social-link" id="social-github" href="https://github.com" target="_blank" rel="noopener">
-              <span class="contact-social-icon">🐙</span>
-              GitHub
+              <span class="contact-social-icon">🐙</span>GitHub
             </a>
             <a class="contact-social-link" id="social-email" href="mailto:alem6516@gmail.com">
               <span class="contact-social-icon">✉️</span>
@@ -631,11 +633,55 @@
 
   <!-- ── Footer ── -->
   <footer>
-    © 2026 서동 (Seo Dong) · Built with Spring Boot
+    <div class="footer-inner">
+      <div class="footer-left">© 2026 <span>서동 (Seo Dong)</span> · Built with Spring Boot</div>
+      <div class="footer-links">
+        <a href="#hero">Top</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+        <a id="footer-github" href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
   </footer>
+
+  <!-- ── Project Detail Modal ── -->
+  <div id="proj-modal" class="proj-modal-backdrop" onclick="handleModalBackdropClick(event)">
+    <div class="proj-modal-box">
+      <button class="proj-modal-close" onclick="closeProjectModal()" aria-label="닫기">✕</button>
+      <div id="proj-modal-content"><div class="modal-loading">불러오는 중...</div></div>
+    </div>
+  </div>
+
+  <!-- ── Lightbox ── -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="확대 이미지" />
+  </div>
 
   <script>
   const API_BASE = '';
+
+  /* ── Navbar: scroll effect ── */
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    navbar.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  /* ── Navbar: active section highlight ── */
+  const navLinks = document.querySelectorAll('.nav-links a[data-section]');
+  const sectionObserver = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = document.querySelector(`.nav-links a[data-section="${e.target.id}"]`);
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { threshold: 0.4 });
+  ['projects','skills','about','edu-cert','contact'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) sectionObserver.observe(el);
+  });
 
   /* ── Mobile nav ── */
   document.getElementById('hamburger').addEventListener('click', () => {
@@ -644,10 +690,16 @@
   document.querySelectorAll('.nav-links a').forEach(a => {
     a.addEventListener('click', () => document.getElementById('nav-links').classList.remove('open'));
   });
+  document.addEventListener('click', e => {
+    const nav = document.getElementById('nav-links');
+    if (nav.classList.contains('open') && !nav.contains(e.target) && !document.getElementById('hamburger').contains(e.target)) {
+      nav.classList.remove('open');
+    }
+  });
 
   /* ── Scroll fade-in ── */
   const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
   }, { threshold: 0.1 });
   document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
@@ -658,15 +710,16 @@
       if (!res.ok) return;
       const { name, role, bio, expYears, projectCount, email, githubUrl } = await res.json();
 
-      if (name)  document.getElementById('hero-name').textContent = name;
+      if (name) {
+        document.getElementById('hero-name').textContent = name;
+      }
       if (role) {
         document.getElementById('hero-role').textContent = role;
         document.getElementById('about-role').textContent = role;
       }
       if (bio) {
         document.getElementById('hero-bio').textContent = bio;
-        document.getElementById('about-bio-1').textContent = bio;
-        document.getElementById('about-bio-2').style.display = 'none';
+        document.getElementById('about-bio-text').textContent = bio;
       }
       if (expYears !== undefined) {
         const v = expYears + '년';
@@ -682,14 +735,25 @@
         document.getElementById('about-email').textContent = email;
         document.getElementById('contact-email-text').textContent = email;
         document.getElementById('social-email').href = 'mailto:' + email;
+        document.getElementById('social-email-hero').href = 'mailto:' + email;
       }
       if (githubUrl) {
         document.getElementById('social-github').href = githubUrl;
+        document.getElementById('social-github-hero').href = githubUrl;
+        document.getElementById('about-github').href = githubUrl;
+        document.getElementById('about-github').textContent = githubUrl.replace('https://', '');
+        document.getElementById('footer-github').href = githubUrl;
       }
     } catch (e) { console.error('fetchProfile', e); }
   }
 
-  /* ── Projects ── */
+  /* ── Projects Carousel ── */
+  let carouselIndex = 0;
+  let carouselItems = [];
+  const CARD_WIDTH = 680;
+  const CARD_GAP   = 24;
+  const projectCache = {};
+
   async function fetchProjects() {
     const grid = document.getElementById('projects-grid');
     try {
@@ -703,99 +767,172 @@
       }
 
       grid.innerHTML = '';
-      content.forEach(({ id, title, summary }) => {
+      carouselItems = content;
+
+      content.forEach(({ id, title, summary, techStack = [] }) => {
         const card = document.createElement('div');
         card.className = 'proj-card fade-in';
+        const tagsHtml = techStack.slice(0, 3).map(t => `<span class="proj-tag">${t}</span>`).join('');
+        const moreTag  = techStack.length > 3 ? `<span class="proj-tag">+${techStack.length - 3}</span>` : '';
         card.innerHTML = `
-          <div class="proj-title">${title || ''}</div>
+          <div class="proj-card-top">
+            <div class="proj-title">${title || ''}</div>
+          </div>
           <p class="proj-desc">${summary || ''}</p>
-          <div class="proj-more">자세히 보기 →</div>
+          <div class="proj-card-bottom">
+            <div class="proj-tags">${tagsHtml}${moreTag}</div>
+            <div class="proj-more">자세히 보기 →</div>
+          </div>
         `;
         card.addEventListener('click', () => openProjectModal(id));
         grid.appendChild(card);
         observer.observe(card);
       });
+
+      carouselIndex = 0;
+      renderCarouselDots();
+      updateCarousel();
     } catch (e) {
       grid.innerHTML = '<p style="color:var(--muted)">프로젝트를 불러오지 못했습니다.</p>';
     }
   }
 
-  /* ── Project Modal ── */
+  /* Touch swipe */
+  let touchStartX = 0;
+  const carouselWrap = document.getElementById('carousel-wrap');
+  carouselWrap.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  carouselWrap.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) carouselMove(diff > 0 ? 1 : -1);
+  });
+
+  function getCarouselVisible() {
+    const wrap = document.getElementById('carousel-wrap');
+    if (!wrap) return 1;
+    return Math.max(1, Math.floor(wrap.offsetWidth / (CARD_WIDTH + CARD_GAP)));
+  }
+
+  function updateCarousel() {
+    const track = document.getElementById('projects-grid');
+    if (!track.querySelector('.proj-card')) return;
+    track.style.transform = `translateX(-${carouselIndex * (CARD_WIDTH + CARD_GAP)}px)`;
+    const visible  = getCarouselVisible();
+    const maxIndex = Math.max(0, carouselItems.length - visible);
+    document.getElementById('carousel-prev').disabled = carouselIndex <= 0;
+    document.getElementById('carousel-next').disabled = carouselIndex >= maxIndex;
+    document.getElementById('carousel-counter').textContent = `${carouselIndex + 1} / ${carouselItems.length}`;
+    document.querySelectorAll('.carousel-dot').forEach((dot, i) => dot.classList.toggle('active', i === carouselIndex));
+  }
+
+  function carouselMove(dir) {
+    const visible  = getCarouselVisible();
+    const maxIndex = Math.max(0, carouselItems.length - visible);
+    carouselIndex  = Math.min(Math.max(carouselIndex + dir, 0), maxIndex);
+    updateCarousel();
+  }
+
+  function renderCarouselDots() {
+    const dots    = document.getElementById('carousel-dots');
+    const visible = getCarouselVisible();
+    const count   = Math.max(1, carouselItems.length - visible + 1);
+    dots.innerHTML = Array.from({ length: count }, (_, i) =>
+      `<button class="carousel-dot${i === 0 ? ' active' : ''}" onclick="carouselIndex=${i};updateCarousel()"></button>`
+    ).join('');
+  }
+
+  window.addEventListener('resize', () => { renderCarouselDots(); updateCarousel(); });
+
+  /* ── Project Modal (with cache) ── */
   function openProjectModal(id) {
-    const modal = document.getElementById('proj-modal');
+    const modal   = document.getElementById('proj-modal');
     const content = document.getElementById('proj-modal-content');
-    content.innerHTML = '<div class="modal-loading">불러오는 중...</div>';
     modal.classList.add('open');
     document.body.style.overflow = 'hidden';
 
+    if (projectCache[id]) { renderModal(content, projectCache[id]); return; }
+
+    content.innerHTML = '<div class="modal-loading">불러오는 중...</div>';
     fetch(API_BASE + '/api/projects/' + id)
       .then(r => { if (!r.ok) throw new Error(); return r.json(); })
-      .then(({ title, description, techStack = [], features = [], githubUrl, demoUrl, media = [] }) => {
-        const mediaHtml = media.length
-          ? `<div class="modal-section-label">미디어</div>
-             <div class="modal-media-grid">
-               ${media.map(m => m.mediaType === 'VIDEO'
-                 ? `<video class="modal-media-item" controls preload="metadata"><source src="${m.url}"></video>`
-                 : `<img class="modal-media-item" src="${m.url}" alt="프로젝트 이미지" loading="lazy">`
-               ).join('')}
-             </div>`
-          : '';
-        const tagsHtml = techStack.length
-          ? `<div class="modal-section-label">Tech Stack</div>
-             <div class="modal-tags">${techStack.map(t => `<span class="modal-tag">${t}</span>`).join('')}</div>`
-          : '';
-        const featuresHtml = features.length
-          ? `<div class="modal-section-label">주요 기능</div>
-             <ul class="modal-features">${features.map(f => `<li>${f}</li>`).join('')}</ul>`
-          : '';
-        const linksHtml = (githubUrl || demoUrl)
-          ? `<div class="modal-links">
-               ${githubUrl ? `<a class="modal-link-btn modal-link-github" href="${githubUrl}" target="_blank" rel="noopener">🔗 GitHub</a>` : ''}
-               ${demoUrl   ? `<a class="modal-link-btn modal-link-demo"   href="${demoUrl}"   target="_blank" rel="noopener">▶ Live Demo</a>` : ''}
-             </div>`
-          : '';
+      .then(data => { projectCache[id] = data; renderModal(content, data); })
+      .catch(() => { content.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">불러오기 실패</p>'; });
+  }
 
-        content.innerHTML = `
-          <div class="modal-title">${title || ''}</div>
-          ${mediaHtml}
-          <p class="modal-desc">${(description || '').replace(/\n/g, '<br>')}</p>
-          ${tagsHtml}
-          ${featuresHtml}
-          ${linksHtml}
-        `;
-      })
-      .catch(() => {
-        content.innerHTML = '<p style="color:var(--muted);text-align:center;padding:2rem">불러오기 실패</p>';
-      });
+  function renderModal(content, { title, description, techStack = [], features = [], githubUrl, demoUrl, media = [] }) {
+    const mediaHtml = media.length
+      ? `<div class="modal-section-label">미디어</div>
+         <div class="modal-media-grid">
+           ${media.map(m => m.mediaType === 'VIDEO'
+             ? `<video class="modal-media-item" controls preload="metadata"><source src="${m.url}"></video>`
+             : `<img class="modal-media-item" src="${m.url}" alt="프로젝트 이미지" loading="lazy" onclick="openLightbox('${m.url}')">`
+           ).join('')}
+         </div>` : '';
+    const tagsHtml = techStack.length
+      ? `<div class="modal-section-label">Tech Stack</div>
+         <div class="modal-tags">${techStack.map(t => `<span class="modal-tag">${t}</span>`).join('')}</div>` : '';
+    const featuresHtml = features.length
+      ? `<div class="modal-section-label">주요 기능</div>
+         <ul class="modal-features">${features.map(f => `<li>${f}</li>`).join('')}</ul>` : '';
+    const linksHtml = (githubUrl || demoUrl)
+      ? `<div class="modal-links">
+           ${githubUrl ? `<a class="modal-link-btn modal-link-github" href="${githubUrl}" target="_blank" rel="noopener">🔗 GitHub</a>` : ''}
+           ${demoUrl   ? `<a class="modal-link-btn modal-link-demo" href="${demoUrl}" target="_blank" rel="noopener">▶ Live Demo</a>` : ''}
+         </div>` : '';
+    content.innerHTML = `
+      <div class="modal-title">${title || ''}</div>
+      ${mediaHtml}
+      <p class="modal-desc">${(description || '').replace(/\n/g, '<br>')}</p>
+      ${tagsHtml}${featuresHtml}${linksHtml}
+    `;
   }
 
   function closeProjectModal() {
     document.getElementById('proj-modal').classList.remove('open');
     document.body.style.overflow = '';
   }
-
   function handleModalBackdropClick(e) {
     if (e.target === document.getElementById('proj-modal')) closeProjectModal();
   }
 
+  /* ── Lightbox ── */
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeProjectModal();
+    if (e.key === 'Escape') { closeProjectModal(); closeLightbox(); }
   });
 
   /* ── Skills ── */
+  const SKILL_COLORS = [
+    '#818cf8', '#22d3ee', '#34d399', '#f472b6', '#fb923c', '#a78bfa', '#60a5fa'
+  ];
+
   async function fetchSkills() {
     const grid = document.getElementById('skills-grid');
     try {
       const res = await fetch(API_BASE + '/api/skills');
       if (!res.ok) throw new Error();
       const { categories = [] } = await res.json();
-
       grid.innerHTML = '';
-      categories.forEach(({ category, skills = [] }) => {
-        const tags = skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
-        const card = document.createElement('div');
+      categories.forEach(({ category, skills = [] }, idx) => {
+        const color = SKILL_COLORS[idx % SKILL_COLORS.length];
+        const tags  = skills.map(s => `<span class="skill-tag">${s}</span>`).join('');
+        const card  = document.createElement('div');
         card.className = 'skill-card';
-        card.innerHTML = `<div class="skill-category">${category}</div><div class="skill-tags">${tags}</div>`;
+        card.style.setProperty('--card-color', color);
+        card.innerHTML = `
+          <div class="skill-category-header">
+            <span class="skill-category">${category}</span>
+          </div>
+          <div class="skill-tags">${tags}</div>
+        `;
         grid.appendChild(card);
       });
     } catch (e) { console.error('fetchSkills', e); }
@@ -845,18 +982,13 @@
     const email   = document.getElementById('input-email').value.trim();
     const message = document.getElementById('input-message').value.trim();
     const btn     = document.getElementById('form-submit');
-
-    btn.disabled = true;
-    btn.textContent = '전송 중...';
-
+    btn.disabled = true; btn.textContent = '전송 중...';
     try {
       const res = await fetch(API_BASE + '/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, message }),
       });
       const result = await res.json();
-
       if (res.ok && result.success) {
         document.getElementById('contact-form').outerHTML =
           `<div class="form-success">✓ 메시지가 전송되었습니다!<br><span style="font-size:.8rem;opacity:.7">${result.message || '빠른 시일 내에 답변 드리겠습니다.'}</span></div>`;
@@ -873,13 +1005,15 @@
     }
   }
 
-  /* ── Init ── */
+  /* ── Init (병렬 호출) ── */
   document.addEventListener('DOMContentLoaded', () => {
-    fetchProfile();
-    fetchProjects();
-    fetchSkills();
-    fetchEducation();
-    fetchCertifications();
+    Promise.all([
+      fetchProfile(),
+      fetchProjects(),
+      fetchSkills(),
+      fetchEducation(),
+      fetchCertifications(),
+    ]);
   });
   </script>
 </body>
