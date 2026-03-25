@@ -105,9 +105,9 @@ class AdminControllerTest {
     // ── Projects ─────────────────────────────────────────────
 
     private ProjectDetailResponse sampleDetail() {
-        return new ProjectDetailResponse(1L, "프로젝트", "설명",
+        return new ProjectDetailResponse(1L, "프로젝트", "간략 소개", "설명",
                 List.of("Java"), "https://github.com", "https://demo.com",
-                List.of("기능1"), LocalDate.of(2024, 1, 1));
+                List.of("기능1"), List.of(), LocalDate.of(2024, 1, 1));
     }
 
     private ProjectRequest sampleProjectReq() {

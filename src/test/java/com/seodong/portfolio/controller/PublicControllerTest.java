@@ -130,8 +130,8 @@ class PublicControllerTest {
     @DisplayName("GET /api/projects/{id} - 단건 조회 200 반환")
     void getProjectById_returns200() throws Exception {
         ProjectDetailResponse detail = new ProjectDetailResponse(1L, "프로젝트",
-                "상세 설명", List.of("Java", "Spring"), "https://github.com",
-                "https://demo.com", List.of("기능1"), LocalDate.of(2024, 1, 1));
+                "한 줄 소개", "상세 설명", List.of("Java", "Spring"), "https://github.com",
+                "https://demo.com", List.of("기능1"), List.of(), LocalDate.of(2024, 1, 1));
         given(projectService.getProject(1L)).willReturn(detail);
 
         mockMvc.perform(get("/api/projects/1"))
