@@ -50,7 +50,7 @@ aws:
     access-key: ${AWS_ACCESS_KEY}
     secret-key: ${AWS_SECRET_KEY}
     region: ap-southeast-2
-    bucket: web-portfolio-s3-421856467388-ap-southeast-2-an
+    bucket: ${AWS_S3_BUCKET}
 
 # ── JWT ──────────────────────────────────────────────────
 jwt:
