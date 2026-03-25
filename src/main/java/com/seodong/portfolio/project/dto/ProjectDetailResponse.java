@@ -9,6 +9,7 @@ import java.util.List;
 public record ProjectDetailResponse(
         Long id,
         String title,
+        String summary,
         String description,
         List<String> techStack,
         String githubUrl,
@@ -20,6 +21,7 @@ public record ProjectDetailResponse(
         return new ProjectDetailResponse(
                 p.getId(),
                 p.getTitle(),
+                p.getSummary(),
                 p.getDescription(),
                 p.getTechStacks().stream().map(ts -> ts.getTech()).toList(),
                 p.getGithubUrl(),
