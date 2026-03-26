@@ -1,5 +1,6 @@
 package com.seodong.portfolio.common.config;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
@@ -40,6 +41,7 @@ public class RedisConfig {
     /**
      * Spring Cache (@Cacheable) 용 RedisCacheManager
      * - 값: JSON 직렬화 (JavaTimeModule 포함 — LocalDate 등 지원)
+     * - 타입 포맷: As.PROPERTY {"@class":"..."} — GenericJackson2JsonRedisSerializer 기본값과 동일
      * - 기본 TTL: 1시간
      */
     @Bean
@@ -49,9 +51,10 @@ public class RedisConfig {
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         objectMapper.activateDefaultTyping(
                 BasicPolymorphicTypeValidator.builder()
-                        .allowIfBaseType(Object.class)
+                        .allowIfSubType(Object.class)
                         .build(),
-                ObjectMapper.DefaultTyping.NON_FINAL
+                ObjectMapper.DefaultTyping.NON_FINAL,
+                JsonTypeInfo.As.PROPERTY
         );
 
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
