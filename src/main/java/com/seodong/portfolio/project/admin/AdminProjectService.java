@@ -8,7 +8,6 @@ import com.seodong.portfolio.project.ProjectTechStack;
 import com.seodong.portfolio.project.dto.ProjectDetailResponse;
 import com.seodong.portfolio.project.dto.ProjectRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,7 +36,6 @@ public class AdminProjectService {
         return ProjectDetailResponse.from(projectRepository.save(project));
     }
 
-    @CacheEvict(cacheNames = "project", key = "#id")
     @Transactional
     public ProjectDetailResponse update(Long id, ProjectRequest req) {
         Project project = projectRepository.findById(id)
@@ -54,7 +52,6 @@ public class AdminProjectService {
         return ProjectDetailResponse.from(projectRepository.save(project));
     }
 
-    @CacheEvict(cacheNames = "project", key = "#id")
     @Transactional
     public void delete(Long id) {
         if (!projectRepository.existsById(id)) {

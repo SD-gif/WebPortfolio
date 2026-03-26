@@ -5,7 +5,6 @@ import com.seodong.portfolio.common.exception.ResourceNotFoundException;
 import com.seodong.portfolio.project.dto.ProjectDetailResponse;
 import com.seodong.portfolio.project.dto.ProjectSummaryResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,6 @@ public class ProjectService {
         );
     }
 
-    @Cacheable(cacheNames = "project", key = "#id")
     @Transactional(readOnly = true)
     public ProjectDetailResponse getProject(Long id) {
         return projectRepository.findById(id)
