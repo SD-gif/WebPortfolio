@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.4.3'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'jacoco'
 }
 
 group = 'com.seodong'
@@ -56,4 +57,44 @@ dependencies {
 
 tasks.named('test') {
     useJUnitPlatform()
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true   // Codecov은 XML 리포트 사용
+        html.required = true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                // 진입점
+                '**/PortfolioApplication.class',
+                // 설정 클래스
+                '**/config/**',
+                // DTO (record/POJO)
+                '**/dto/**',
+                // JPA 엔티티
+                '**/admin/Admin.class',
+                '**/profile/Profile.class',
+                '**/project/Project.class',
+                '**/project/ProjectTechStack.class',
+                '**/project/ProjectFeature.class',
+                '**/project/ProjectMedia.class',
+                '**/project/MediaType.class',
+                '**/skill/SkillCategory.class',
+                '**/skill/Skill.class',
+                '**/contact/Contact.class',
+                '**/education/Education.class',
+                '**/certification/Certification.class',
+                // Spring Data Repository 인터페이스
+                '**/*Repository.class',
+                // 단순 예외 클래스
+                '**/exception/ErrorResponse.class',
+                '**/exception/ResourceNotFoundException.class',
+                '**/exception/RateLimitException.class',
+            ])
+        }))
+    }
 }
