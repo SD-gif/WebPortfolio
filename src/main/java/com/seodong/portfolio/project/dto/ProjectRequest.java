@@ -10,6 +10,9 @@ public record ProjectRequest(
         @Size(max = 100, message = "제목은 100자 이내로 입력해주세요.")
         String title,
 
+        @Size(max = 200, message = "간략 소개는 200자 이내로 입력해주세요.")
+        String summary,
+
         String description,
         String githubUrl,
         String demoUrl,

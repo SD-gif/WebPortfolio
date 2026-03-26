@@ -6,8 +6,10 @@ import com.seodong.portfolio.contact.dto.ContactItemResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Admin - 문의")
 @RestController
 @RequestMapping("/api/admin/contacts")
 @RequiredArgsConstructor

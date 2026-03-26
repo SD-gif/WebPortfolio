@@ -8,6 +8,7 @@ import com.seodong.portfolio.project.ProjectTechStack;
 import com.seodong.portfolio.project.dto.ProjectDetailResponse;
 import com.seodong.portfolio.project.dto.ProjectRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,7 @@ public class AdminProjectService {
     public ProjectDetailResponse create(ProjectRequest req) {
         Project project = Project.builder()
                 .title(req.title())
+                .summary(req.summary())
                 .description(req.description())
                 .githubUrl(req.githubUrl())
                 .demoUrl(req.demoUrl())
@@ -35,12 +37,13 @@ public class AdminProjectService {
         return ProjectDetailResponse.from(projectRepository.save(project));
     }
 
+    @CacheEvict(cacheNames = "project", key = "#id")
     @Transactional
     public ProjectDetailResponse update(Long id, ProjectRequest req) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 프로젝트를 찾을 수 없습니다."));
 
-        project.update(req.title(), req.description(), req.githubUrl(), req.demoUrl(), req.sortOrder());
+        project.update(req.title(), req.summary(), req.description(), req.githubUrl(), req.demoUrl(), req.sortOrder());
 
         project.getTechStacks().clear();
         addTechStacks(project, req.techStack());
@@ -51,6 +54,7 @@ public class AdminProjectService {
         return ProjectDetailResponse.from(projectRepository.save(project));
     }
 
+    @CacheEvict(cacheNames = "project", key = "#id")
     @Transactional
     public void delete(Long id) {
         if (!projectRepository.existsById(id)) {

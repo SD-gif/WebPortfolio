@@ -1,0 +1,74 @@
+server:
+  forward-headers-strategy: native
+
+spring:
+  # ── Multipart (파일 업로드) ────────────────────────────
+  servlet:
+    multipart:
+      max-file-size: 200MB
+      max-request-size: 200MB
+
+  # ── PostgreSQL (EC2 RDS or 로컬 Docker) ───────────────
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+
+  # ── Redis ─────────────────────────────────────────────
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: 6379
+      password: ${REDIS_PASSWORD:}
+
+  # ── 네이버 SMTP ───────────────────────────────────────
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+          auth: true
+
+# ── AWS S3 ───────────────────────────────────────────────
+aws:
+  s3:
+    access-key: ${AWS_ACCESS_KEY}
+    secret-key: ${AWS_SECRET_KEY}
+    region: ap-southeast-2
+    bucket: ${AWS_S3_BUCKET}
+
+# ── JWT ──────────────────────────────────────────────────
+jwt:
+  secret: ${JWT_SECRET}
+
+# ── CORS ─────────────────────────────────────────────────
+cors:
+  allowed-origins:
+    - https://seodong.me
+    - https://www.seodong.me
+
+# ── Rate Limiting ─────────────────────────────────────────
+rate-limit:
+  contact:
+    capacity: 3
+    refill-minutes: 1
+
+# ── Logging ──────────────────────────────────────────────
+logging:
+  level:
+    com.seodong.portfolio: INFO

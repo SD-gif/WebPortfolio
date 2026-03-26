@@ -23,6 +23,9 @@ public class Project {
     @Column(nullable = false, length = 100)
     private String title;
 
+    @Column(length = 200)
+    private String summary;
+
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -51,14 +54,20 @@ public class Project {
     @Builder.Default
     private List<ProjectFeature> features = new ArrayList<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder ASC")
+    @Builder.Default
+    private List<ProjectMedia> mediaList = new ArrayList<>();
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 
-    public void update(String title, String description,
+    public void update(String title, String summary, String description,
                        String githubUrl, String demoUrl, int sortOrder) {
         this.title       = title;
+        this.summary     = summary;
         this.description = description;
         this.githubUrl   = githubUrl;
         this.demoUrl     = demoUrl;

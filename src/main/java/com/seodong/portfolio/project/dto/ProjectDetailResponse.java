@@ -9,22 +9,26 @@ import java.util.List;
 public record ProjectDetailResponse(
         Long id,
         String title,
+        String summary,
         String description,
         List<String> techStack,
         String githubUrl,
         String demoUrl,
         List<String> features,
+        List<ProjectMediaResponse> media,
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDate createdAt
 ) {
     public static ProjectDetailResponse from(Project p) {
         return new ProjectDetailResponse(
                 p.getId(),
                 p.getTitle(),
+                p.getSummary(),
                 p.getDescription(),
                 p.getTechStacks().stream().map(ts -> ts.getTech()).toList(),
                 p.getGithubUrl(),
                 p.getDemoUrl(),
                 p.getFeatures().stream().map(f -> f.getFeature()).toList(),
+                p.getMediaList().stream().map(ProjectMediaResponse::from).toList(),
                 p.getCreatedAt() != null ? p.getCreatedAt().toLocalDate() : null
         );
     }
