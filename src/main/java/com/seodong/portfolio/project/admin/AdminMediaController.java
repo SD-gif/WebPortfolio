@@ -9,6 +9,9 @@ import com.seodong.portfolio.project.ProjectMediaRepository;
 import com.seodong.portfolio.project.ProjectRepository;
 import com.seodong.portfolio.project.dto.ProjectMediaResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,7 +24,9 @@ public class AdminMediaController {
     private final S3Service s3Service;
     private final ProjectMediaRepository projectMediaRepository;
     private final ProjectRepository projectRepository;
+    private final CacheManager cacheManager;
 
+    @CacheEvict(cacheNames = "project", key = "#id")
     @PostMapping("/projects/{id}/media")
     public ResponseEntity<ProjectMediaResponse> upload(
             @PathVariable Long id,
@@ -50,8 +55,11 @@ public class AdminMediaController {
     public ResponseEntity<SimpleResponse> delete(@PathVariable Long id) {
         ProjectMedia media = projectMediaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("미디어를 찾을 수 없습니다."));
+        Long projectId = media.getProject().getId();
         s3Service.delete(media.getUrl());
         projectMediaRepository.delete(media);
+        Cache cache = cacheManager.getCache("project");
+        if (cache != null) cache.evict(projectId);
         return ResponseEntity.ok(SimpleResponse.ok());
     }
 }
