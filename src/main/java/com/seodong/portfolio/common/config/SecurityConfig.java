@@ -40,7 +40,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // 정적 리소스 (static/ 폴더 전체)
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
-                        .requestMatchers("/", "/index.html", "/admin.html").permitAll()
+                        .requestMatchers("/image/**").permitAll()
+                        .requestMatchers("/", "/index.html", "/admin.html", "/project.html").permitAll()
                         // Swagger UI
                         .requestMatchers(
                                 "/swagger-ui/**", "/swagger-ui.html",
@@ -54,7 +55,8 @@ public class SecurityConfig {
                                 "/api/projects/**",
                                 "/api/skills",
                                 "/api/educations",
-                                "/api/certifications").permitAll()
+                                "/api/certifications",
+                                "/api/experiences").permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/contact",
                                 "/api/admin/login",

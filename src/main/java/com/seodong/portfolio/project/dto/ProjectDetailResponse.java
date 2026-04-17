@@ -15,9 +15,13 @@ public record ProjectDetailResponse(
         String githubUrl,
         String demoUrl,
         List<String> features,
+        List<PointItem> devPoints,
+        List<PointItem> troubleshooting,
         List<ProjectMediaResponse> media,
         @JsonFormat(pattern = "yyyy-MM-dd") LocalDate createdAt
 ) {
+    public record PointItem(String label, String content, String imageUrl) {}
+
     public static ProjectDetailResponse from(Project p) {
         return new ProjectDetailResponse(
                 p.getId(),
@@ -28,6 +32,8 @@ public record ProjectDetailResponse(
                 p.getGithubUrl(),
                 p.getDemoUrl(),
                 p.getFeatures().stream().map(f -> f.getFeature()).toList(),
+                p.getDevPoints().stream().map(d -> new PointItem(d.getLabel(), d.getContent(), d.getImageUrl())).toList(),
+                p.getTroubleshootings().stream().map(t -> new PointItem(t.getLabel(), t.getContent(), t.getImageUrl())).toList(),
                 p.getMediaList().stream().map(ProjectMediaResponse::from).toList(),
                 p.getCreatedAt() != null ? p.getCreatedAt().toLocalDate() : null
         );
