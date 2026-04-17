@@ -39,7 +39,7 @@ async function loadProject() {
   }
 }
 
-function render(el, { title, summary, description, techStack = [], features = [], devPoints = [], troubleshooting = [], githubUrl, demoUrl, media = [] }) {
+function render(el, { title, summary, description, techStack = [], features = [], devPoints = [], troubleshooting = [], contentBlocks = [], githubUrl, demoUrl, duration, teamSize, role, media = [] }) {
   // Header
   const tagsHtml = techStack.map(t => `<span class="proj-tag">${escapeHtml(t)}</span>`).join('');
   const linksHtml = `
@@ -47,13 +47,29 @@ function render(el, { title, summary, description, techStack = [], features = []
     ${demoUrl ? `<a class="proj-link proj-link-demo" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener">Live Demo</a>` : ''}
   `;
 
+  // Meta info
+  const metaItems = [
+    duration && `<span class="proj-meta-item"><strong>기간</strong> ${escapeHtml(duration)}</span>`,
+    teamSize && `<span class="proj-meta-item"><strong>팀</strong> ${escapeHtml(teamSize)}</span>`,
+    role && `<span class="proj-meta-item"><strong>역할</strong> ${escapeHtml(role)}</span>`,
+  ].filter(Boolean);
+  const metaHtml = metaItems.length ? `<div class="proj-meta-info">${metaItems.join('')}</div>` : '';
+
+  // Content blocks
+  const blocksHtml = contentBlocks.length ? `
+    <hr class="section-divider">
+    ${contentBlocks.map(b => b.blockType === 'IMAGE'
+      ? `<div class="content-block content-block-image" onclick="openLightbox('${escapeHtml(b.content)}')"><img src="${escapeHtml(b.content)}" alt="프로젝트 이미지" loading="lazy" /></div>`
+      : `<div class="content-block content-block-text">${escapeHtml(b.content)}</div>`
+    ).join('')}` : '';
+
   // Overview media gallery
   const galleryHtml = media.length ? `
     <div class="proj-gallery">
       <div class="proj-gallery-grid">
         ${media.map(m => m.mediaType === 'VIDEO'
-          ? `<div class="proj-gallery-item"><video controls preload="metadata"><source src="${m.url}"></video></div>`
-          : `<div class="proj-gallery-item" onclick="openLightbox('${m.url}')"><img src="${m.url}" alt="프로젝트 이미지" loading="lazy" /></div>`
+          ? `<div class="proj-gallery-item"><video controls preload="metadata"><source src="${escapeHtml(m.url)}"></video></div>`
+          : `<div class="proj-gallery-item" onclick="openLightbox('${escapeHtml(m.url)}')"><img src="${escapeHtml(m.url)}" alt="프로젝트 이미지" loading="lazy" /></div>`
         ).join('')}
       </div>
     </div>` : '';
@@ -84,6 +100,7 @@ function render(el, { title, summary, description, techStack = [], features = []
     <div class="proj-header">
       <h1 class="proj-title">${escapeHtml(title)}</h1>
       ${summary ? `<p class="proj-summary">${escapeHtml(summary)}</p>` : ''}
+      ${metaHtml}
       <div class="proj-meta">
         <div class="proj-tags">${tagsHtml}</div>
         <div class="proj-links">${linksHtml}</div>
@@ -95,6 +112,7 @@ function render(el, { title, summary, description, techStack = [], features = []
     <div class="section-label">Overview</div>
     <div class="proj-overview">${escapeHtml(description)}</div>` : ''}
 
+    ${blocksHtml}
     ${galleryHtml}
     ${featuresHtml}
     ${devPointsHtml}

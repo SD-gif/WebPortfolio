@@ -61,9 +61,9 @@ function switchTab(tab) {
   document.querySelector(`.sidebar-item[data-tab="${tab}"]`).classList.add('active');
   if (tab === 'contacts')     loadContacts(0);
   if (tab === 'profile')      loadProfile();
-  if (tab === 'projects')     loadProjects(0);
+  if (tab === 'projects')     { showProjectList(); }
   if (tab === 'skills')       loadSkills();
-  if (tab === 'experience')   loadExperience();
+  if (tab === 'experience')   { showExpList(); }
   if (tab === 'education')    loadEducation();
   if (tab === 'certification') loadCertification();
 }
@@ -83,6 +83,7 @@ function toast(msg, type = 'success') {
 ───────────────────────────────────────────── */
 let projectsPage = 0;
 let projectsTotalPages = 1;
+let contentBlocks = [];
 
 async function loadProjects(page = 0) {
   projectsPage = page;
@@ -129,25 +130,7 @@ async function editProject(id) {
   try {
     const res = await fetch(`${API}/api/projects/${id}`);
     const p = await res.json();
-    editingProjectId = id;
-    document.getElementById('project-modal-title').textContent = '프로젝트 수정';
-    document.getElementById('proj-title').value   = p.title || '';
-    document.getElementById('proj-summary').value = p.summary || '';
-    document.getElementById('proj-desc').value    = p.description || '';
-    document.getElementById('proj-github').value  = p.githubUrl || '';
-    document.getElementById('proj-demo').value   = p.demoUrl || '';
-    document.getElementById('proj-order').value  = p.sortOrder ?? '';
-    techTags = [...(p.techStack || [])];
-    featTags = [...(p.features || [])];
-    devPointItems = (p.devPoints || []).map(d => ({ label: d.label, content: d.content, imageUrl: d.imageUrl || '' }));
-    troubleItems  = (p.troubleshooting || []).map(t => ({ label: t.label, content: t.content, imageUrl: t.imageUrl || '' }));
-    renderTagChips('tech');
-    renderTagChips('feat');
-    renderPointItems('devpoint');
-    renderPointItems('trouble');
-    document.getElementById('proj-media-section').style.display = 'block';
-    renderMediaList(p.media || []);
-    document.getElementById('project-modal').classList.add('open');
+    showProjectEditor(id, p);
   } catch {
     toast('프로젝트 정보를 불러오지 못했습니다.', 'error');
   }
@@ -178,17 +161,22 @@ async function saveProject() {
   if (!title || !desc) { toast('제목과 설명은 필수입니다.', 'error'); return; }
 
   collectPointItems();
+  collectContentBlocks();
   const body = {
     title,
     summary:        document.getElementById('proj-summary').value.trim() || null,
-    description:    desc,
+    description:    desc || null,
     githubUrl:      document.getElementById('proj-github').value.trim() || null,
     demoUrl:        document.getElementById('proj-demo').value.trim() || null,
+    duration:       document.getElementById('proj-duration').value.trim() || null,
+    teamSize:       document.getElementById('proj-team').value.trim() || null,
+    role:           document.getElementById('proj-role').value.trim() || null,
     sortOrder:      parseInt(document.getElementById('proj-order').value) || 0,
     techStack:      techTags,
     features:       featTags,
     devPoints:      devPointItems.filter(d => d.label && d.content),
     troubleshooting: troubleItems.filter(t => t.label && t.content),
+    contentBlocks:  contentBlocks.filter(b => b.content),
   };
 
   try {
@@ -198,8 +186,7 @@ async function saveProject() {
 
     if (res.ok) {
       toast(editingProjectId ? '수정되었습니다.' : '등록되었습니다.');
-      closeProjectModal();
-      loadProjects(projectsPage);
+      showProjectList();
     } else if (res.status === 401) {
       toast('인증이 만료되었습니다.', 'error'); doLogout();
     } else {
@@ -211,28 +198,48 @@ async function saveProject() {
   }
 }
 
-function openProjectModal() {
-  editingProjectId = null;
-  techTags = []; featTags = [];
-  devPointItems = []; troubleItems = [];
-  document.getElementById('project-modal-title').textContent = '새 프로젝트';
-  document.getElementById('proj-title').value   = '';
-  document.getElementById('proj-summary').value = '';
-  document.getElementById('proj-desc').value    = '';
-  document.getElementById('proj-github').value  = '';
-  document.getElementById('proj-demo').value   = '';
-  document.getElementById('proj-order').value  = '';
+function showProjectEditor(id, data) {
+  editingProjectId = id || null;
+
+  document.getElementById('proj-title').value    = data?.title || '';
+  document.getElementById('proj-summary').value  = data?.summary || '';
+  document.getElementById('proj-desc').value     = data?.description || '';
+  document.getElementById('proj-github').value   = data?.githubUrl || '';
+  document.getElementById('proj-demo').value     = data?.demoUrl || '';
+  document.getElementById('proj-duration').value = data?.duration || '';
+  document.getElementById('proj-team').value     = data?.teamSize || '';
+  document.getElementById('proj-role').value     = data?.role || '';
+  document.getElementById('proj-order').value    = data?.sortOrder ?? '';
+
+  techTags = [...(data?.techStack || [])];
+  featTags = [...(data?.features || [])];
+  devPointItems = (data?.devPoints || []).map(d => ({ label: d.label, content: d.content, imageUrl: d.imageUrl || '' }));
+  troubleItems  = (data?.troubleshooting || []).map(t => ({ label: t.label, content: t.content, imageUrl: t.imageUrl || '' }));
+  contentBlocks = (data?.contentBlocks || []).map(b => ({ blockType: b.blockType, content: b.content }));
+
   renderTagChips('tech');
   renderTagChips('feat');
   renderPointItems('devpoint');
   renderPointItems('trouble');
-  document.getElementById('proj-media-section').style.display = 'none';
-  document.getElementById('proj-media-list').innerHTML = '';
-  document.getElementById('project-modal').classList.add('open');
+  renderContentBlocks();
+
+  const mediaSection = document.getElementById('proj-media-section');
+  if (id) {
+    mediaSection.style.display = 'block';
+    renderMediaList(data?.media || []);
+  } else {
+    mediaSection.style.display = 'none';
+    document.getElementById('proj-media-list').innerHTML = '';
+  }
+
+  document.getElementById('project-list-view').style.display = 'none';
+  document.getElementById('project-edit-view').style.display = 'block';
 }
 
-function closeProjectModal() {
-  document.getElementById('project-modal').classList.remove('open');
+function showProjectList() {
+  document.getElementById('project-edit-view').style.display = 'none';
+  document.getElementById('project-list-view').style.display = 'block';
+  loadProjects(projectsPage);
 }
 
 /* ─────────────────────────────────────────────
@@ -369,9 +376,10 @@ async function loadSkills() {
     const data = await adminFetch(`${API}/api/admin/skills`, { headers: authHeader() }).then(r => r.json());
     const wrap = document.getElementById('skills-categories');
     if (!data.length) { wrap.innerHTML = '<p class="empty">등록된 카테고리가 없습니다.</p>'; return; }
+    const levelLabel = ['','입문','경험','익숙','능숙'];
     wrap.innerHTML = data.map(cat => `
-      <div style="margin-bottom:1.5rem;border:1px solid var(--border);border-radius:0.8rem;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(99,102,241,0.06)">
+      <div style="margin-bottom:1.5rem;border:1px solid var(--border);border-radius:0.8rem;overflow:hidden;background:var(--surface)">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:var(--surface2)">
           <strong style="font-size:0.95rem">${esc(cat.name)}</strong>
           <div style="display:flex;gap:0.5rem">
             <button class="btn btn-edit btn-sm" onclick="openSkillModal(${cat.id})">+ 스킬</button>
@@ -379,10 +387,11 @@ async function loadSkills() {
             <button class="btn btn-danger btn-sm" onclick="deleteCategory(${cat.id},'${esc(cat.name)}')">삭제</button>
           </div>
         </div>
-        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;padding:0.75rem 1rem">
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.75rem 1rem">
           ${cat.skills.length ? cat.skills.map(s => `
-            <span style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(99,102,241,0.1);border:1px solid var(--border);border-radius:2rem;padding:0.25rem 0.7rem;font-size:0.82rem">
+            <span style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(37,99,235,0.05);border:1px solid var(--border);border-radius:2rem;padding:0.25rem 0.7rem;font-size:0.82rem">
               ${esc(s.name)}
+              <span style="font-size:0.7rem;color:var(--muted)">${levelLabel[s.level] || 'Lv' + s.level}</span>
               <button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.7rem" onclick="deleteSkill(${s.id},'${esc(s.name)}')">✕</button>
             </span>`).join('') : '<span style="color:var(--muted);font-size:0.82rem">스킬 없음</span>'}
         </div>
@@ -493,6 +502,7 @@ async function deleteCategory(id, name) {
 function openSkillModal(categoryId) {
   targetCategoryId = categoryId;
   document.getElementById('skill-name').value  = '';
+  document.getElementById('skill-level').value = '4';
   document.getElementById('skill-order').value = '';
   document.getElementById('skill-modal').classList.add('open');
 }
@@ -533,42 +543,81 @@ async function loadExperience() {
     if (!list.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">등록된 경험이 없습니다.</td></tr>'; return; }
     tbody.innerHTML = list.map(e => `
       <tr>
-        <td style="font-size:1.2rem">${esc(e.icon || '')}</td>
         <td><strong>${esc(e.title)}</strong></td>
+        <td style="color:var(--muted);font-size:0.82rem">${esc(e.summary || '')}</td>
         <td style="color:var(--muted);font-size:0.82rem">${(e.techStack||[]).map(t=>esc(t)).join(', ')}</td>
         <td>${e.sortOrder}</td>
         <td><div class="td-actions">
-          <button class="btn btn-edit btn-sm" onclick="openExpModal(${e.id})">수정</button>
+          <button class="btn btn-edit btn-sm" onclick="editExp(${e.id})">수정</button>
           <button class="btn btn-danger btn-sm" onclick="deleteExp(${e.id},'${esc(e.title)}')">삭제</button>
         </div></td>
       </tr>`).join('');
   } catch { toast('경험 목록을 불러오지 못했습니다.', 'error'); }
 }
 
-function openExpModal(id = null) {
-  editingExpId = id;
-  document.getElementById('exp-modal-title').textContent = id ? '경험 수정' : '경험 추가';
-  const ids = ['exp-icon','exp-title','exp-summary','exp-situation','exp-approach','exp-learned','exp-stack','exp-order','exp-image'];
-  if (!id) {
-    ids.forEach(i => document.getElementById(i).value = '');
-    document.getElementById('exp-modal').classList.add('open'); return;
-  }
-  fetch(`${API}/api/experiences`).then(r => r.json()).then(list => {
+async function editExp(id) {
+  try {
+    const list = await fetch(`${API}/api/experiences`).then(r => r.json());
     const e = list.find(x => x.id === id);
     if (!e) return;
-    document.getElementById('exp-icon').value      = e.icon      || '';
-    document.getElementById('exp-title').value     = e.title     || '';
-    document.getElementById('exp-summary').value   = e.summary   || '';
-    document.getElementById('exp-situation').value = e.situation || '';
-    document.getElementById('exp-approach').value  = e.approach  || '';
-    document.getElementById('exp-learned').value   = e.learned   || '';
-    document.getElementById('exp-stack').value     = (e.techStack || []).join(', ');
-    document.getElementById('exp-image').value     = e.imageUrl || '';
-    document.getElementById('exp-order').value     = e.sortOrder ?? '';
-    document.getElementById('exp-modal').classList.add('open');
-  });
+    showExpEditor(id, e);
+  } catch {
+    toast('역량 정보를 불러오지 못했습니다.', 'error');
+  }
 }
-function closeExpModal() { document.getElementById('exp-modal').classList.remove('open'); }
+
+function showExpEditor(id, data) {
+  editingExpId = id || null;
+
+  document.getElementById('exp-title').value     = data?.title || '';
+  document.getElementById('exp-summary').value   = data?.summary || '';
+  document.getElementById('exp-situation').value = data?.situation || '';
+  document.getElementById('exp-approach').value  = data?.approach || '';
+  document.getElementById('exp-learned').value   = data?.learned || '';
+  document.getElementById('exp-stack').value     = (data?.techStack || []).join(', ');
+  document.getElementById('exp-image').value     = data?.imageUrl || '';
+  document.getElementById('exp-order').value     = data?.sortOrder ?? '';
+
+  const preview = document.getElementById('exp-image-preview');
+  if (data?.imageUrl) {
+    preview.innerHTML = `<img src="${esc(data.imageUrl)}" />`;
+  } else {
+    preview.innerHTML = '';
+  }
+
+  document.getElementById('exp-list-view').style.display = 'none';
+  document.getElementById('exp-edit-view').style.display = 'block';
+}
+
+function showExpList() {
+  document.getElementById('exp-edit-view').style.display = 'none';
+  document.getElementById('exp-list-view').style.display = 'block';
+  loadExperience();
+}
+
+async function uploadExpImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('path', 'experiences');
+  try {
+    const res = await adminFetch(`${API}/api/admin/upload`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') },
+      body: formData,
+    });
+    if (res.ok) {
+      const { url } = await res.json();
+      document.getElementById('exp-image').value = url;
+      document.getElementById('exp-image-preview').innerHTML = `<img src="${esc(url)}" />`;
+      toast('이미지가 업로드되었습니다.');
+    } else {
+      toast('이미지 업로드 실패', 'error');
+    }
+  } catch { toast('업로드 중 오류 발생', 'error'); }
+  event.target.value = '';
+}
 
 async function saveExp() {
   const title     = document.getElementById('exp-title').value.trim();
@@ -579,7 +628,7 @@ async function saveExp() {
   const stackRaw = document.getElementById('exp-stack').value.trim();
   const techStack = stackRaw ? stackRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
   const body = {
-    icon: document.getElementById('exp-icon').value.trim() || null,
+    icon: null,
     title, summary: document.getElementById('exp-summary').value.trim() || null,
     situation, approach, learned, techStack,
     imageUrl: document.getElementById('exp-image').value.trim() || null,
@@ -589,7 +638,7 @@ async function saveExp() {
   const method = editingExpId ? 'PUT' : 'POST';
   try {
     const res = await adminFetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
-    if (res.ok) { toast(editingExpId ? '수정되었습니다.' : '추가되었습니다.'); closeExpModal(); loadExperience(); }
+    if (res.ok) { toast(editingExpId ? '수정되었습니다.' : '추가되었습니다.'); showExpList(); }
     else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
     else { const err = await res.json().catch(()=>({})); toast(err.message||'저장 실패', 'error'); }
   } catch { toast('오류 발생', 'error'); }
@@ -783,11 +832,41 @@ function renderPointItems(type) {
     contentArea.placeholder = '내용을 입력하세요...';
     contentArea.value       = item.content;
 
+    const imageWrap = document.createElement('div');
+    imageWrap.className = 'point-image-wrap';
+    imageWrap.style.gridColumn = '1 / 3';
+    if (item.imageUrl) {
+      const preview = document.createElement('img');
+      preview.src = item.imageUrl; preview.className = 'point-img-preview';
+      imageWrap.appendChild(preview);
+    }
+    const imageBtn = document.createElement('label');
+    imageBtn.className = 'btn btn-outline btn-sm';
+    imageBtn.style.cursor = 'pointer'; imageBtn.style.display = 'inline-block'; imageBtn.style.fontSize = '0.75rem';
+    imageBtn.textContent = item.imageUrl ? '이미지 변경' : '이미지 업로드';
+    const imageFile = document.createElement('input');
+    imageFile.type = 'file'; imageFile.accept = 'image/*'; imageFile.style.display = 'none';
+    imageFile.onchange = async (ev) => {
+      const f = ev.target.files[0]; if (!f) return;
+      const fd = new FormData(); fd.append('file', f); fd.append('path', 'points');
+      try {
+        const res = await adminFetch(`${API}/api/admin/upload`, {
+          method: 'POST', headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }, body: fd
+        });
+        if (res.ok) {
+          const { url } = await res.json();
+          item.imageUrl = url;
+          renderPointItems(type);
+          toast('이미지 업로드 완료');
+        } else { toast('업로드 실패', 'error'); }
+      } catch { toast('업로드 오류', 'error'); }
+    };
+    imageBtn.appendChild(imageFile);
+    imageWrap.appendChild(imageBtn);
     const imageInput = document.createElement('input');
-    imageInput.type        = 'text';
-    imageInput.className   = 'point-image-input';
-    imageInput.placeholder = '이미지 URL (선택)';
-    imageInput.value       = item.imageUrl || '';
+    imageInput.type = 'hidden';
+    imageInput.className = 'point-image-input';
+    imageInput.value = item.imageUrl || '';
 
     const removeBtn = document.createElement('button');
     removeBtn.className = 'point-item-remove';
@@ -797,6 +876,7 @@ function renderPointItems(type) {
 
     row.appendChild(labelInput);
     row.appendChild(contentArea);
+    row.appendChild(imageWrap);
     row.appendChild(imageInput);
     row.appendChild(removeBtn);
     list.appendChild(row);
@@ -966,3 +1046,105 @@ window.addEventListener('DOMContentLoaded', async () => {
     }
   } catch { /* 로그인 화면 유지 */ }
 });
+
+/* ─────────────────────────────────────────────
+   CONTENT BLOCKS
+───────────────────────────────────────────── */
+function renderContentBlocks() {
+  const list = document.getElementById('content-block-list');
+  list.innerHTML = '';
+  contentBlocks.forEach((block, i) => {
+    const item = document.createElement('div');
+    item.className = 'content-block-item';
+
+    const header = document.createElement('div');
+    header.className = 'content-block-header';
+
+    const typeLabel = document.createElement('span');
+    typeLabel.className = 'content-block-type';
+    typeLabel.textContent = block.blockType === 'IMAGE' ? 'IMAGE' : 'TEXT';
+
+    const actions = document.createElement('div');
+    actions.className = 'content-block-actions';
+    if (i > 0) {
+      const upBtn = document.createElement('button');
+      upBtn.textContent = '↑'; upBtn.onclick = () => { moveContentBlock(i, -1); };
+      actions.appendChild(upBtn);
+    }
+    if (i < contentBlocks.length - 1) {
+      const downBtn = document.createElement('button');
+      downBtn.textContent = '↓'; downBtn.onclick = () => { moveContentBlock(i, 1); };
+      actions.appendChild(downBtn);
+    }
+    const removeBtn = document.createElement('button');
+    removeBtn.className = 'block-remove';
+    removeBtn.textContent = '✕'; removeBtn.onclick = () => { contentBlocks.splice(i, 1); renderContentBlocks(); };
+    actions.appendChild(removeBtn);
+
+    header.appendChild(typeLabel);
+    header.appendChild(actions);
+    item.appendChild(header);
+
+    if (block.blockType === 'TEXT') {
+      const textarea = document.createElement('textarea');
+      textarea.value = block.content || '';
+      textarea.placeholder = '텍스트를 입력하세요...';
+      item.appendChild(textarea);
+    } else {
+      if (block.content) {
+        const img = document.createElement('img');
+        img.src = block.content; img.className = 'content-block-img-preview';
+        item.appendChild(img);
+      }
+      const uploadLabel = document.createElement('label');
+      uploadLabel.className = 'btn btn-outline btn-sm';
+      uploadLabel.style.cursor = 'pointer'; uploadLabel.style.display = 'inline-block';
+      uploadLabel.textContent = block.content ? '이미지 변경' : '이미지 업로드';
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file'; fileInput.accept = 'image/*'; fileInput.style.display = 'none';
+      fileInput.onchange = async (ev) => {
+        const f = ev.target.files[0]; if (!f) return;
+        const fd = new FormData(); fd.append('file', f); fd.append('path', 'content');
+        try {
+          const res = await adminFetch(`${API}/api/admin/upload`, {
+            method: 'POST', headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }, body: fd
+          });
+          if (res.ok) {
+            const { url } = await res.json();
+            contentBlocks[i].content = url;
+            renderContentBlocks();
+            toast('이미지 업로드 완료');
+          } else { toast('업로드 실패', 'error'); }
+        } catch { toast('업로드 오류', 'error'); }
+      };
+      uploadLabel.appendChild(fileInput);
+      item.appendChild(uploadLabel);
+    }
+
+    list.appendChild(item);
+  });
+}
+
+function addContentBlock(type) {
+  contentBlocks.push({ blockType: type, content: '' });
+  renderContentBlocks();
+}
+
+function moveContentBlock(index, dir) {
+  const target = index + dir;
+  if (target < 0 || target >= contentBlocks.length) return;
+  [contentBlocks[index], contentBlocks[target]] = [contentBlocks[target], contentBlocks[index]];
+  renderContentBlocks();
+}
+
+function collectContentBlocks() {
+  const items = document.querySelectorAll('#content-block-list .content-block-item');
+  contentBlocks = Array.from(items).map((item, i) => {
+    const type = contentBlocks[i]?.blockType || 'TEXT';
+    if (type === 'TEXT') {
+      const ta = item.querySelector('textarea');
+      return { blockType: 'TEXT', content: ta ? ta.value.trim() : '' };
+    }
+    return { blockType: 'IMAGE', content: contentBlocks[i]?.content || '' };
+  });
+}

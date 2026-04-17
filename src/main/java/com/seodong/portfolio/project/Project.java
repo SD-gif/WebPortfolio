@@ -35,6 +35,15 @@ public class Project {
     @Column(length = 255)
     private String demoUrl;
 
+    @Column(length = 50)
+    private String duration;
+
+    @Column(name = "team_size", length = 30)
+    private String teamSize;
+
+    @Column(length = 50)
+    private String role;
+
     @Column(nullable = false)
     private int sortOrder;
 
@@ -69,18 +78,28 @@ public class Project {
     @Builder.Default
     private List<ProjectTroubleshooting> troubleshootings = new ArrayList<>();
 
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("sortOrder ASC")
+    @Builder.Default
+    private List<ProjectContentBlock> contentBlocks = new ArrayList<>();
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();
     }
 
     public void update(String title, String summary, String description,
-                       String githubUrl, String demoUrl, int sortOrder) {
+                       String githubUrl, String demoUrl,
+                       String duration, String teamSize, String role,
+                       int sortOrder) {
         this.title       = title;
         this.summary     = summary;
         this.description = description;
         this.githubUrl   = githubUrl;
         this.demoUrl     = demoUrl;
+        this.duration    = duration;
+        this.teamSize    = teamSize;
+        this.role        = role;
         this.sortOrder   = sortOrder;
     }
 }

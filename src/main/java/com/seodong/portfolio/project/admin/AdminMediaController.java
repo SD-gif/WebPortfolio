@@ -51,6 +51,14 @@ public class AdminMediaController {
         return ResponseEntity.status(201).body(ProjectMediaResponse.from(projectMediaRepository.save(media)));
     }
 
+    @PostMapping("/upload")
+    public ResponseEntity<java.util.Map<String, String>> uploadImage(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam(value = "path", defaultValue = "images") String path) {
+        String url = s3Service.upload(file, path);
+        return ResponseEntity.ok(java.util.Map.of("url", url));
+    }
+
     @DeleteMapping("/media/{id}")
     public ResponseEntity<SimpleResponse> delete(@PathVariable Long id) {
         ProjectMedia media = projectMediaRepository.findById(id)
