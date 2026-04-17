@@ -79,6 +79,29 @@ class AdminProjectServiceTest {
     }
 
     @Test
+    @DisplayName("개발 포인트와 트러블슈팅을 포함한 프로젝트 생성")
+    void create_withDevPointsAndTroubleshooting_returnsSaved() {
+        // given
+        List<ProjectRequest.PointItem> devPoints = List.of(
+                new ProjectRequest.PointItem("Redis 캐싱", "캐싱 전략 설명", null));
+        List<ProjectRequest.PointItem> troubleshooting = List.of(
+                new ProjectRequest.PointItem("직렬화 오류", "해결 과정", "https://img.com/err.png"));
+        ProjectRequest req = new ProjectRequest("프로젝트", "소개", "설명", null, null, 1,
+                List.of("Java"), List.of("기능1"), devPoints, troubleshooting);
+
+        Project saved = Project.builder()
+                .title(req.title()).summary(req.summary()).description(req.description()).sortOrder(1).build();
+        given(projectRepository.save(any())).willReturn(saved);
+
+        // when
+        ProjectDetailResponse response = adminProjectService.create(req);
+
+        // then
+        assertThat(response.title()).isEqualTo("프로젝트");
+        then(projectRepository).should().save(any(Project.class));
+    }
+
+    @Test
     @DisplayName("존재하는 프로젝트 삭제 시 정상 삭제된다")
     void delete_existingProject_deletesSuccessfully() {
         // given
