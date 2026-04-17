@@ -16,15 +16,24 @@ public record ProjectRequest(
         String description,
         String githubUrl,
         String demoUrl,
+        String duration,
+        String teamSize,
+        String role,
         int sortOrder,
         List<String> techStack,
         List<String> features,
         List<PointItem> devPoints,
-        List<PointItem> troubleshooting
+        List<PointItem> troubleshooting,
+        List<ContentBlock> contentBlocks
 ) {
     public record PointItem(
             @NotBlank String label,
             @NotBlank String content,
             String imageUrl
+    ) {}
+
+    public record ContentBlock(
+            @NotBlank String blockType,
+            @NotBlank String content
     ) {}
 }

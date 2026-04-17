@@ -111,12 +111,14 @@ class AdminControllerTest {
     private ProjectDetailResponse sampleDetail() {
         return new ProjectDetailResponse(1L, "프로젝트", "간략 소개", "설명",
                 List.of("Java"), "https://github.com", "https://demo.com",
-                List.of("기능1"), List.of(), List.of(), List.of(), LocalDate.of(2024, 1, 1));
+                null, null, null,
+                List.of("기능1"), List.of(), List.of(), List.of(), List.of(), LocalDate.of(2024, 1, 1));
     }
 
     private ProjectRequest sampleProjectReq() {
         return new ProjectRequest("프로젝트", "간략 소개", "설명", "https://github.com",
-                "https://demo.com", 1, List.of("Java"), List.of("기능1"), List.of(), List.of());
+                "https://demo.com", null, null, null, 1,
+                List.of("Java"), List.of("기능1"), List.of(), List.of(), List.of());
     }
 
     @Test

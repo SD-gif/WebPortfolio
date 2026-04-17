@@ -72,27 +72,99 @@
 
       <!-- Projects Tab -->
       <div class="tab-panel active" id="tab-projects">
-        <div class="panel-header">
-          <span class="panel-title">Projects</span>
-          <button class="btn btn-primary btn-sm" onclick="openProjectModal()">+ 새 프로젝트</button>
+        <!-- List View -->
+        <div id="project-list-view">
+          <div class="panel-header">
+            <span class="panel-title">Projects</span>
+            <button class="btn btn-primary btn-sm" onclick="showProjectEditor()">+ 새 프로젝트</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>순서</th><th>제목</th><th>기술 스택</th><th>GitHub</th><th>Demo</th><th>등록일</th><th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="projects-tbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="projects-pagination"></div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>순서</th>
-                <th>제목</th>
-                <th>기술 스택</th>
-                <th>GitHub</th>
-                <th>Demo</th>
-                <th>등록일</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody id="projects-tbody"></tbody>
-          </table>
+        <!-- Edit View -->
+        <div id="project-edit-view" style="display:none">
+          <div class="edit-header">
+            <button class="btn-back" onclick="showProjectList()">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              목록으로
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="saveProject()">저장</button>
+          </div>
+          <div class="edit-body">
+            <div class="edit-section">
+              <div class="edit-section-title">기본 정보</div>
+              <div class="form-row">
+                <div class="form-group"><label>제목 * (최대 30자)</label><input id="proj-title" type="text" maxlength="30" placeholder="프로젝트명" /></div>
+                <div class="form-group"><label>정렬 순서</label><input id="proj-order" type="number" min="0" placeholder="1" /></div>
+              </div>
+              <div class="form-group"><label>간략 소개 (카드 표시용, 최대 80자)</label><input id="proj-summary" type="text" maxlength="80" placeholder="프로젝트 한 줄 소개" /></div>
+              <div class="form-group"><label>설명</label><textarea id="proj-desc" rows="4" placeholder="프로젝트 개요 (선택, 콘텐츠 블록으로 대체 가능)"></textarea></div>
+              <div class="form-row">
+                <div class="form-group"><label>GitHub URL</label><input id="proj-github" type="url" placeholder="https://github.com/..." /></div>
+                <div class="form-group"><label>Demo URL</label><input id="proj-demo" type="url" placeholder="https://..." /></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>기간</label><input id="proj-duration" type="text" placeholder="2024.03 ~ 2024.06" /></div>
+                <div class="form-group"><label>팀 규모</label><input id="proj-team" type="text" placeholder="4명" /></div>
+                <div class="form-group"><label>역할</label><input id="proj-role" type="text" placeholder="백엔드 개발" /></div>
+              </div>
+            </div>
+            <div class="edit-section">
+              <div class="edit-section-title">기술 스택 & 주요 기능</div>
+              <div class="form-group">
+                <label>기술 스택</label>
+                <div class="tag-input-wrap" id="tech-tag-wrap" onclick="document.getElementById('tech-input').focus()">
+                  <span class="tag-hint" id="tech-placeholder" style="color:var(--muted);font-size:0.85rem;">Java, Spring Boot...</span>
+                  <input class="tag-text-input" id="tech-input" placeholder="" />
+                </div>
+                <span class="tag-hint">Enter 또는 쉼표로 태그 추가</span>
+              </div>
+              <div class="form-group">
+                <label>주요 기능</label>
+                <div class="tag-input-wrap" id="feat-tag-wrap" onclick="document.getElementById('feat-input').focus()">
+                  <span class="tag-hint" id="feat-placeholder" style="color:var(--muted);font-size:0.85rem;">기능1, 기능2...</span>
+                  <input class="tag-text-input" id="feat-input" placeholder="" />
+                </div>
+                <span class="tag-hint">Enter 또는 쉼표로 태그 추가</span>
+              </div>
+            </div>
+            <div class="edit-section">
+              <div class="edit-section-title">개발 포인트</div>
+              <div class="point-list" id="devpoint-list"></div>
+              <button class="btn-add-point" type="button" onclick="addPointItem('devpoint')">+ 항목 추가</button>
+            </div>
+            <div class="edit-section">
+              <div class="edit-section-title">트러블슈팅</div>
+              <div class="point-list" id="trouble-list"></div>
+              <button class="btn-add-point" type="button" onclick="addPointItem('trouble')">+ 항목 추가</button>
+            </div>
+            <div class="edit-section">
+              <div class="edit-section-title">콘텐츠 블록 (설명 + 이미지 교차 배치)</div>
+              <div id="content-block-list" class="content-block-list"></div>
+              <div style="display:flex;gap:0.5rem;margin-top:0.5rem">
+                <button class="btn-add-point" type="button" onclick="addContentBlock('TEXT')">+ 텍스트</button>
+                <button class="btn-add-point" type="button" onclick="addContentBlock('IMAGE')">+ 이미지</button>
+              </div>
+            </div>
+            <div class="edit-section" id="proj-media-section" style="display:none">
+              <div class="edit-section-title">미디어 (이미지 / 동영상)</div>
+              <div id="proj-media-list" style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:0.6rem;"></div>
+              <label class="btn btn-outline btn-sm" style="cursor:pointer;display:inline-block;">
+                + 파일 추가
+                <input type="file" id="proj-media-input" accept="image/*,video/*" multiple style="display:none;" onchange="uploadMedia(event)" />
+              </label>
+            </div>
+          </div>
         </div>
-        <div class="pagination" id="projects-pagination"></div>
       </div>
 
       <!-- Contacts Tab -->
@@ -135,17 +207,58 @@
 
       <!-- Experience Tab -->
       <div class="tab-panel" id="tab-experience">
-        <div class="panel-header">
-          <span class="panel-title">Experience</span>
-          <button class="btn btn-primary btn-sm" onclick="openExpModal()">+ 경험 추가</button>
+        <!-- List View -->
+        <div id="exp-list-view">
+          <div class="panel-header">
+            <span class="panel-title">Experience</span>
+            <button class="btn btn-primary btn-sm" onclick="showExpEditor()">+ 역량 추가</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>제목</th><th>간략 설명</th><th>기술 스택</th><th>순서</th><th>관리</th></tr>
+              </thead>
+              <tbody id="exp-tbody"></tbody>
+            </table>
+          </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr><th>아이콘</th><th>제목</th><th>기술 스택</th><th>순서</th><th>관리</th></tr>
-            </thead>
-            <tbody id="exp-tbody"></tbody>
-          </table>
+        <!-- Edit View -->
+        <div id="exp-edit-view" style="display:none">
+          <div class="edit-header">
+            <button class="btn-back" onclick="showExpList()">
+              <svg viewBox="0 0 24 24" width="16" height="16"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              목록으로
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="saveExp()">저장</button>
+          </div>
+          <div class="edit-body">
+            <div class="edit-section">
+              <div class="edit-section-title">기본 정보</div>
+              <div class="form-row">
+                <div class="form-group"><label>제목 *</label><input id="exp-title" type="text" placeholder="강의 좌석 예약의 데이터 정합성 확보" /></div>
+                <div class="form-group"><label>정렬 순서</label><input id="exp-order" type="number" min="0" placeholder="1" /></div>
+              </div>
+            </div>
+            <div class="edit-section">
+              <div class="edit-section-title">상세 내용</div>
+              <div class="form-group"><label>상황 (Situation) * (최대 200자)</label><textarea id="exp-situation" rows="4" maxlength="200" placeholder="어떤 문제 상황이었는지..."></textarea></div>
+              <div class="form-group"><label>접근 (Approach) * (최대 200자)</label><textarea id="exp-approach" rows="4" maxlength="200" placeholder="어떤 선택과 근거로 접근했는지..."></textarea></div>
+              <div class="form-group"><label>배운 점 (Learned) * (최대 150자)</label><textarea id="exp-learned" rows="3" maxlength="150" placeholder="재사용 가능한 원칙, 다음 스텝..."></textarea></div>
+            </div>
+            <div class="edit-section">
+              <div class="edit-section-title">부가 정보</div>
+              <div class="form-group"><label>기술 스택 (쉼표 구분)</label><input id="exp-stack" type="text" placeholder="Spring Data JPA, PostgreSQL" /></div>
+              <div class="form-group">
+                <label>이미지 (선택)</label>
+                <div class="upload-preview" id="exp-image-preview"></div>
+                <label class="btn btn-outline btn-sm" style="cursor:pointer;display:inline-block;">
+                  이미지 업로드
+                  <input type="file" id="exp-image-input" accept="image/*" style="display:none" onchange="uploadExpImage(event)" />
+                </label>
+                <input type="hidden" id="exp-image" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -229,81 +342,6 @@
   </div>
 </div>
 
-<!-- ── Project Modal ── -->
-<div class="modal-backdrop" id="project-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="project-modal-title">새 프로젝트</span>
-      <button class="modal-close" onclick="closeProjectModal()">✕</button>
-    </div>
-    <div class="form-group">
-      <label>제목 * (최대 30자)</label>
-      <input id="proj-title" type="text" maxlength="30" placeholder="프로젝트명" />
-    </div>
-    <div class="form-group">
-      <label>간략 소개 (카드 표시용, 최대 80자)</label>
-      <input id="proj-summary" type="text" maxlength="80" placeholder="프로젝트 한 줄 소개" />
-    </div>
-    <div class="form-group">
-      <label>설명 *</label>
-      <textarea id="proj-desc" rows="3" placeholder="프로젝트 설명"></textarea>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>GitHub URL</label>
-        <input id="proj-github" type="url" placeholder="https://github.com/..." />
-      </div>
-      <div class="form-group">
-        <label>Demo URL</label>
-        <input id="proj-demo" type="url" placeholder="https://..." />
-      </div>
-    </div>
-    <div class="form-group">
-      <label>정렬 순서</label>
-      <input id="proj-order" type="number" min="0" placeholder="1" />
-    </div>
-    <div class="form-group">
-      <label>기술 스택</label>
-      <div class="tag-input-wrap" id="tech-tag-wrap" onclick="document.getElementById('tech-input').focus()">
-        <span class="tag-hint" id="tech-placeholder" style="color:var(--muted);font-size:0.85rem;">Java, Spring Boot...</span>
-        <input class="tag-text-input" id="tech-input" placeholder="" />
-      </div>
-      <span class="tag-hint">Enter 또는 쉼표로 태그 추가</span>
-    </div>
-    <div class="form-group">
-      <label>주요 기능</label>
-      <div class="tag-input-wrap" id="feat-tag-wrap" onclick="document.getElementById('feat-input').focus()">
-        <span class="tag-hint" id="feat-placeholder" style="color:var(--muted);font-size:0.85rem;">기능1, 기능2...</span>
-        <input class="tag-text-input" id="feat-input" placeholder="" />
-      </div>
-      <span class="tag-hint">Enter 또는 쉼표로 태그 추가</span>
-    </div>
-    <div class="form-group">
-      <div class="point-section-label">🛠 개발 포인트</div>
-      <div class="point-list" id="devpoint-list"></div>
-      <button class="btn-add-point" type="button" onclick="addPointItem('devpoint')">+ 항목 추가</button>
-    </div>
-    <div class="form-group">
-      <div class="point-section-label">🔧 트러블 슈팅</div>
-      <div class="point-list" id="trouble-list"></div>
-      <button class="btn-add-point" type="button" onclick="addPointItem('trouble')">+ 항목 추가</button>
-    </div>
-    <div id="proj-media-section" style="display:none;">
-      <div class="form-group">
-        <label>미디어 (이미지 / 동영상)</label>
-        <div id="proj-media-list" style="display:flex;flex-wrap:wrap;gap:0.6rem;margin-bottom:0.6rem;"></div>
-        <label class="btn btn-outline btn-sm" style="cursor:pointer;display:inline-block;">
-          + 파일 추가
-          <input type="file" id="proj-media-input" accept="image/*,video/*" multiple style="display:none;" onchange="uploadMedia(event)" />
-        </label>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline btn-sm" onclick="closeProjectModal()">취소</button>
-      <button class="btn btn-primary btn-sm" onclick="saveProject()">저장</button>
-    </div>
-  </div>
-</div>
 
 <!-- ── Category Modal ── -->
 <div class="modal-backdrop" id="category-modal">
@@ -347,30 +385,6 @@
   </div>
 </div>
 
-<!-- ── Experience Modal ── -->
-<div class="modal-backdrop" id="exp-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <span class="modal-title" id="exp-modal-title">경험 추가</span>
-      <button class="modal-close" onclick="closeExpModal()">✕</button>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>아이콘 (이모지)</label><input id="exp-icon" type="text" maxlength="4" placeholder="🔒" /></div>
-      <div class="form-group"><label>정렬 순서</label><input id="exp-order" type="number" min="0" placeholder="1" /></div>
-    </div>
-    <div class="form-group"><label>제목 *</label><input id="exp-title" type="text" placeholder="강의 좌석 예약의 데이터 정합성 확보" /></div>
-    <div class="form-group"><label>간략 설명 (카드 표시용, 최대 80자)</label><input id="exp-summary" type="text" maxlength="80" placeholder="카드에 표시될 한 줄 요약" /></div>
-    <div class="form-group"><label>상황 (Situation) *</label><textarea id="exp-situation" rows="4" placeholder="어떤 문제 상황이었는지..."></textarea></div>
-    <div class="form-group"><label>접근 (Approach) *</label><textarea id="exp-approach" rows="4" placeholder="어떤 선택과 근거로 접근했는지..."></textarea></div>
-    <div class="form-group"><label>배운 점 (Learned) *</label><textarea id="exp-learned" rows="3" placeholder="재사용 가능한 원칙, 다음 스텝..."></textarea></div>
-    <div class="form-group"><label>기술 스택 (쉼표 구분)</label><input id="exp-stack" type="text" placeholder="Spring Data JPA, PostgreSQL" /></div>
-    <div class="form-group"><label>이미지 URL (선택)</label><input id="exp-image" type="text" placeholder="https://..." /></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline btn-sm" onclick="closeExpModal()">취소</button>
-      <button class="btn btn-primary btn-sm" onclick="saveExp()">저장</button>
-    </div>
-  </div>
-</div>
 
 <!-- ── Education Modal ── -->
 <div class="modal-backdrop" id="edu-modal">

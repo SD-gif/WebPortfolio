@@ -39,7 +39,7 @@ async function loadProject() {
   }
 }
 
-function render(el, { title, summary, description, techStack = [], features = [], devPoints = [], troubleshooting = [], githubUrl, demoUrl, media = [] }) {
+function render(el, { title, summary, description, techStack = [], features = [], devPoints = [], troubleshooting = [], contentBlocks = [], githubUrl, demoUrl, duration, teamSize, role, media = [] }) {
   // Header
   const tagsHtml = techStack.map(t => `<span class="proj-tag">${escapeHtml(t)}</span>`).join('');
   const linksHtml = `
@@ -47,13 +47,29 @@ function render(el, { title, summary, description, techStack = [], features = []
     ${demoUrl ? `<a class="proj-link proj-link-demo" href="${escapeHtml(demoUrl)}" target="_blank" rel="noopener">Live Demo</a>` : ''}
   `;
 
+  // Meta info
+  const metaItems = [
+    duration && `<span class="proj-meta-item"><strong>기간</strong> ${escapeHtml(duration)}</span>`,
+    teamSize && `<span class="proj-meta-item"><strong>팀</strong> ${escapeHtml(teamSize)}</span>`,
+    role && `<span class="proj-meta-item"><strong>역할</strong> ${escapeHtml(role)}</span>`,
+  ].filter(Boolean);
+  const metaHtml = metaItems.length ? `<div class="proj-meta-info">${metaItems.join('')}</div>` : '';
+
+  // Content blocks
+  const blocksHtml = contentBlocks.length ? `
+    <hr class="section-divider">
+    ${contentBlocks.map(b => b.blockType === 'IMAGE'
+      ? `<div class="content-block content-block-image" onclick="openLightbox('${escapeHtml(b.content)}')"><img src="${escapeHtml(b.content)}" alt="프로젝트 이미지" loading="lazy" /></div>`
+      : `<div class="content-block content-block-text">${escapeHtml(b.content)}</div>`
+    ).join('')}` : '';
+
   // Overview media gallery
   const galleryHtml = media.length ? `
     <div class="proj-gallery">
       <div class="proj-gallery-grid">
         ${media.map(m => m.mediaType === 'VIDEO'
-          ? `<div class="proj-gallery-item"><video controls preload="metadata"><source src="${m.url}"></video></div>`
-          : `<div class="proj-gallery-item" onclick="openLightbox('${m.url}')"><img src="${m.url}" alt="프로젝트 이미지" loading="lazy" /></div>`
+          ? `<div class="proj-gallery-item"><video controls preload="metadata"><source src="${escapeHtml(m.url)}"></video></div>`
+          : `<div class="proj-gallery-item" onclick="openLightbox('${escapeHtml(m.url)}')"><img src="${escapeHtml(m.url)}" alt="프로젝트 이미지" loading="lazy" /></div>`
         ).join('')}
       </div>
     </div>` : '';
@@ -81,25 +97,62 @@ function render(el, { title, summary, description, techStack = [], features = []
     </div>` : '';
 
   el.innerHTML = `
-    <div class="proj-header">
-      <h1 class="proj-title">${escapeHtml(title)}</h1>
-      ${summary ? `<p class="proj-summary">${escapeHtml(summary)}</p>` : ''}
-      <div class="proj-meta">
-        <div class="proj-tags">${tagsHtml}</div>
-        <div class="proj-links">${linksHtml}</div>
+    <div class="proj-header-wrap">
+      <div class="proj-header">
+        <h1 class="proj-title">${escapeHtml(title)}</h1>
+        ${summary ? `<p class="proj-summary">${escapeHtml(summary)}</p>` : ''}
+        ${metaHtml}
+        <div class="proj-meta">
+          <div class="proj-tags">${tagsHtml}</div>
+          <div class="proj-links">${linksHtml}</div>
+        </div>
       </div>
     </div>
 
-    ${description ? `
-    <hr class="section-divider">
-    <div class="section-label">Overview</div>
-    <div class="proj-overview">${escapeHtml(description)}</div>` : ''}
+    <div class="proj-body">
+      ${description ? `
+      <div class="section-label">Overview</div>
+      <div class="proj-overview">${escapeHtml(description)}</div>
+      <hr class="section-divider">` : ''}
 
-    ${galleryHtml}
-    ${featuresHtml}
-    ${devPointsHtml}
-    ${troubleHtml}
+      ${blocksHtml}
+      ${galleryHtml}
+      ${featuresHtml}
+      ${devPointsHtml}
+      ${troubleHtml}
+    </div>
+
+    <div id="related-projects"></div>
   `;
+
+  loadRelatedProjects(el.querySelector('#related-projects'));
+}
+
+async function loadRelatedProjects(container) {
+  const currentId = new URLSearchParams(location.search).get('id');
+  try {
+    const res = await fetch('/api/projects?page=0&size=20');
+    if (!res.ok) return;
+    const { content = [] } = await res.json();
+    const others = content.filter(p => String(p.id) !== currentId).slice(0, 3);
+    if (!others.length) return;
+
+    const cards = others.map(p => {
+      const tags = (p.techStack || []).slice(0, 2).map(t => `<span class="proj-tag">${escapeHtml(t)}</span>`).join('');
+      return `
+        <a class="related-card" href="/project.html?id=${p.id}">
+          <div class="related-title">${escapeHtml(p.title)}</div>
+          <div class="related-summary">${escapeHtml(p.summary || '')}</div>
+          <div class="related-tags">${tags}</div>
+        </a>`;
+    }).join('');
+
+    container.innerHTML = `
+      <hr class="section-divider">
+      <div class="section-label">다른 프로젝트</div>
+      <div class="related-grid">${cards}</div>
+    `;
+  } catch { /* ignore */ }
 }
 
 function renderPoint(point, index, isTrouble) {

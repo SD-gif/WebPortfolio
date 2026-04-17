@@ -6,6 +6,7 @@ import com.seodong.portfolio.project.ProjectDevPoint;
 import com.seodong.portfolio.project.ProjectFeature;
 import com.seodong.portfolio.project.ProjectRepository;
 import com.seodong.portfolio.project.ProjectTechStack;
+import com.seodong.portfolio.project.ProjectContentBlock;
 import com.seodong.portfolio.project.ProjectTroubleshooting;
 import com.seodong.portfolio.project.dto.ProjectDetailResponse;
 import com.seodong.portfolio.project.dto.ProjectRequest;
@@ -30,6 +31,9 @@ public class AdminProjectService {
                 .description(req.description())
                 .githubUrl(req.githubUrl())
                 .demoUrl(req.demoUrl())
+                .duration(req.duration())
+                .teamSize(req.teamSize())
+                .role(req.role())
                 .sortOrder(req.sortOrder())
                 .build();
 
@@ -37,6 +41,7 @@ public class AdminProjectService {
         addFeatures(project, req.features());
         addDevPoints(project, req.devPoints());
         addTroubleshooting(project, req.troubleshooting());
+        addContentBlocks(project, req.contentBlocks());
 
         return ProjectDetailResponse.from(projectRepository.save(project));
     }
@@ -47,7 +52,10 @@ public class AdminProjectService {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 프로젝트를 찾을 수 없습니다."));
 
-        project.update(req.title(), req.summary(), req.description(), req.githubUrl(), req.demoUrl(), req.sortOrder());
+        project.update(req.title(), req.summary(), req.description(),
+                req.githubUrl(), req.demoUrl(),
+                req.duration(), req.teamSize(), req.role(),
+                req.sortOrder());
 
         project.getTechStacks().clear();
         addTechStacks(project, req.techStack());
@@ -60,6 +68,9 @@ public class AdminProjectService {
 
         project.getTroubleshootings().clear();
         addTroubleshooting(project, req.troubleshooting());
+
+        project.getContentBlocks().clear();
+        addContentBlocks(project, req.contentBlocks());
 
         return ProjectDetailResponse.from(projectRepository.save(project));
     }
@@ -116,6 +127,18 @@ public class AdminProjectService {
                     .label(items.get(i).label())
                     .content(items.get(i).content())
                     .imageUrl(items.get(i).imageUrl())
+                    .sortOrder(i + 1)
+                    .build());
+        }
+    }
+
+    private void addContentBlocks(Project project, List<ProjectRequest.ContentBlock> blocks) {
+        if (blocks == null) return;
+        for (int i = 0; i < blocks.size(); i++) {
+            project.getContentBlocks().add(ProjectContentBlock.builder()
+                    .project(project)
+                    .blockType(blocks.get(i).blockType())
+                    .content(blocks.get(i).content())
                     .sortOrder(i + 1)
                     .build());
         }
