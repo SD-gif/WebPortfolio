@@ -140,7 +140,7 @@ class SkillServiceTest {
         given(categoryRepository.findById(1L)).willReturn(Optional.of(category));
 
         // when
-        SkillItemResponse response = adminSkillService.addSkill(1L, new SkillRequest("Java", 1));
+        SkillItemResponse response = adminSkillService.addSkill(1L, new SkillRequest("Java", 4, 1));
 
         // then
         assertThat(response.name()).isEqualTo("Java");
@@ -153,7 +153,7 @@ class SkillServiceTest {
         given(categoryRepository.findById(999L)).willReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> adminSkillService.addSkill(999L, new SkillRequest("Java", 1)))
+        assertThatThrownBy(() -> adminSkillService.addSkill(999L, new SkillRequest("Java", 4, 1)))
                 .isInstanceOf(ResourceNotFoundException.class);
     }
 
@@ -201,8 +201,8 @@ class SkillServiceTest {
     void getSkills_withSkills_returnsSkillsInCategory() {
         // given
         SkillCategory category = SkillCategory.builder().name("Backend").sortOrder(1).build();
-        category.addSkill("Java", 1);
-        category.addSkill("Spring", 2);
+        category.addSkill("Java", 4, 1);
+        category.addSkill("Spring", 3, 2);
         given(categoryRepository.findAllByOrderBySortOrderAsc()).willReturn(List.of(category));
 
         // when

@@ -106,12 +106,12 @@ class AdminControllerTest {
     private ProjectDetailResponse sampleDetail() {
         return new ProjectDetailResponse(1L, "프로젝트", "간략 소개", "설명",
                 List.of("Java"), "https://github.com", "https://demo.com",
-                List.of("기능1"), List.of(), LocalDate.of(2024, 1, 1));
+                List.of("기능1"), List.of(), List.of(), List.of(), LocalDate.of(2024, 1, 1));
     }
 
     private ProjectRequest sampleProjectReq() {
         return new ProjectRequest("프로젝트", "간략 소개", "설명", "https://github.com",
-                "https://demo.com", 1, List.of("Java"), List.of("기능1"));
+                "https://demo.com", 1, List.of("Java"), List.of("기능1"), List.of(), List.of());
     }
 
     @Test
@@ -197,12 +197,12 @@ class AdminControllerTest {
     @Test
     @DisplayName("POST /api/admin/skills/categories/{id}/skills - 스킬 추가 201 반환")
     void addSkill_returns201() throws Exception {
-        SkillItemResponse resp = new SkillItemResponse(1L, "Java", 1);
+        SkillItemResponse resp = new SkillItemResponse(1L, "Java", 4, 1);
         given(adminSkillService.addSkill(eq(1L), any())).willReturn(resp);
 
         mockMvc.perform(post("/api/admin/skills/categories/1/skills")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new SkillRequest("Java", 1))))
+                        .content(objectMapper.writeValueAsString(new SkillRequest("Java", 4, 1))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Java"));
     }

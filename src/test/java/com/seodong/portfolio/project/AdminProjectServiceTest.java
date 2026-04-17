@@ -26,7 +26,7 @@ class AdminProjectServiceTest {
 
     private ProjectRequest sampleRequest() {
         return new ProjectRequest("포트폴리오", "간략 소개", "설명", "https://github.com/test", null, 1,
-                List.of("Java", "Spring"), List.of("기능1"));
+                List.of("Java", "Spring"), List.of("기능1"), List.of(), List.of());
     }
 
     @Test
@@ -58,7 +58,7 @@ class AdminProjectServiceTest {
         given(projectRepository.save(any())).willReturn(existing);
 
         ProjectRequest req = new ProjectRequest("변경 제목", "변경 소개", "변경 설명", null, null, 2,
-                List.of("Kotlin"), List.of("기능A"));
+                List.of("Kotlin"), List.of("기능A"), List.of(), List.of());
 
         // when
         ProjectDetailResponse response = adminProjectService.update(1L, req);
