@@ -62,6 +62,10 @@ cors:
     - https://seodong.me
     - https://www.seodong.me
 
+# ── Cookie ───────────────────────────────────────────────
+cookie:
+  secure: true    # 프로덕션 HTTPS 전용
+
 # ── Rate Limiting ─────────────────────────────────────────
 rate-limit:
   contact:

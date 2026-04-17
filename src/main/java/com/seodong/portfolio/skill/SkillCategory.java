@@ -33,10 +33,11 @@ public class SkillCategory {
         this.sortOrder = sortOrder;
     }
 
-    public Skill addSkill(String name, int sortOrder) {
+    public Skill addSkill(String name, int level, int sortOrder) {
         Skill skill = Skill.builder()
                 .category(this)
                 .name(name)
+                .level(level)
                 .sortOrder(sortOrder)
                 .build();
         this.skills.add(skill);

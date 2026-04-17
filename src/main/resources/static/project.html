@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project | Portfolio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/project.css" />
+</head>
+<body>
+
+  <!-- ── Top Bar ── -->
+  <nav id="navbar">
+    <a class="back-link" href="/#projects">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      목록으로
+    </a>
+    <span class="nav-logo">SD<span>.</span></span>
+  </nav>
+
+  <!-- ── Content ── -->
+  <main id="project-content">
+    <div class="loading">불러오는 중...</div>
+  </main>
+
+  <!-- ── Lightbox ── -->
+  <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+    <button class="lightbox-close" onclick="closeLightbox()">&#10005;</button>
+    <img id="lightbox-img" src="" alt="확대 이미지" />
+  </div>
+
+  <script src="/js/project.js" defer></script>
+</body>
+</html>

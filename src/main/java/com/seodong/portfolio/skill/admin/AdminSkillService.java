@@ -58,7 +58,7 @@ public class AdminSkillService {
     public SkillItemResponse addSkill(Long categoryId, SkillRequest req) {
         SkillCategory category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 카테고리를 찾을 수 없습니다."));
-        return SkillItemResponse.from(category.addSkill(req.name(), req.sortOrder()));
+        return SkillItemResponse.from(category.addSkill(req.name(), req.level(), req.sortOrder()));
     }
 
     @Transactional

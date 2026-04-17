@@ -2,9 +2,11 @@ package com.seodong.portfolio.project.admin;
 
 import com.seodong.portfolio.common.exception.ResourceNotFoundException;
 import com.seodong.portfolio.project.Project;
+import com.seodong.portfolio.project.ProjectDevPoint;
 import com.seodong.portfolio.project.ProjectFeature;
 import com.seodong.portfolio.project.ProjectRepository;
 import com.seodong.portfolio.project.ProjectTechStack;
+import com.seodong.portfolio.project.ProjectTroubleshooting;
 import com.seodong.portfolio.project.dto.ProjectDetailResponse;
 import com.seodong.portfolio.project.dto.ProjectRequest;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,8 @@ public class AdminProjectService {
 
         addTechStacks(project, req.techStack());
         addFeatures(project, req.features());
+        addDevPoints(project, req.devPoints());
+        addTroubleshooting(project, req.troubleshooting());
 
         return ProjectDetailResponse.from(projectRepository.save(project));
     }
@@ -50,6 +54,12 @@ public class AdminProjectService {
 
         project.getFeatures().clear();
         addFeatures(project, req.features());
+
+        project.getDevPoints().clear();
+        addDevPoints(project, req.devPoints());
+
+        project.getTroubleshootings().clear();
+        addTroubleshooting(project, req.troubleshooting());
 
         return ProjectDetailResponse.from(projectRepository.save(project));
     }
@@ -80,6 +90,32 @@ public class AdminProjectService {
             project.getFeatures().add(ProjectFeature.builder()
                     .project(project)
                     .feature(features.get(i))
+                    .sortOrder(i + 1)
+                    .build());
+        }
+    }
+
+    private void addDevPoints(Project project, List<ProjectRequest.PointItem> items) {
+        if (items == null) return;
+        for (int i = 0; i < items.size(); i++) {
+            project.getDevPoints().add(ProjectDevPoint.builder()
+                    .project(project)
+                    .label(items.get(i).label())
+                    .content(items.get(i).content())
+                    .imageUrl(items.get(i).imageUrl())
+                    .sortOrder(i + 1)
+                    .build());
+        }
+    }
+
+    private void addTroubleshooting(Project project, List<ProjectRequest.PointItem> items) {
+        if (items == null) return;
+        for (int i = 0; i < items.size(); i++) {
+            project.getTroubleshootings().add(ProjectTroubleshooting.builder()
+                    .project(project)
+                    .label(items.get(i).label())
+                    .content(items.get(i).content())
+                    .imageUrl(items.get(i).imageUrl())
                     .sortOrder(i + 1)
                     .build());
         }

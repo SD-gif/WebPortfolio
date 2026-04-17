@@ -26,7 +26,7 @@ class AdminProjectServiceTest {
 
     private ProjectRequest sampleRequest() {
         return new ProjectRequest("포트폴리오", "간략 소개", "설명", "https://github.com/test", null, 1,
-                List.of("Java", "Spring"), List.of("기능1"));
+                List.of("Java", "Spring"), List.of("기능1"), List.of(), List.of());
     }
 
     @Test
@@ -58,7 +58,7 @@ class AdminProjectServiceTest {
         given(projectRepository.save(any())).willReturn(existing);
 
         ProjectRequest req = new ProjectRequest("변경 제목", "변경 소개", "변경 설명", null, null, 2,
-                List.of("Kotlin"), List.of("기능A"));
+                List.of("Kotlin"), List.of("기능A"), List.of(), List.of());
 
         // when
         ProjectDetailResponse response = adminProjectService.update(1L, req);
@@ -76,6 +76,29 @@ class AdminProjectServiceTest {
         // when & then
         assertThatThrownBy(() -> adminProjectService.update(999L, sampleRequest()))
                 .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
+    @DisplayName("개발 포인트와 트러블슈팅을 포함한 프로젝트 생성")
+    void create_withDevPointsAndTroubleshooting_returnsSaved() {
+        // given
+        List<ProjectRequest.PointItem> devPoints = List.of(
+                new ProjectRequest.PointItem("Redis 캐싱", "캐싱 전략 설명", null));
+        List<ProjectRequest.PointItem> troubleshooting = List.of(
+                new ProjectRequest.PointItem("직렬화 오류", "해결 과정", "https://img.com/err.png"));
+        ProjectRequest req = new ProjectRequest("프로젝트", "소개", "설명", null, null, 1,
+                List.of("Java"), List.of("기능1"), devPoints, troubleshooting);
+
+        Project saved = Project.builder()
+                .title(req.title()).summary(req.summary()).description(req.description()).sortOrder(1).build();
+        given(projectRepository.save(any())).willReturn(saved);
+
+        // when
+        ProjectDetailResponse response = adminProjectService.create(req);
+
+        // then
+        assertThat(response.title()).isEqualTo("프로젝트");
+        then(projectRepository).should().save(any(Project.class));
     }
 
     @Test

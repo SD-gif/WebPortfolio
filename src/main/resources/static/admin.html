@@ -7,283 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
 
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      --primary:   #4f46e5;
-      --secondary: #7c3aed;
-      --accent:    #818cf8;
-      --dark:      #080812;
-      --surface:   #0f0f1e;
-      --surface2:  #13132a;
-      --border:    rgba(99,102,241,0.2);
-      --text:      #e2e8f0;
-      --muted:     #64748b;
-      --cyan:      #22d3ee;
-      --red:       #ef4444;
-      --green:     #22c55e;
-      --yellow:    #f59e0b;
-    }
-    html { scroll-behavior: smooth; }
-    body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
-
-    /* ── Login Screen ── */
-    #login-screen {
-      min-height: 100vh;
-      display: flex; align-items: center; justify-content: center;
-      background: radial-gradient(ellipse 60% 50% at 50% 10%, rgba(34,211,238,0.06), transparent);
-    }
-    .login-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 1.2rem;
-      padding: 2.5rem 2rem;
-      width: 100%; max-width: 380px;
-      box-shadow: 0 0 40px rgba(99,102,241,0.12);
-    }
-    .login-title {
-      font-family: 'Press Start 2P'; font-size: 0.75rem;
-      color: var(--cyan); text-align: center;
-      margin-bottom: 0.5rem; letter-spacing: 0.1em;
-    }
-    .login-sub {
-      font-family: 'Press Start 2P'; font-size: 0.45rem;
-      color: var(--muted); text-align: center;
-      margin-bottom: 2rem; letter-spacing: 0.08em;
-    }
-    .form-group { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
-    .form-group label { font-size: 0.78rem; font-weight: 600; color: var(--accent); }
-    .form-group input, .form-group textarea, .form-group select {
-      width: 100%;
-      background: rgba(15,15,30,0.9);
-      border: 1px solid var(--border);
-      border-radius: 0.6rem;
-      padding: 0.75rem 1rem;
-      color: var(--text); font-size: 0.9rem;
-      font-family: 'Inter', sans-serif;
-      outline: none; transition: border-color 0.2s;
-    }
-    .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); }
-    .form-group textarea { resize: vertical; min-height: 80px; }
-    #login-error {
-      color: var(--red); font-size: 0.78rem; text-align: center;
-      margin-bottom: 0.8rem; min-height: 1.2rem;
-    }
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
-      padding: 0.75rem 1.2rem;
-      border-radius: 0.6rem; border: none; cursor: pointer;
-      font-family: 'Inter', sans-serif; font-size: 0.88rem; font-weight: 700;
-      transition: opacity 0.2s, transform 0.1s;
-    }
-    .btn:hover { opacity: 0.88; }
-    .btn:active { transform: scale(0.97); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; width: 100%; }
-    .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.78rem; }
-    .btn-danger  { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
-    .btn-edit    { background: rgba(99,102,241,0.12); color: var(--accent); border: 1px solid var(--border); }
-    .btn-success { background: rgba(34,197,94,0.12); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
-    .btn-outline { background: transparent; color: var(--accent); border: 1px solid var(--border); }
-
-    /* ── Dashboard ── */
-    #dashboard { display: none; min-height: 100vh; }
-
-    /* Topbar */
-    .topbar {
-      position: sticky; top: 0; z-index: 100;
-      height: 56px;
-      background: rgba(8,8,18,0.95); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 2rem; gap: 1rem;
-    }
-    .topbar-logo { font-family: 'Press Start 2P'; font-size: 0.6rem; color: var(--cyan); white-space: nowrap; text-decoration: none; cursor: pointer; transition: opacity 0.2s; }
-    .topbar-logo:hover { opacity: 0.75; }
-    .topbar-right { display: flex; align-items: center; gap: 1rem; }
-    .topbar-user { font-size: 0.8rem; color: var(--muted); }
-    .btn-logout {
-      padding: 0.4rem 0.9rem; font-size: 0.78rem; font-weight: 600;
-      background: transparent; border: 1px solid rgba(239,68,68,0.4);
-      color: var(--red); border-radius: 0.5rem; cursor: pointer;
-      font-family: 'Inter', sans-serif; transition: background 0.2s;
-    }
-    .btn-logout:hover { background: rgba(239,68,68,0.08); }
-
-    /* Layout */
-    .layout { display: flex; min-height: calc(100vh - 56px); }
-
-    /* Sidebar */
-    .sidebar {
-      width: 200px; flex-shrink: 0;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 1.5rem 0;
-    }
-    .sidebar-item {
-      display: flex; align-items: center; gap: 0.7rem;
-      padding: 0.8rem 1.5rem;
-      cursor: pointer; transition: background 0.15s, color 0.15s;
-      font-size: 0.85rem; font-weight: 600; color: var(--muted);
-      border-left: 3px solid transparent;
-    }
-    .sidebar-item:hover { background: rgba(99,102,241,0.06); color: var(--text); }
-    .sidebar-item.active { background: rgba(99,102,241,0.1); color: var(--accent); border-left-color: var(--accent); }
-    .sidebar-item .ico { font-size: 1rem; }
-
-    /* Main */
-    .main { flex: 1; padding: 2rem; overflow-x: auto; }
-    .tab-panel { display: none; }
-    .tab-panel.active { display: block; }
-
-    .panel-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.5rem; flex-wrap: wrap; gap: 0.8rem;
-    }
-    .panel-title { font-size: 1.3rem; font-weight: 800; color: var(--text); }
-
-    /* Table */
-    .table-wrap { overflow-x: auto; border-radius: 1rem; border: 1px solid var(--border); }
-    table { width: 100%; border-collapse: collapse; }
-    thead { background: rgba(99,102,241,0.08); }
-    th {
-      padding: 0.85rem 1rem; text-align: left;
-      font-size: 0.75rem; font-weight: 700; color: var(--accent);
-      text-transform: uppercase; letter-spacing: 0.06em;
-      border-bottom: 1px solid var(--border);
-    }
-    td {
-      padding: 0.85rem 1rem; font-size: 0.85rem; color: var(--text);
-      border-bottom: 1px solid rgba(99,102,241,0.08);
-      vertical-align: middle;
-    }
-    tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(99,102,241,0.04); }
-    .td-actions { display: flex; gap: 0.5rem; align-items: center; }
-    .badge {
-      display: inline-block; padding: 0.2rem 0.55rem;
-      border-radius: 2rem; font-size: 0.72rem; font-weight: 600;
-    }
-    .badge-unread { background: rgba(34,211,238,0.12); color: var(--cyan); }
-    .badge-read   { background: rgba(100,116,139,0.12); color: var(--muted); }
-    .truncate { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* Pagination */
-    .pagination {
-      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-      margin-top: 1.2rem;
-    }
-    .page-btn {
-      padding: 0.35rem 0.75rem; border-radius: 0.5rem; border: 1px solid var(--border);
-      background: transparent; color: var(--muted); font-size: 0.8rem; cursor: pointer;
-      font-family: 'Inter', sans-serif; transition: all 0.15s;
-    }
-    .page-btn:hover { border-color: var(--accent); color: var(--accent); }
-    .page-btn.active { background: rgba(99,102,241,0.15); border-color: var(--accent); color: var(--accent); }
-    .page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-    /* Filter bar */
-    .filter-bar { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; }
-    .filter-bar label { font-size: 0.82rem; color: var(--muted); display: flex; align-items: center; gap: 0.4rem; cursor: pointer; }
-    .filter-bar input[type=checkbox] { accent-color: var(--accent); width: 14px; height: 14px; }
-
-    /* Modal */
-    .modal-backdrop {
-      position: fixed; inset: 0; z-index: 400;
-      background: rgba(0,0,0,0.7);
-      display: flex; align-items: flex-start; justify-content: center;
-      padding: 3rem 1rem; overflow-y: auto;
-      opacity: 0; visibility: hidden; pointer-events: none;
-      transition: opacity 0.2s ease, visibility 0.2s ease;
-    }
-    .modal-backdrop.open {
-      opacity: 1; visibility: visible; pointer-events: auto;
-    }
-    .modal {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 1.2rem;
-      padding: 2rem;
-      width: 100%; max-width: 540px;
-      box-shadow: 0 0 50px rgba(99,102,241,0.18);
-      transform: translateY(-16px) scale(0.97);
-      transition: transform 0.2s ease;
-    }
-    .modal-backdrop.open .modal {
-      transform: translateY(0) scale(1);
-    }
-    .modal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 1.5rem;
-    }
-    .modal-title { font-size: 1rem; font-weight: 800; color: var(--text); }
-    .modal-close {
-      background: none; border: none; cursor: pointer;
-      color: var(--muted); font-size: 1.2rem; line-height: 1;
-      transition: color 0.2s;
-    }
-    .modal-close:hover { color: var(--text); }
-    .modal-footer { display: flex; justify-content: flex-end; gap: 0.7rem; margin-top: 1.5rem; }
-
-    /* Tag input */
-    .tag-input-wrap {
-      background: rgba(15,15,30,0.9);
-      border: 1px solid var(--border);
-      border-radius: 0.6rem;
-      padding: 0.5rem 0.75rem;
-      display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;
-      cursor: text; transition: border-color 0.2s;
-    }
-    .tag-input-wrap:focus-within { border-color: var(--accent); }
-    .tag-chip {
-      background: rgba(99,102,241,0.15); color: #a5b4fc;
-      padding: 0.2rem 0.5rem; border-radius: 2rem; font-size: 0.78rem;
-      display: flex; align-items: center; gap: 0.3rem;
-    }
-    .tag-chip button {
-      background: none; border: none; cursor: pointer;
-      color: var(--muted); font-size: 0.7rem; padding: 0; line-height: 1;
-    }
-    .tag-chip button:hover { color: var(--red); }
-    .tag-text-input {
-      background: none; border: none; outline: none;
-      color: var(--text); font-size: 0.88rem; font-family: 'Inter', sans-serif;
-      min-width: 120px; flex: 1; padding: 0.2rem 0;
-    }
-    .tag-hint { font-size: 0.72rem; color: var(--muted); margin-top: 0.3rem; }
-
-    /* Profile form */
-    .profile-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 1.2rem;
-      padding: 2rem; max-width: 560px;
-    }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    @media(max-width:640px) { .form-row { grid-template-columns: 1fr; } .sidebar { width: 160px; } }
-
-    /* Toast */
-    #toast {
-      position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 999;
-      padding: 0.75rem 1.2rem;
-      border-radius: 0.75rem; font-size: 0.85rem; font-weight: 600;
-      opacity: 0; transform: translateY(10px);
-      transition: opacity 0.25s, transform 0.25s;
-      pointer-events: none;
-    }
-    #toast.show { opacity: 1; transform: translateY(0); }
-    #toast.success { background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.4); color: var(--green); }
-    #toast.error   { background: rgba(239,68,68,0.15);  border: 1px solid rgba(239,68,68,0.4);  color: var(--red); }
-
-    /* Empty state */
-    .empty { text-align: center; padding: 3rem; color: var(--muted); font-size: 0.88rem; }
-
-    /* Contact message expand */
-    .msg-cell { max-width: 280px; }
-    .msg-short { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .msg-full { display: none; white-space: pre-wrap; word-break: break-word; }
-    .msg-toggle { font-size: 0.72rem; color: var(--accent); cursor: pointer; margin-top: 0.2rem; display: inline-block; }
-  </style>
+  <link rel="stylesheet" href="/css/admin.css" />
 </head>
 <body>
 
@@ -321,22 +45,25 @@
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-item active" data-tab="projects" onclick="switchTab('projects')">
-        <span class="ico">🗂</span> Projects
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Projects
       </div>
       <div class="sidebar-item" data-tab="contacts" onclick="switchTab('contacts')">
-        <span class="ico">✉️</span> Contacts
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Contacts
       </div>
       <div class="sidebar-item" data-tab="skills" onclick="switchTab('skills')">
-        <span class="ico">⚡</span> Skills
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg> Skills
+      </div>
+      <div class="sidebar-item" data-tab="experience" onclick="switchTab('experience')">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Experience
       </div>
       <div class="sidebar-item" data-tab="education" onclick="switchTab('education')">
-        <span class="ico">🎓</span> Education
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg> Education
       </div>
       <div class="sidebar-item" data-tab="certification" onclick="switchTab('certification')">
-        <span class="ico">🏆</span> Certification
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg> Certification
       </div>
       <div class="sidebar-item" data-tab="profile" onclick="switchTab('profile')">
-        <span class="ico">👤</span> Profile
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile
       </div>
     </aside>
 
@@ -404,6 +131,22 @@
           <button class="btn btn-primary btn-sm" onclick="openCategoryModal()">+ 카테고리 추가</button>
         </div>
         <div id="skills-categories"></div>
+      </div>
+
+      <!-- Experience Tab -->
+      <div class="tab-panel" id="tab-experience">
+        <div class="panel-header">
+          <span class="panel-title">Experience</span>
+          <button class="btn btn-primary btn-sm" onclick="openExpModal()">+ 경험 추가</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>아이콘</th><th>제목</th><th>기술 스택</th><th>순서</th><th>관리</th></tr>
+            </thead>
+            <tbody id="exp-tbody"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Education Tab -->
@@ -494,12 +237,12 @@
       <button class="modal-close" onclick="closeProjectModal()">✕</button>
     </div>
     <div class="form-group">
-      <label>제목 *</label>
-      <input id="proj-title" type="text" placeholder="프로젝트명" />
+      <label>제목 * (최대 30자)</label>
+      <input id="proj-title" type="text" maxlength="30" placeholder="프로젝트명" />
     </div>
     <div class="form-group">
-      <label>간략 소개 (카드 표시용, 최대 200자)</label>
-      <input id="proj-summary" type="text" maxlength="200" placeholder="프로젝트 한 줄 소개" />
+      <label>간략 소개 (카드 표시용, 최대 80자)</label>
+      <input id="proj-summary" type="text" maxlength="80" placeholder="프로젝트 한 줄 소개" />
     </div>
     <div class="form-group">
       <label>설명 *</label>
@@ -534,6 +277,16 @@
         <input class="tag-text-input" id="feat-input" placeholder="" />
       </div>
       <span class="tag-hint">Enter 또는 쉼표로 태그 추가</span>
+    </div>
+    <div class="form-group">
+      <div class="point-section-label">🛠 개발 포인트</div>
+      <div class="point-list" id="devpoint-list"></div>
+      <button class="btn-add-point" type="button" onclick="addPointItem('devpoint')">+ 항목 추가</button>
+    </div>
+    <div class="form-group">
+      <div class="point-section-label">🔧 트러블 슈팅</div>
+      <div class="point-list" id="trouble-list"></div>
+      <button class="btn-add-point" type="button" onclick="addPointItem('trouble')">+ 항목 추가</button>
     </div>
     <div id="proj-media-section" style="display:none;">
       <div class="form-group">
@@ -576,10 +329,45 @@
       <button class="modal-close" onclick="closeSkillModal()">✕</button>
     </div>
     <div class="form-group"><label>스킬명 *</label><input id="skill-name" type="text" placeholder="Java" /></div>
-    <div class="form-group"><label>정렬 순서</label><input id="skill-order" type="number" min="0" placeholder="1" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>숙련도</label>
+        <select id="skill-level">
+          <option value="1">1 - 입문</option>
+          <option value="2">2 - 경험</option>
+          <option value="3">3 - 익숙</option>
+          <option value="4" selected>4 - 능숙</option>
+        </select>
+      </div>
+      <div class="form-group"><label>정렬 순서</label><input id="skill-order" type="number" min="0" placeholder="1" /></div>
+    </div>
     <div class="modal-footer">
       <button class="btn btn-outline btn-sm" onclick="closeSkillModal()">취소</button>
       <button class="btn btn-primary btn-sm" onclick="saveSkill()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Experience Modal ── -->
+<div class="modal-backdrop" id="exp-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="exp-modal-title">경험 추가</span>
+      <button class="modal-close" onclick="closeExpModal()">✕</button>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>아이콘 (이모지)</label><input id="exp-icon" type="text" maxlength="4" placeholder="🔒" /></div>
+      <div class="form-group"><label>정렬 순서</label><input id="exp-order" type="number" min="0" placeholder="1" /></div>
+    </div>
+    <div class="form-group"><label>제목 *</label><input id="exp-title" type="text" placeholder="강의 좌석 예약의 데이터 정합성 확보" /></div>
+    <div class="form-group"><label>간략 설명 (카드 표시용, 최대 80자)</label><input id="exp-summary" type="text" maxlength="80" placeholder="카드에 표시될 한 줄 요약" /></div>
+    <div class="form-group"><label>상황 (Situation) *</label><textarea id="exp-situation" rows="4" placeholder="어떤 문제 상황이었는지..."></textarea></div>
+    <div class="form-group"><label>접근 (Approach) *</label><textarea id="exp-approach" rows="4" placeholder="어떤 선택과 근거로 접근했는지..."></textarea></div>
+    <div class="form-group"><label>배운 점 (Learned) *</label><textarea id="exp-learned" rows="3" placeholder="재사용 가능한 원칙, 다음 스텝..."></textarea></div>
+    <div class="form-group"><label>기술 스택 (쉼표 구분)</label><input id="exp-stack" type="text" placeholder="Spring Data JPA, PostgreSQL" /></div>
+    <div class="form-group"><label>이미지 URL (선택)</label><input id="exp-image" type="text" placeholder="https://..." /></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="closeExpModal()">취소</button>
+      <button class="btn btn-primary btn-sm" onclick="saveExp()">저장</button>
     </div>
   </div>
 </div>
@@ -635,793 +423,6 @@
   </div>
 </div>
 
-<script>
-const API = '';
-let editingProjectId = null;
-let techTags = [], featTags = [];
-
-/* ── Auth ── */
-async function doLogin() {
-  const username = document.getElementById('login-username').value.trim();
-  const password = document.getElementById('login-password').value;
-  const errEl    = document.getElementById('login-error');
-  const btn      = document.getElementById('login-btn');
-
-  if (!username || !password) { errEl.textContent = '아이디와 비밀번호를 입력하세요.'; return; }
-  btn.disabled = true; btn.textContent = '로그인 중...';
-  errEl.textContent = '';
-
-  try {
-    const res = await adminFetch(API + '/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ username, password }),
-    });
-    if (!res.ok) { errEl.textContent = '아이디 또는 비밀번호가 올바르지 않습니다.'; return; }
-    document.getElementById('topbar-user').textContent = username;
-    showDashboard();
-  } catch {
-    errEl.textContent = '서버에 연결할 수 없습니다.';
-  } finally {
-    btn.disabled = false; btn.textContent = '로그인';
-  }
-}
-
-async function doLogout() {
-  await adminFetch(API + '/api/admin/logout', { method: 'POST', credentials: 'include' });
-  document.getElementById('dashboard').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-password').value = '';
-}
-
-function authHeader() {
-  return { 'Content-Type': 'application/json' };
-}
-
-function adminFetch(url, options = {}) {
-  return fetch(url, { ...options, credentials: 'include' });
-}
-
-async function showDashboard() {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('dashboard').style.display = 'block';
-  loadProjects(0);
-  loadProfile();
-}
-
-/* ── Tab ── */
-function switchTab(tab) {
-  document.querySelectorAll('.tab-panel').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.querySelector(`.sidebar-item[data-tab="${tab}"]`).classList.add('active');
-  if (tab === 'contacts')     loadContacts(0);
-  if (tab === 'profile')      loadProfile();
-  if (tab === 'projects')     loadProjects(0);
-  if (tab === 'skills')       loadSkills();
-  if (tab === 'education')    loadEducation();
-  if (tab === 'certification') loadCertification();
-}
-
-/* ── Toast ── */
-let toastTimer;
-function toast(msg, type = 'success') {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.className = 'show ' + type;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.className = ''; }, 2800);
-}
-
-/* ─────────────────────────────────────────────
-   PROJECTS
-───────────────────────────────────────────── */
-let projectsPage = 0;
-let projectsTotalPages = 1;
-
-async function loadProjects(page = 0) {
-  projectsPage = page;
-  try {
-    const res = await fetch(`${API}/api/projects?page=${page}&size=10`);
-    const data = await res.json();
-    const tbody = document.getElementById('projects-tbody');
-    tbody.innerHTML = '';
-
-    if (!data.content || data.content.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" class="empty">등록된 프로젝트가 없습니다.</td></tr>';
-      renderPagination('projects', 0, 0);
-      return;
-    }
-
-    data.content.forEach(p => {
-      const techStr = (p.techStack || []).slice(0, 3).join(', ') + (p.techStack?.length > 3 ? '...' : '');
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${p.sortOrder ?? '-'}</td>
-        <td><strong>${esc(p.title)}</strong></td>
-        <td><span style="color:var(--muted);font-size:0.8rem">${esc(techStr)}</span></td>
-        <td>${p.githubUrl ? `<a href="${esc(p.githubUrl)}" target="_blank" style="color:var(--accent);font-size:0.8rem">↗</a>` : '-'}</td>
-        <td>${p.demoUrl ? `<a href="${esc(p.demoUrl)}" target="_blank" style="color:var(--cyan);font-size:0.8rem">↗</a>` : '-'}</td>
-        <td style="color:var(--muted);font-size:0.8rem">${p.createdAt || '-'}</td>
-        <td>
-          <div class="td-actions">
-            <button class="btn btn-edit btn-sm" onclick="editProject(${p.id})">수정</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteProject(${p.id}, '${esc(p.title)}')">삭제</button>
-          </div>
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    projectsTotalPages = data.totalPages || 1;
-    renderPagination('projects', page, data.totalPages);
-  } catch {
-    toast('프로젝트 목록을 불러오지 못했습니다.', 'error');
-  }
-}
-
-async function editProject(id) {
-  try {
-    const res = await fetch(`${API}/api/projects/${id}`);
-    const p = await res.json();
-    editingProjectId = id;
-    document.getElementById('project-modal-title').textContent = '프로젝트 수정';
-    document.getElementById('proj-title').value   = p.title || '';
-    document.getElementById('proj-summary').value = p.summary || '';
-    document.getElementById('proj-desc').value    = p.description || '';
-    document.getElementById('proj-github').value  = p.githubUrl || '';
-    document.getElementById('proj-demo').value   = p.demoUrl || '';
-    document.getElementById('proj-order').value  = p.sortOrder ?? '';
-    techTags = [...(p.techStack || [])];
-    featTags = [...(p.features || [])];
-    renderTagChips('tech');
-    renderTagChips('feat');
-    document.getElementById('proj-media-section').style.display = 'block';
-    renderMediaList(p.media || []);
-    document.getElementById('project-modal').classList.add('open');
-  } catch {
-    toast('프로젝트 정보를 불러오지 못했습니다.', 'error');
-  }
-}
-
-async function deleteProject(id, title) {
-  if (!confirm(`"${title}" 프로젝트를 삭제할까요?`)) return;
-  try {
-    const res = await adminFetch(`${API}/api/admin/projects/${id}`, {
-      method: 'DELETE', headers: authHeader()
-    });
-    if (res.status === 204 || res.ok) {
-      toast('삭제되었습니다.');
-      loadProjects(projectsPage);
-    } else if (res.status === 401) {
-      toast('인증이 만료되었습니다.', 'error'); doLogout();
-    } else {
-      toast('삭제에 실패했습니다.', 'error');
-    }
-  } catch {
-    toast('요청 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-async function saveProject() {
-  const title = document.getElementById('proj-title').value.trim();
-  const desc  = document.getElementById('proj-desc').value.trim();
-  if (!title || !desc) { toast('제목과 설명은 필수입니다.', 'error'); return; }
-
-  const body = {
-    title,
-    summary:     document.getElementById('proj-summary').value.trim() || null,
-    description: desc,
-    githubUrl:   document.getElementById('proj-github').value.trim() || null,
-    demoUrl:     document.getElementById('proj-demo').value.trim() || null,
-    sortOrder:   parseInt(document.getElementById('proj-order').value) || 0,
-    techStack:   techTags,
-    features:    featTags,
-  };
-
-  try {
-    const url    = editingProjectId ? `${API}/api/admin/projects/${editingProjectId}` : `${API}/api/admin/projects`;
-    const method = editingProjectId ? 'PUT' : 'POST';
-    const res    = await fetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
-
-    if (res.ok) {
-      toast(editingProjectId ? '수정되었습니다.' : '등록되었습니다.');
-      closeProjectModal();
-      loadProjects(projectsPage);
-    } else if (res.status === 401) {
-      toast('인증이 만료되었습니다.', 'error'); doLogout();
-    } else {
-      const err = await res.json().catch(() => ({}));
-      toast(err.message || '저장에 실패했습니다.', 'error');
-    }
-  } catch {
-    toast('요청 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-function openProjectModal() {
-  editingProjectId = null;
-  techTags = []; featTags = [];
-  document.getElementById('project-modal-title').textContent = '새 프로젝트';
-  document.getElementById('proj-title').value   = '';
-  document.getElementById('proj-summary').value = '';
-  document.getElementById('proj-desc').value    = '';
-  document.getElementById('proj-github').value  = '';
-  document.getElementById('proj-demo').value   = '';
-  document.getElementById('proj-order').value  = '';
-  renderTagChips('tech');
-  renderTagChips('feat');
-  document.getElementById('proj-media-section').style.display = 'none';
-  document.getElementById('proj-media-list').innerHTML = '';
-  document.getElementById('project-modal').classList.add('open');
-}
-
-function closeProjectModal() {
-  document.getElementById('project-modal').classList.remove('open');
-}
-
-/* ─────────────────────────────────────────────
-   CONTACTS
-───────────────────────────────────────────── */
-let contactsPage = 0;
-
-async function loadContacts(page = 0) {
-  contactsPage = page;
-  const unreadOnly = document.getElementById('unread-only')?.checked ?? false;
-  try {
-    const res  = await adminFetch(`${API}/api/admin/contacts?page=${page}&size=15&unreadOnly=${unreadOnly}`, {
-      headers: authHeader()
-    });
-    if (res.status === 401) { toast('인증이 만료되었습니다.', 'error'); doLogout(); return; }
-    const data = await res.json();
-    const tbody = document.getElementById('contacts-tbody');
-    tbody.innerHTML = '';
-
-    if (!data.content || data.content.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="empty">문의가 없습니다.</td></tr>';
-      renderPagination('contacts', 0, 0);
-      return;
-    }
-
-    data.content.forEach(c => {
-      const dateStr = c.createdAt ? c.createdAt.replace('T', ' ').slice(0, 16) : '-';
-      const tr = document.createElement('tr');
-      tr.id = `contact-row-${c.id}`;
-      tr.innerHTML = `
-        <td><span class="badge ${c.isRead ? 'badge-read' : 'badge-unread'}" id="badge-${c.id}">${c.isRead ? '읽음' : '미읽음'}</span></td>
-        <td>${esc(c.name)}</td>
-        <td style="font-size:0.8rem;color:var(--muted)">${esc(c.email)}</td>
-        <td class="msg-cell">
-          <div class="msg-short" id="msg-short-${c.id}">${esc(c.message)}</div>
-          <div class="msg-full"  id="msg-full-${c.id}">${esc(c.message)}</div>
-          <span class="msg-toggle" onclick="toggleMsg(${c.id})" id="msg-toggle-${c.id}">더 보기</span>
-        </td>
-        <td style="color:var(--muted);font-size:0.8rem;white-space:nowrap">${dateStr}</td>
-        <td>
-          ${!c.isRead ? `<button class="btn btn-success btn-sm" id="read-btn-${c.id}" onclick="markRead(${c.id})">읽음 처리</button>` : ''}
-        </td>
-      `;
-      tbody.appendChild(tr);
-    });
-
-    renderPagination('contacts', page, data.totalPages);
-  } catch {
-    toast('문의 목록을 불러오지 못했습니다.', 'error');
-  }
-}
-
-function toggleMsg(id) {
-  const s = document.getElementById('msg-short-' + id);
-  const f = document.getElementById('msg-full-'  + id);
-  const t = document.getElementById('msg-toggle-' + id);
-  const isExpanded = f.style.display === 'block';
-  s.style.display = isExpanded ? '' : 'none';
-  f.style.display = isExpanded ? 'none' : 'block';
-  t.textContent   = isExpanded ? '더 보기' : '접기';
-}
-
-async function markRead(id) {
-  try {
-    const res = await adminFetch(`${API}/api/admin/contacts/${id}/read`, {
-      method: 'PATCH', headers: authHeader()
-    });
-    if (res.status === 401) { toast('인증이 만료되었습니다.', 'error'); doLogout(); return; }
-    if (res.ok) {
-      const badge = document.getElementById('badge-' + id);
-      if (badge) { badge.textContent = '읽음'; badge.className = 'badge badge-read'; }
-      const btn = document.getElementById('read-btn-' + id);
-      if (btn) btn.remove();
-      toast('읽음 처리되었습니다.');
-    }
-  } catch {
-    toast('요청 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-/* ─────────────────────────────────────────────
-   PROFILE
-───────────────────────────────────────────── */
-async function loadProfile() {
-  try {
-    const res  = await fetch(API + '/api/profile');
-    const data = await res.json();
-    document.getElementById('pf-name').value   = data.name         || '';
-    document.getElementById('pf-role').value   = data.role         || '';
-    document.getElementById('pf-email').value  = data.email        || '';
-    document.getElementById('pf-github').value = data.githubUrl    || '';
-    document.getElementById('pf-exp').value    = data.expYears     ?? '';
-    document.getElementById('pf-count').value  = data.projectCount ?? '';
-    document.getElementById('pf-bio').value    = data.bio          || '';
-  } catch {
-    toast('프로필 정보를 불러오지 못했습니다.', 'error');
-  }
-}
-
-async function saveProfile() {
-  const body = {
-    name:         document.getElementById('pf-name').value.trim(),
-    role:         document.getElementById('pf-role').value.trim(),
-    email:        document.getElementById('pf-email').value.trim(),
-    githubUrl:    document.getElementById('pf-github').value.trim() || null,
-    bio:          document.getElementById('pf-bio').value.trim(),
-    expYears:     parseInt(document.getElementById('pf-exp').value)   || 0,
-    projectCount: parseInt(document.getElementById('pf-count').value) || 0,
-  };
-  try {
-    const res = await adminFetch(API + '/api/admin/profile', {
-      method: 'PUT', headers: authHeader(), body: JSON.stringify(body)
-    });
-    if (res.status === 401) { toast('인증이 만료되었습니다.', 'error'); doLogout(); return; }
-    if (res.ok) {
-      toast('프로필이 저장되었습니다.');
-    } else {
-      const err = await res.json().catch(() => ({}));
-      toast(err.message || '저장에 실패했습니다.', 'error');
-    }
-  } catch {
-    toast('요청 중 오류가 발생했습니다.', 'error');
-  }
-}
-
-/* ─────────────────────────────────────────────
-   SKILLS
-───────────────────────────────────────────── */
-let editingCategoryId = null;
-let targetCategoryId  = null;
-
-async function loadSkills() {
-  try {
-    const data = await adminFetch(`${API}/api/admin/skills`, { headers: authHeader() }).then(r => r.json());
-    const wrap = document.getElementById('skills-categories');
-    if (!data.length) { wrap.innerHTML = '<p class="empty">등록된 카테고리가 없습니다.</p>'; return; }
-    wrap.innerHTML = data.map(cat => `
-      <div style="margin-bottom:1.5rem;border:1px solid var(--border);border-radius:0.8rem;overflow:hidden">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(99,102,241,0.06)">
-          <strong style="font-size:0.95rem">${esc(cat.name)}</strong>
-          <div style="display:flex;gap:0.5rem">
-            <button class="btn btn-edit btn-sm" onclick="openSkillModal(${cat.id})">+ 스킬</button>
-            <button class="btn btn-edit btn-sm" onclick="openCategoryModal(${cat.id},'${esc(cat.name)}',${cat.sortOrder})">수정</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteCategory(${cat.id},'${esc(cat.name)}')">삭제</button>
-          </div>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:0.4rem;padding:0.75rem 1rem">
-          ${cat.skills.length ? cat.skills.map(s => `
-            <span style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(99,102,241,0.1);border:1px solid var(--border);border-radius:2rem;padding:0.25rem 0.7rem;font-size:0.82rem">
-              ${esc(s.name)}
-              <button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.7rem" onclick="deleteSkill(${s.id},'${esc(s.name)}')">✕</button>
-            </span>`).join('') : '<span style="color:var(--muted);font-size:0.82rem">스킬 없음</span>'}
-        </div>
-      </div>`).join('');
-  } catch { toast('스킬 목록을 불러오지 못했습니다.', 'error'); }
-}
-
-/* ── Media ── */
-function renderMediaList(mediaItems) {
-  const container = document.getElementById('proj-media-list');
-  container.innerHTML = mediaItems.map(m => `
-    <div style="position:relative;width:120px;">
-      ${m.mediaType === 'VIDEO'
-        ? `<video src="${m.url}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;background:#0f172a;" preload="metadata"></video>`
-        : `<img src="${m.url}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;" />`
-      }
-      <button onclick="deleteMedia(${m.id}, this.parentElement)"
-        style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;line-height:1;">✕</button>
-    </div>
-  `).join('');
-}
-
-async function uploadMedia(event) {
-  if (!editingProjectId) return;
-  const files = Array.from(event.target.files);
-  for (const file of files) {
-    const formData = new FormData();
-    formData.append('file', file);
-    try {
-      const res = await adminFetch(`${API}/api/admin/projects/${editingProjectId}/media`, {
-        method: 'POST', headers: authHeaderMultipart(), body: formData
-      });
-      if (res.ok) {
-        const media = await res.json();
-        const container = document.getElementById('proj-media-list');
-        const div = document.createElement('div');
-        div.style.cssText = 'position:relative;width:120px;';
-        div.innerHTML = media.mediaType === 'VIDEO'
-          ? `<video src="${media.url}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;background:#0f172a;" preload="metadata"></video>`
-          : `<img src="${media.url}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;" />`;
-        const btn = document.createElement('button');
-        btn.textContent = '✕';
-        btn.style.cssText = 'position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.7);color:#fff;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:11px;line-height:1;';
-        btn.onclick = () => deleteMedia(media.id, div);
-        div.appendChild(btn);
-        container.appendChild(div);
-        toast('업로드 완료');
-      } else {
-        toast('업로드 실패', 'error');
-      }
-    } catch {
-      toast('업로드 중 오류 발생', 'error');
-    }
-  }
-  event.target.value = '';
-}
-
-async function deleteMedia(id, el) {
-  if (!confirm('미디어를 삭제할까요?')) return;
-  try {
-    const res = await adminFetch(`${API}/api/admin/media/${id}`, {
-      method: 'DELETE', headers: authHeader()
-    });
-    if (res.ok) { el.remove(); toast('삭제되었습니다.'); }
-    else toast('삭제 실패', 'error');
-  } catch {
-    toast('요청 중 오류 발생', 'error');
-  }
-}
-
-function authHeaderMultipart() {
-  return {};
-}
-
-function openCategoryModal(id = null, name = '', sortOrder = 0) {
-  editingCategoryId = id;
-  document.getElementById('category-modal-title').textContent = id ? '카테고리 수정' : '카테고리 추가';
-  document.getElementById('cat-name').value  = name;
-  document.getElementById('cat-order').value = sortOrder;
-  document.getElementById('category-modal').classList.add('open');
-}
-function closeCategoryModal() { document.getElementById('category-modal').classList.remove('open'); }
-
-async function saveCategory() {
-  const name = document.getElementById('cat-name').value.trim();
-  if (!name) { toast('카테고리명을 입력해주세요.', 'error'); return; }
-  const body = { name, sortOrder: parseInt(document.getElementById('cat-order').value) || 0 };
-  const url    = editingCategoryId ? `${API}/api/admin/skills/categories/${editingCategoryId}` : `${API}/api/admin/skills/categories`;
-  const method = editingCategoryId ? 'PUT' : 'POST';
-  try {
-    const res = await fetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
-    if (res.ok) { toast(editingCategoryId ? '수정되었습니다.' : '추가되었습니다.'); closeCategoryModal(); loadSkills(); }
-    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
-    else toast('저장 실패', 'error');
-  } catch { toast('오류 발생', 'error'); }
-}
-
-async function deleteCategory(id, name) {
-  if (!confirm(`"${name}" 카테고리(및 하위 스킬)를 삭제할까요?`)) return;
-  try {
-    const res = await adminFetch(`${API}/api/admin/skills/categories/${id}`, { method: 'DELETE', headers: authHeader() });
-    if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadSkills(); }
-    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
-    else toast('삭제 실패', 'error');
-  } catch { toast('오류 발생', 'error'); }
-}
-
-function openSkillModal(categoryId) {
-  targetCategoryId = categoryId;
-  document.getElementById('skill-name').value  = '';
-  document.getElementById('skill-order').value = '';
-  document.getElementById('skill-modal').classList.add('open');
-}
-function closeSkillModal() { document.getElementById('skill-modal').classList.remove('open'); }
-
-async function saveSkill() {
-  const name = document.getElementById('skill-name').value.trim();
-  if (!name) { toast('스킬명을 입력해주세요.', 'error'); return; }
-  const body = { name, sortOrder: parseInt(document.getElementById('skill-order').value) || 0 };
-  try {
-    const res = await adminFetch(`${API}/api/admin/skills/categories/${targetCategoryId}/skills`,
-      { method: 'POST', headers: authHeader(), body: JSON.stringify(body) });
-    if (res.ok) { toast('스킬이 추가되었습니다.'); closeSkillModal(); loadSkills(); }
-    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
-    else toast('추가 실패', 'error');
-  } catch { toast('오류 발생', 'error'); }
-}
-
-async function deleteSkill(id, name) {
-  if (!confirm(`"${name}" 스킬을 삭제할까요?`)) return;
-  try {
-    const res = await adminFetch(`${API}/api/admin/skills/${id}`, { method: 'DELETE', headers: authHeader() });
-    if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadSkills(); }
-    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
-    else toast('삭제 실패', 'error');
-  } catch { toast('오류 발생', 'error'); }
-}
-
-/* ─────────────────────────────────────────────
-   EDUCATION
-───────────────────────────────────────────── */
-let editingEduId = null;
-
-async function loadEducation() {
-  try {
-    const list = await fetch(`${API}/api/educations`).then(r => r.json());
-    const tbody = document.getElementById('edu-tbody');
-    if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">등록된 학력이 없습니다.</td></tr>'; return; }
-    tbody.innerHTML = list.map(e => `
-      <tr>
-        <td><strong>${esc(e.degree)}</strong></td>
-        <td>${esc(e.institution)}</td>
-        <td style="color:var(--muted)">${esc(e.major)}</td>
-        <td style="color:var(--muted);font-size:0.82rem">${esc(e.startDate||'')} ${e.endDate ? '~ '+esc(e.endDate) : ''}</td>
-        <td>${e.sortOrder}</td>
-        <td><div class="td-actions">
-          <button class="btn btn-edit btn-sm" onclick="openEduModal(${e.id})">수정</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteEdu(${e.id},'${esc(e.degree)}')">삭제</button>
-        </div></td>
-      </tr>`).join('');
-  } catch { toast('학력 목록을 불러오지 못했습니다.', 'error'); }
-}
-
-function openEduModal(id = null) {
-  editingEduId = id;
-  document.getElementById('edu-modal-title').textContent = id ? '학력 수정' : '학력 추가';
-  if (!id) {
-    ['edu-institution','edu-degree','edu-major','edu-start','edu-end','edu-order'].forEach(i => document.getElementById(i).value = '');
-    document.getElementById('edu-modal').classList.add('open'); return;
-  }
-  fetch(`${API}/api/educations`).then(r => r.json()).then(list => {
-    const e = list.find(x => x.id === id);
-    if (!e) return;
-    document.getElementById('edu-institution').value = e.institution || '';
-    document.getElementById('edu-degree').value      = e.degree      || '';
-    document.getElementById('edu-major').value       = e.major       || '';
-    document.getElementById('edu-start').value       = e.startDate   || '';
-    document.getElementById('edu-end').value         = e.endDate     || '';
-    document.getElementById('edu-order').value       = e.sortOrder   ?? '';
-    document.getElementById('edu-modal').classList.add('open');
-  });
-}
-function closeEduModal() { document.getElementById('edu-modal').classList.remove('open'); }
-
-async function saveEdu() {
-  const institution = document.getElementById('edu-institution').value.trim();
-  const degree      = document.getElementById('edu-degree').value.trim();
-  const major       = document.getElementById('edu-major').value.trim();
-  if (!institution || !degree || !major) { toast('학교명, 학위, 전공은 필수입니다.', 'error'); return; }
-  const body = { institution, degree, major,
-    startDate: document.getElementById('edu-start').value.trim() || null,
-    endDate:   document.getElementById('edu-end').value.trim()   || null,
-    sortOrder: parseInt(document.getElementById('edu-order').value) || 0 };
-  const url = editingEduId ? `${API}/api/admin/educations/${editingEduId}` : `${API}/api/admin/educations`;
-  const method = editingEduId ? 'PUT' : 'POST';
-  try {
-    const res = await fetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
-    if (res.ok) { toast(editingEduId ? '수정되었습니다.' : '추가되었습니다.'); closeEduModal(); loadEducation(); }
-    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
-    else { const err = await res.json().catch(()=>({})); toast(err.message||'저장 실패', 'error'); }
-  } catch { toast('오류 발생', 'error'); }
-}
-
-async function deleteEdu(id, name) {
-  if (!confirm(`"${name}" 학력을 삭제할까요?`)) return;
-  try {
-    const res = await adminFetch(`${API}/api/admin/educations/${id}`, { method: 'DELETE', headers: authHeader() });
-    if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadEducation(); }
-    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
-    else toast('삭제 실패', 'error');
-  } catch { toast('오류 발생', 'error'); }
-}
-
-/* ─────────────────────────────────────────────
-   CERTIFICATION
-───────────────────────────────────────────── */
-let editingCertId = null;
-
-async function loadCertification() {
-  try {
-    const list = await fetch(`${API}/api/certifications`).then(r => r.json());
-    const tbody = document.getElementById('cert-tbody');
-    if (!list.length) { tbody.innerHTML = '<tr><td colspan="6" class="empty">등록된 자격증/수상이 없습니다.</td></tr>'; return; }
-    tbody.innerHTML = list.map(c => `
-      <tr>
-        <td><span class="badge ${c.type==='CERT'?'badge-unread':'badge-read'}">${c.type==='CERT'?'자격증':'수상'}</span></td>
-        <td><strong>${esc(c.name)}</strong></td>
-        <td style="color:var(--muted)">${esc(c.issuer||'-')}</td>
-        <td style="color:var(--muted);font-size:0.82rem">${esc(c.acquiredDate||'-')}</td>
-        <td>${c.sortOrder}</td>
-        <td><div class="td-actions">
-          <button class="btn btn-edit btn-sm" onclick="openCertModal(${c.id})">수정</button>
-          <button class="btn btn-danger btn-sm" onclick="deleteCert(${c.id},'${esc(c.name)}')">삭제</button>
-        </div></td>
-      </tr>`).join('');
-  } catch { toast('자격증 목록을 불러오지 못했습니다.', 'error'); }
-}
-
-function openCertModal(id = null) {
-  editingCertId = id;
-  document.getElementById('cert-modal-title').textContent = id ? '수정' : '자격증 / 수상 추가';
-  if (!id) {
-    document.getElementById('cert-type').value   = 'CERT';
-    document.getElementById('cert-name').value   = '';
-    document.getElementById('cert-issuer').value = '';
-    document.getElementById('cert-date').value   = '';
-    document.getElementById('cert-order').value  = '';
-    document.getElementById('cert-modal').classList.add('open'); return;
-  }
-  fetch(`${API}/api/certifications`).then(r => r.json()).then(list => {
-    const c = list.find(x => x.id === id);
-    if (!c) return;
-    document.getElementById('cert-type').value   = c.type         || 'CERT';
-    document.getElementById('cert-name').value   = c.name         || '';
-    document.getElementById('cert-issuer').value = c.issuer        || '';
-    document.getElementById('cert-date').value   = c.acquiredDate  || '';
-    document.getElementById('cert-order').value  = c.sortOrder     ?? '';
-    document.getElementById('cert-modal').classList.add('open');
-  });
-}
-function closeCertModal() { document.getElementById('cert-modal').classList.remove('open'); }
-
-async function saveCert() {
-  const name = document.getElementById('cert-name').value.trim();
-  if (!name) { toast('이름을 입력해주세요.', 'error'); return; }
-  const body = {
-    type:         document.getElementById('cert-type').value,
-    name,
-    issuer:       document.getElementById('cert-issuer').value.trim() || null,
-    acquiredDate: document.getElementById('cert-date').value.trim()   || null,
-    sortOrder:    parseInt(document.getElementById('cert-order').value) || 0,
-  };
-  const url    = editingCertId ? `${API}/api/admin/certifications/${editingCertId}` : `${API}/api/admin/certifications`;
-  const method = editingCertId ? 'PUT' : 'POST';
-  try {
-    const res = await fetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
-    if (res.ok) { toast(editingCertId ? '수정되었습니다.' : '추가되었습니다.'); closeCertModal(); loadCertification(); }
-    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
-    else { const err = await res.json().catch(()=>({})); toast(err.message||'저장 실패', 'error'); }
-  } catch { toast('오류 발생', 'error'); }
-}
-
-async function deleteCert(id, name) {
-  if (!confirm(`"${name}"을 삭제할까요?`)) return;
-  try {
-    const res = await adminFetch(`${API}/api/admin/certifications/${id}`, { method: 'DELETE', headers: authHeader() });
-    if (res.status === 204 || res.ok) { toast('삭제되었습니다.'); loadCertification(); }
-    else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
-    else toast('삭제 실패', 'error');
-  } catch { toast('오류 발생', 'error'); }
-}
-
-/* ─────────────────────────────────────────────
-   TAG INPUT
-───────────────────────────────────────────── */
-function renderTagChips(type) {
-  const tags  = type === 'tech' ? techTags : featTags;
-  const wrap  = document.getElementById(type + '-tag-wrap');
-  const input = document.getElementById(type + '-input');
-  const ph    = document.getElementById(type + '-placeholder');
-
-  // Remove old chips (keep input and placeholder)
-  wrap.querySelectorAll('.tag-chip').forEach(el => el.remove());
-
-  if (ph) ph.style.display = tags.length === 0 ? '' : 'none';
-
-  tags.forEach((tag, i) => {
-    const chip = document.createElement('span');
-    chip.className = 'tag-chip';
-    chip.innerHTML = `${esc(tag)}<button type="button" onclick="removeTag('${type}', ${i})">✕</button>`;
-    wrap.insertBefore(chip, input);
-  });
-}
-
-function addTag(type, value) {
-  const val  = value.trim().replace(/,+$/, '');
-  const tags = type === 'tech' ? techTags : featTags;
-  if (val && !tags.includes(val)) {
-    tags.push(val);
-    renderTagChips(type);
-  }
-}
-
-function removeTag(type, index) {
-  if (type === 'tech') techTags.splice(index, 1);
-  else                 featTags.splice(index, 1);
-  renderTagChips(type);
-}
-
-function setupTagInput(type) {
-  const input = document.getElementById(type + '-input');
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ',') {
-      e.preventDefault();
-      addTag(type, input.value);
-      input.value = '';
-    } else if (e.key === 'Backspace' && input.value === '') {
-      const tags = type === 'tech' ? techTags : featTags;
-      if (tags.length > 0) { tags.pop(); renderTagChips(type); }
-    }
-  });
-  input.addEventListener('blur', () => {
-    if (input.value.trim()) { addTag(type, input.value); input.value = ''; }
-  });
-}
-
-/* ─────────────────────────────────────────────
-   PAGINATION
-───────────────────────────────────────────── */
-function renderPagination(type, current, total) {
-  const container = document.getElementById(type + '-pagination');
-  container.innerHTML = '';
-  if (total <= 1) return;
-
-  const prev = document.createElement('button');
-  prev.className = 'page-btn';
-  prev.textContent = '←';
-  prev.disabled = current === 0;
-  prev.onclick = () => type === 'projects' ? loadProjects(current - 1) : loadContacts(current - 1);
-  container.appendChild(prev);
-
-  for (let i = 0; i < total; i++) {
-    const btn = document.createElement('button');
-    btn.className = 'page-btn' + (i === current ? ' active' : '');
-    btn.textContent = i + 1;
-    btn.onclick = ((_i) => () => type === 'projects' ? loadProjects(_i) : loadContacts(_i))(i);
-    container.appendChild(btn);
-  }
-
-  const next = document.createElement('button');
-  next.className = 'page-btn';
-  next.textContent = '→';
-  next.disabled = current >= total - 1;
-  next.onclick = () => type === 'projects' ? loadProjects(current + 1) : loadContacts(current + 1);
-  container.appendChild(next);
-}
-
-/* ─────────────────────────────────────────────
-   UTILS
-───────────────────────────────────────────── */
-function esc(str) {
-  if (str == null) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
-
-/* Enter key on login */
-document.getElementById('login-password').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
-});
-document.getElementById('login-username').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('login-password').focus();
-});
-
-/* Close modal on backdrop click */
-document.getElementById('project-modal').addEventListener('click', e => {
-  if (e.target === document.getElementById('project-modal')) closeProjectModal();
-});
-
-/* Setup tag inputs */
-setupTagInput('tech');
-setupTagInput('feat');
-
-/* Auto login if token exists */
-window.addEventListener('DOMContentLoaded', () => {
-  if (token) {
-    document.getElementById('topbar-user').textContent = 'admin';
-    showDashboard();
-  }
-});
-</script>
+<script src="/js/admin.js" defer></script>
 </body>
 </html>

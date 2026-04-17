@@ -10,6 +10,9 @@ import com.seodong.portfolio.education.dto.EducationResponse;
 import com.seodong.portfolio.profile.ProfileController;
 import com.seodong.portfolio.profile.ProfileService;
 import com.seodong.portfolio.profile.dto.ProfileResponse;
+import com.seodong.portfolio.experience.ExperienceController;
+import com.seodong.portfolio.experience.ExperienceService;
+import com.seodong.portfolio.experience.dto.ExperienceResponse;
 import com.seodong.portfolio.project.ProjectController;
 import com.seodong.portfolio.project.ProjectService;
 import com.seodong.portfolio.project.dto.ProjectDetailResponse;
@@ -36,7 +39,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest({ProfileController.class, SkillController.class,
-        EducationController.class, CertificationController.class, ProjectController.class})
+        EducationController.class, CertificationController.class, ProjectController.class,
+        ExperienceController.class})
 @AutoConfigureMockMvc(addFilters = false)
 class PublicControllerTest {
 
@@ -50,6 +54,7 @@ class PublicControllerTest {
     @MockBean EducationService educationService;
     @MockBean CertificationService certificationService;
     @MockBean ProjectService projectService;
+    @MockBean ExperienceService experienceService;
 
     @Test
     @DisplayName("GET /api/profile - 프로필 조회 200 반환")
@@ -131,12 +136,26 @@ class PublicControllerTest {
     void getProjectById_returns200() throws Exception {
         ProjectDetailResponse detail = new ProjectDetailResponse(1L, "프로젝트",
                 "한 줄 소개", "상세 설명", List.of("Java", "Spring"), "https://github.com",
-                "https://demo.com", List.of("기능1"), List.of(), LocalDate.of(2024, 1, 1));
+                "https://demo.com", List.of("기능1"), List.of(), List.of(), List.of(), LocalDate.of(2024, 1, 1));
         given(projectService.getProject(1L)).willReturn(detail);
 
         mockMvc.perform(get("/api/projects/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value("프로젝트"))
                 .andExpect(jsonPath("$.features[0]").value("기능1"));
+    }
+
+    // ── Experiences ──────────────────────────────────────
+
+    @Test
+    @DisplayName("GET /api/experiences - 역량 목록 200 반환")
+    void getExperiences_returns200() throws Exception {
+        ExperienceResponse exp = new ExperienceResponse(1L, null, "비관적 락", "요약",
+                "상황", "접근", "배운 점", null, List.of("JPA"), 1);
+        given(experienceService.getAll()).willReturn(List.of(exp));
+
+        mockMvc.perform(get("/api/experiences"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].title").value("비관적 락"));
     }
 }

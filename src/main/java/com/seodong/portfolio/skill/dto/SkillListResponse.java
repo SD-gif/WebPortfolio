@@ -6,11 +6,13 @@ import java.util.List;
 
 public record SkillListResponse(List<CategoryItem> categories) {
 
-    public record CategoryItem(String category, List<String> skills) {
+    public record SkillItem(String name, int level) {}
+
+    public record CategoryItem(String category, List<SkillItem> skills) {
         public static CategoryItem from(SkillCategory sc) {
             return new CategoryItem(
                     sc.getName(),
-                    sc.getSkills().stream().map(s -> s.getName()).toList()
+                    sc.getSkills().stream().map(s -> new SkillItem(s.getName(), s.getLevel())).toList()
             );
         }
     }
