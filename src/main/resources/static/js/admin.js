@@ -570,7 +570,6 @@ function showExpEditor(id, data) {
   editingExpId = id || null;
 
   document.getElementById('exp-title').value     = data?.title || '';
-  document.getElementById('exp-summary').value   = data?.summary || '';
   document.getElementById('exp-situation').value = data?.situation || '';
   document.getElementById('exp-approach').value  = data?.approach || '';
   document.getElementById('exp-learned').value   = data?.learned || '';
@@ -629,7 +628,7 @@ async function saveExp() {
   const techStack = stackRaw ? stackRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
   const body = {
     icon: null,
-    title, summary: document.getElementById('exp-summary').value.trim() || null,
+    title, summary: null,
     situation, approach, learned, techStack,
     imageUrl: document.getElementById('exp-image').value.trim() || null,
     sortOrder: parseInt(document.getElementById('exp-order').value) || 0,

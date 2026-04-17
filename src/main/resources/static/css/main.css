@@ -212,6 +212,7 @@ section { padding: 6rem clamp(1.5rem, 5vw, 4rem); }
 @media (max-width: 580px) { .proj-grid { grid-template-columns: 1fr; } }
 .proj-card {
   background: var(--surface); border: 1px solid var(--border);
+  border-top: 2px solid var(--primary);
   border-radius: 0.875rem; padding: 1.5rem;
   display: flex; flex-direction: column;
   height: 210px;
@@ -240,97 +241,107 @@ section { padding: 6rem clamp(1.5rem, 5vw, 4rem); }
   font-size: 0.68rem; border: 1px solid rgba(37,99,235,0.15);
 }
 .proj-more {
-  font-size: 0.75rem; font-weight: 600; color: var(--primary);
-  white-space: nowrap;
+  color: var(--muted); display: flex; align-items: center;
+  transition: color 0.2s;
 }
+.proj-card:hover .proj-more { color: var(--primary); }
 #projects-loading { text-align: center; color: var(--muted); padding: 3rem; font-size: 0.875rem; }
 
-/* ── Experience ── */
+/* ── Experience Slider ── */
 #experience { background: var(--surface2); }
-.exp-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.25rem;
+.exp-slider {
+  position: relative; overflow: hidden;
+  padding: 0 8%;
 }
-@media (max-width: 900px) { .exp-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 580px) { .exp-grid { grid-template-columns: 1fr; } }
-.exp-card {
+.exp-track { display: flex; transition: transform 0.4s ease; }
+.exp-slide {
+  min-width: 84%; box-sizing: border-box;
+  margin: 0 8%;
+  flex-shrink: 0;
+}
+.exp-slide-inner {
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 0.875rem; padding: 1.5rem;
-  display: flex; flex-direction: column;
-  height: 200px;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
-  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+  border-radius: 1rem; padding: 2.5rem 2.5rem;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  aspect-ratio: 5 / 6;
+  display: flex; flex-direction: column; justify-content: center;
+  max-width: 600px; margin: 0 auto;
 }
-.exp-card:hover {
-  border-color: rgba(37,99,235,0.25);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08), 0 12px 32px rgba(0,0,0,0.06);
-  transform: translateY(-3px);
+.exp-slide-header {
+  margin-bottom: 1.5rem; padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border);
 }
-.exp-title { font-size: 0.95rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; margin-bottom: 0.4rem; line-height: 1.3; }
-.exp-summary {
-  font-size: 0.82rem; color: var(--muted); line-height: 1.6;
-  overflow: hidden; display: -webkit-box;
-  -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  flex: 1;
+.exp-slide-title {
+  font-size: 1.3rem; font-weight: 800; color: var(--text);
+  letter-spacing: -0.02em; margin-bottom: 0.4rem;
 }
-.exp-stack { display: flex; flex-wrap: wrap; gap: 0.3rem; }
-.exp-card-bottom {
-  display: flex; align-items: flex-end; justify-content: space-between;
-  gap: 0.5rem; margin-top: auto; padding-top: 0.75rem;
+.exp-slide-summary { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+.exp-slide-image {
+  margin-bottom: 1.25rem; border-radius: 0.5rem; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.exp-slide-image img { width: 100%; display: block; object-fit: cover; max-height: 200px; }
+
+/* Section cards within slide */
+.exp-slide-sections {
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+.exp-slide-section {
+  background: var(--dark); border-radius: 0.625rem;
+  padding: 1rem 1.25rem;
+  border-left: 3px solid var(--primary);
+}
+.exp-slide-section.section-approach { border-left-color: #16a34a; }
+.exp-slide-section.section-learned  { border-left-color: #d97706; }
+.exp-slide-label {
+  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; margin-bottom: 0.5rem; display: block;
+  color: var(--primary);
+}
+.section-approach .exp-slide-label { color: #16a34a; }
+.section-learned .exp-slide-label  { color: #d97706; }
+.exp-slide-text { font-size: 0.85rem; line-height: 1.75; color: var(--muted); }
+.exp-slide-stack {
+  display: flex; flex-wrap: wrap; gap: 0.35rem;
+  margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid var(--border);
 }
 .exp-stack-tag {
   background: rgba(37,99,235,0.06); color: var(--primary);
-  padding: 0.15rem 0.6rem; border-radius: 2rem;
-  font-size: 0.68rem; border: 1px solid rgba(37,99,235,0.15);
-}
-.exp-more {
-  font-size: 0.75rem; font-weight: 600; color: var(--primary);
-  margin-top: 0.5rem;
+  padding: 0.2rem 0.7rem; border-radius: 2rem;
+  font-size: 0.72rem; border: 1px solid rgba(37,99,235,0.15);
 }
 
-/* ── Experience Detail Overlay ── */
-.exp-overlay {
-  display: none; position: fixed; inset: 0; z-index: 500;
-  background: rgba(0,0,0,0.4); backdrop-filter: blur(4px);
-  align-items: center; justify-content: center; padding: 1.5rem;
-}
-.exp-overlay.open { display: flex; }
-.exp-detail {
+/* Arrows */
+.exp-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; border-radius: 50%;
   background: var(--surface); border: 1px solid var(--border);
-  border-radius: 1rem; padding: 2.5rem;
-  max-width: 640px; width: 100%; max-height: 85vh; overflow-y: auto;
-  position: relative;
-  animation: expIn 0.2s ease;
-}
-@keyframes expIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
-.exp-detail-close {
-  position: absolute; top: 1rem; right: 1rem;
-  background: none; border: 1px solid var(--border);
-  color: var(--muted); width: 32px; height: 32px;
-  border-radius: 50%; cursor: pointer; font-size: 0.85rem;
+  color: var(--muted); cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: color 0.2s, border-color 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06); z-index: 2;
 }
-.exp-detail-close:hover { color: var(--text); border-color: rgba(0,0,0,0.15); }
-.exp-detail-title {
-  font-size: 1.3rem; font-weight: 800; color: var(--text);
-  letter-spacing: -0.02em; margin-bottom: 1.5rem; padding-right: 2rem;
+.exp-arrow:hover { color: var(--text); border-color: rgba(0,0,0,0.15); }
+.exp-arrow-left { left: 0; }
+.exp-arrow-right { right: 0; }
+
+/* Dots & counter */
+.exp-dots { display: flex; justify-content: center; gap: 0.4rem; margin-top: 1.25rem; }
+.exp-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(0,0,0,0.1); border: none; cursor: pointer;
+  transition: background 0.2s, width 0.2s;
 }
-.exp-detail-image {
-  margin-bottom: 1.5rem; border-radius: 0.5rem; overflow: hidden;
-  border: 1px solid var(--border);
+.exp-dot.active { background: var(--primary); width: 22px; border-radius: 4px; }
+.exp-counter { text-align: center; margin-top: 0.5rem; font-size: 0.75rem; color: var(--muted); }
+
+@media (max-width: 640px) {
+  .exp-slide { min-width: 100%; margin: 0; }
+  .exp-slider { padding: 0; }
+  .exp-slide-inner { padding: 1.5rem; aspect-ratio: auto; max-width: none; }
+  .exp-slide-section { padding: 0.8rem 1rem; }
+  .exp-arrow { width: 32px; height: 32px; }
 }
-.exp-detail-image img { width: 100%; display: block; object-fit: cover; max-height: 360px; }
-.exp-detail-row { margin-bottom: 1.25rem; }
-.exp-detail-row:last-child { margin-bottom: 0; }
-.exp-detail-label {
-  font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--primary); margin-bottom: 0.4rem;
-}
-.exp-detail-text { font-size: 0.9rem; line-height: 1.85; color: var(--muted); }
-.exp-detail-stack { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--border); }
 
 /* ── Skills ── */
 #skills { background: var(--surface2); }

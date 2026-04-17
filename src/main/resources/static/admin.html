@@ -210,7 +210,7 @@
         <!-- List View -->
         <div id="exp-list-view">
           <div class="panel-header">
-            <span class="panel-title">Competencies</span>
+            <span class="panel-title">Experience</span>
             <button class="btn btn-primary btn-sm" onclick="showExpEditor()">+ 역량 추가</button>
           </div>
           <div class="table-wrap">
@@ -238,13 +238,12 @@
                 <div class="form-group"><label>제목 *</label><input id="exp-title" type="text" placeholder="강의 좌석 예약의 데이터 정합성 확보" /></div>
                 <div class="form-group"><label>정렬 순서</label><input id="exp-order" type="number" min="0" placeholder="1" /></div>
               </div>
-              <div class="form-group"><label>간략 설명 (카드 표시용, 최대 80자)</label><input id="exp-summary" type="text" maxlength="80" placeholder="카드에 표시될 한 줄 요약" /></div>
             </div>
             <div class="edit-section">
               <div class="edit-section-title">상세 내용</div>
-              <div class="form-group"><label>상황 (Situation) *</label><textarea id="exp-situation" rows="5" placeholder="어떤 문제 상황이었는지..."></textarea></div>
-              <div class="form-group"><label>접근 (Approach) *</label><textarea id="exp-approach" rows="5" placeholder="어떤 선택과 근거로 접근했는지..."></textarea></div>
-              <div class="form-group"><label>배운 점 (Learned) *</label><textarea id="exp-learned" rows="4" placeholder="재사용 가능한 원칙, 다음 스텝..."></textarea></div>
+              <div class="form-group"><label>상황 (Situation) * (최대 200자)</label><textarea id="exp-situation" rows="4" maxlength="200" placeholder="어떤 문제 상황이었는지..."></textarea></div>
+              <div class="form-group"><label>접근 (Approach) * (최대 200자)</label><textarea id="exp-approach" rows="4" maxlength="200" placeholder="어떤 선택과 근거로 접근했는지..."></textarea></div>
+              <div class="form-group"><label>배운 점 (Learned) * (최대 150자)</label><textarea id="exp-learned" rows="3" maxlength="150" placeholder="재사용 가능한 원칙, 다음 스텝..."></textarea></div>
             </div>
             <div class="edit-section">
               <div class="edit-section-title">부가 정보</div>

@@ -15,12 +15,15 @@ public record ExperienceRequest(
         String summary,
 
         @NotBlank(message = "상황을 입력해주세요.")
+        @Size(max = 200, message = "상황은 200자 이내로 입력해주세요.")
         String situation,
 
         @NotBlank(message = "접근을 입력해주세요.")
+        @Size(max = 200, message = "접근은 200자 이내로 입력해주세요.")
         String approach,
 
         @NotBlank(message = "배운 점을 입력해주세요.")
+        @Size(max = 150, message = "배운 점은 150자 이내로 입력해주세요.")
         String learned,
 
         String imageUrl,

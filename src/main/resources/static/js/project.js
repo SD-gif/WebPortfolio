@@ -97,27 +97,62 @@ function render(el, { title, summary, description, techStack = [], features = []
     </div>` : '';
 
   el.innerHTML = `
-    <div class="proj-header">
-      <h1 class="proj-title">${escapeHtml(title)}</h1>
-      ${summary ? `<p class="proj-summary">${escapeHtml(summary)}</p>` : ''}
-      ${metaHtml}
-      <div class="proj-meta">
-        <div class="proj-tags">${tagsHtml}</div>
-        <div class="proj-links">${linksHtml}</div>
+    <div class="proj-header-wrap">
+      <div class="proj-header">
+        <h1 class="proj-title">${escapeHtml(title)}</h1>
+        ${summary ? `<p class="proj-summary">${escapeHtml(summary)}</p>` : ''}
+        ${metaHtml}
+        <div class="proj-meta">
+          <div class="proj-tags">${tagsHtml}</div>
+          <div class="proj-links">${linksHtml}</div>
+        </div>
       </div>
     </div>
 
-    ${description ? `
-    <hr class="section-divider">
-    <div class="section-label">Overview</div>
-    <div class="proj-overview">${escapeHtml(description)}</div>` : ''}
+    <div class="proj-body">
+      ${description ? `
+      <div class="section-label">Overview</div>
+      <div class="proj-overview">${escapeHtml(description)}</div>
+      <hr class="section-divider">` : ''}
 
-    ${blocksHtml}
-    ${galleryHtml}
-    ${featuresHtml}
-    ${devPointsHtml}
-    ${troubleHtml}
+      ${blocksHtml}
+      ${galleryHtml}
+      ${featuresHtml}
+      ${devPointsHtml}
+      ${troubleHtml}
+    </div>
+
+    <div id="related-projects"></div>
   `;
+
+  loadRelatedProjects(el.querySelector('#related-projects'));
+}
+
+async function loadRelatedProjects(container) {
+  const currentId = new URLSearchParams(location.search).get('id');
+  try {
+    const res = await fetch('/api/projects?page=0&size=20');
+    if (!res.ok) return;
+    const { content = [] } = await res.json();
+    const others = content.filter(p => String(p.id) !== currentId).slice(0, 3);
+    if (!others.length) return;
+
+    const cards = others.map(p => {
+      const tags = (p.techStack || []).slice(0, 2).map(t => `<span class="proj-tag">${escapeHtml(t)}</span>`).join('');
+      return `
+        <a class="related-card" href="/project.html?id=${p.id}">
+          <div class="related-title">${escapeHtml(p.title)}</div>
+          <div class="related-summary">${escapeHtml(p.summary || '')}</div>
+          <div class="related-tags">${tags}</div>
+        </a>`;
+    }).join('');
+
+    container.innerHTML = `
+      <hr class="section-divider">
+      <div class="section-label">다른 프로젝트</div>
+      <div class="related-grid">${cards}</div>
+    `;
+  } catch { /* ignore */ }
 }
 
 function renderPoint(point, index, isTrouble) {

@@ -112,7 +112,7 @@ async function fetchProjects() {
         <p class="proj-desc">${escapeHtml(summary) || ''}</p>
         <div class="proj-card-bottom">
           <div class="proj-tags">${tagsHtml}${moreTag}</div>
-          <div class="proj-more">자세히 보기 →</div>
+          <span class="proj-more"><svg viewBox="0 0 24 24" width="16" height="16"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </div>
       `;
       card.addEventListener('click', () => { location.href = '/project.html?id=' + id; });
@@ -200,84 +200,84 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
+let expSlideIndex = 0;
+let expSlideCount = 0;
+
 async function fetchExperiences() {
-  const grid = document.getElementById('experience-grid');
+  const container = document.getElementById('experience-grid');
   try {
     const res = await fetch(API_BASE + '/api/experiences');
     if (!res.ok) throw new Error();
     const list = await res.json();
     if (!list.length) {
-      grid.innerHTML = '<p style="color:var(--muted);font-size:.875rem">등록된 역량이 없습니다.</p>';
+      container.innerHTML = '<p style="color:var(--muted);font-size:.875rem">등록된 역량이 없습니다.</p>';
       return;
     }
-    grid.innerHTML = '';
-    list.forEach(exp => {
-      const card = document.createElement('article');
-      card.className = 'exp-card fade-in';
-      const tagsSlice = (exp.techStack || []).slice(0, 2).map(t => `<span class="exp-stack-tag">${escapeHtml(t)}</span>`).join('');
-      const moreTag = (exp.techStack || []).length > 2 ? `<span class="exp-stack-tag">+${exp.techStack.length - 2}</span>` : '';
-      card.innerHTML = `
-        <h3 class="exp-title">${escapeHtml(exp.title)}</h3>
-        ${exp.summary ? `<p class="exp-summary">${escapeHtml(exp.summary)}</p>` : ''}
-        <div class="exp-card-bottom">
-          <div class="exp-stack">${tagsSlice}${moreTag}</div>
-          <span class="exp-more">자세히 보기 →</span>
-        </div>
-      `;
-      card.addEventListener('click', () => openExpDetail(exp));
-      grid.appendChild(card);
-      observer.observe(card);
-    });
+    expSlideCount = list.length;
+    expSlideIndex = 0;
+
+    const slides = list.map(exp => {
+      const stack = (exp.techStack || []).map(t => `<span class="exp-stack-tag">${escapeHtml(t)}</span>`).join('');
+      const imgHtml = exp.imageUrl
+        ? `<div class="exp-slide-image"><img src="${escapeHtml(exp.imageUrl)}" alt="${escapeHtml(exp.title)}" loading="lazy" /></div>` : '';
+      return `
+        <div class="exp-slide">
+          <div class="exp-slide-inner">
+            <div class="exp-slide-header">
+              <h3 class="exp-slide-title">${escapeHtml(exp.title)}</h3>
+              ${exp.summary ? `<p class="exp-slide-summary">${escapeHtml(exp.summary)}</p>` : ''}
+            </div>
+            ${imgHtml}
+            <div class="exp-slide-sections">
+              <div class="exp-slide-section section-situation">
+                <span class="exp-slide-label">상황</span>
+                <p class="exp-slide-text">${escapeHtml(exp.situation)}</p>
+              </div>
+              <div class="exp-slide-section section-approach">
+                <span class="exp-slide-label">접근</span>
+                <p class="exp-slide-text">${escapeHtml(exp.approach)}</p>
+              </div>
+              <div class="exp-slide-section section-learned">
+                <span class="exp-slide-label">배운 점</span>
+                <p class="exp-slide-text">${escapeHtml(exp.learned)}</p>
+              </div>
+            </div>
+            ${stack ? `<div class="exp-slide-stack">${stack}</div>` : ''}
+          </div>
+        </div>`;
+    }).join('');
+
+    const dots = list.map((_, i) =>
+      `<button class="exp-dot${i === 0 ? ' active' : ''}" onclick="expGoTo(${i})"></button>`
+    ).join('');
+
+    container.innerHTML = `
+      <div class="exp-slider">
+        <div class="exp-track" id="exp-track">${slides}</div>
+        <button class="exp-arrow exp-arrow-left" onclick="expMove(-1)">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M15 18l-6-6 6-6" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button class="exp-arrow exp-arrow-right" onclick="expMove(1)">
+          <svg viewBox="0 0 24 24" width="20" height="20"><path d="M9 18l6-6-6-6" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="exp-dots" id="exp-dots">${dots}</div>
+      <div class="exp-counter"><span id="exp-counter-current">1</span> / ${list.length}</div>
+    `;
   } catch (e) {
-    grid.innerHTML = '<p style="color:var(--muted);font-size:.875rem">역량 정보를 불러오지 못했습니다.</p>';
+    container.innerHTML = '<p style="color:var(--muted);font-size:.875rem">역량 정보를 불러오지 못했습니다.</p>';
   }
 }
 
-function openExpDetail(exp) {
-  let overlay = document.getElementById('exp-overlay');
-  if (!overlay) {
-    overlay = document.createElement('div');
-    overlay.id = 'exp-overlay';
-    overlay.className = 'exp-overlay';
-    overlay.addEventListener('click', e => { if (e.target === overlay) closeExpDetail(); });
-    document.body.appendChild(overlay);
-  }
-  const stack = (exp.techStack || [])
-    .map(t => `<span class="exp-stack-tag">${escapeHtml(t)}</span>`).join('');
-  const imgHtml = exp.imageUrl
-    ? `<div class="exp-detail-image"><img src="${escapeHtml(exp.imageUrl)}" alt="${escapeHtml(exp.title)}" loading="lazy" /></div>`
-    : '';
-  overlay.innerHTML = `
-    <div class="exp-detail">
-      <button class="exp-detail-close" onclick="closeExpDetail()">&#10005;</button>
-      <div class="exp-detail-title">${escapeHtml(exp.title)}</div>
-      ${imgHtml}
-      <div class="exp-detail-row">
-        <div class="exp-detail-label">상황</div>
-        <div class="exp-detail-text">${escapeHtml(exp.situation)}</div>
-      </div>
-      <div class="exp-detail-row">
-        <div class="exp-detail-label">접근</div>
-        <div class="exp-detail-text">${escapeHtml(exp.approach)}</div>
-      </div>
-      <div class="exp-detail-row">
-        <div class="exp-detail-label">배운 점</div>
-        <div class="exp-detail-text">${escapeHtml(exp.learned)}</div>
-      </div>
-      ${stack ? `<div class="exp-detail-stack">${stack}</div>` : ''}
-    </div>
-  `;
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
+function expGoTo(idx) {
+  expSlideIndex = Math.max(0, Math.min(idx, expSlideCount - 1));
+  const track = document.getElementById('exp-track');
+  if (track) track.style.transform = `translateX(-${expSlideIndex * 100}%)`; // each slide is 100% of track item
+  document.querySelectorAll('.exp-dot').forEach((d, i) => d.classList.toggle('active', i === expSlideIndex));
+  const counter = document.getElementById('exp-counter-current');
+  if (counter) counter.textContent = expSlideIndex + 1;
 }
-function closeExpDetail() {
-  const overlay = document.getElementById('exp-overlay');
-  if (overlay) overlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeExpDetail();
-});
+function expMove(dir) { expGoTo(expSlideIndex + dir); }
 
 /* ── Contact form ── */
 async function handleSubmit(e) {
