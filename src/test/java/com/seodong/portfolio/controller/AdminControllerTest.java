@@ -23,6 +23,10 @@ import com.seodong.portfolio.profile.admin.AdminProfileController;
 import com.seodong.portfolio.profile.admin.AdminProfileService;
 import com.seodong.portfolio.profile.dto.ProfileRequest;
 import com.seodong.portfolio.profile.dto.ProfileResponse;
+import com.seodong.portfolio.experience.admin.AdminExperienceController;
+import com.seodong.portfolio.experience.admin.AdminExperienceService;
+import com.seodong.portfolio.experience.dto.ExperienceRequest;
+import com.seodong.portfolio.experience.dto.ExperienceResponse;
 import com.seodong.portfolio.project.admin.AdminProjectController;
 import com.seodong.portfolio.project.admin.AdminProjectService;
 import com.seodong.portfolio.project.dto.ProjectDetailResponse;
@@ -50,7 +54,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest({AdminAuthController.class, AdminProfileController.class,
         AdminProjectController.class, AdminSkillController.class,
         AdminContactController.class, AdminEducationController.class,
-        AdminCertificationController.class})
+        AdminCertificationController.class, AdminExperienceController.class})
 @AutoConfigureMockMvc(addFilters = false)
 class AdminControllerTest {
 
@@ -67,6 +71,7 @@ class AdminControllerTest {
     @MockBean AdminContactService adminContactService;
     @MockBean AdminEducationService adminEducationService;
     @MockBean AdminCertificationService adminCertificationService;
+    @MockBean AdminExperienceService adminExperienceService;
 
     // ── Auth ─────────────────────────────────────────────────
 
@@ -330,6 +335,51 @@ class AdminControllerTest {
         willDoNothing().given(adminCertificationService).delete(1L);
 
         mockMvc.perform(delete("/api/admin/certifications/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    // ── Experiences ───────────────────────────────────────────
+
+    private ExperienceRequest sampleExpReq() {
+        return new ExperienceRequest(null, "비관적 락", "요약", "상황", "접근", "배운 점",
+                null, List.of("JPA"), 1);
+    }
+
+    private ExperienceResponse sampleExpResp() {
+        return new ExperienceResponse(1L, null, "비관적 락", "요약", "상황", "접근", "배운 점",
+                null, List.of("JPA"), 1);
+    }
+
+    @Test
+    @DisplayName("POST /api/admin/experiences - 역량 생성 201 반환")
+    void createExperience_returns201() throws Exception {
+        given(adminExperienceService.create(any())).willReturn(sampleExpResp());
+
+        mockMvc.perform(post("/api/admin/experiences")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sampleExpReq())))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value("비관적 락"));
+    }
+
+    @Test
+    @DisplayName("PUT /api/admin/experiences/{id} - 역량 수정 200 반환")
+    void updateExperience_returns200() throws Exception {
+        given(adminExperienceService.update(eq(1L), any())).willReturn(sampleExpResp());
+
+        mockMvc.perform(put("/api/admin/experiences/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(sampleExpReq())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value("비관적 락"));
+    }
+
+    @Test
+    @DisplayName("DELETE /api/admin/experiences/{id} - 역량 삭제 204 반환")
+    void deleteExperience_returns204() throws Exception {
+        willDoNothing().given(adminExperienceService).delete(1L);
+
+        mockMvc.perform(delete("/api/admin/experiences/1"))
                 .andExpect(status().isNoContent());
     }
 }
