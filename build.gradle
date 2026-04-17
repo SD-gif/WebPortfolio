@@ -77,4 +77,14 @@ jacocoTestReport {
         xml.required = true   // Codecov은 XML 리포트 사용
         html.required = true
     }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, excludes: [
+                    '**/config/**',
+                    '**/s3/**',
+                    '**/dto/**',
+                    '**/PortfolioApplication.class'
+            ])
+        }))
+    }
 }
