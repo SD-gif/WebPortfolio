@@ -566,16 +566,71 @@ async function editExp(id) {
   }
 }
 
+const EXP_MAX_BULLETS = 3;
+const EXP_BULLET_MAXLEN = 130;
+
+function renderBulletInput(value = '') {
+  const v = esc(value);
+  return `<div class="bullet-item">
+    <input type="text" maxlength="${EXP_BULLET_MAXLEN}" value="${v}" placeholder="예) 중복 예약 문제 : 여러 사용자가 동시에 예약할 때..." />
+    <button type="button" class="btn btn-danger btn-sm" onclick="removeBullet(this)">×</button>
+  </div>`;
+}
+
+function setBullets(listId, items) {
+  const el = document.getElementById(listId);
+  const values = (items && items.length) ? items : [''];
+  el.innerHTML = values.map(renderBulletInput).join('');
+}
+
+function addBullet(listId) {
+  const el = document.getElementById(listId);
+  if (el.querySelectorAll('.bullet-item').length >= EXP_MAX_BULLETS) {
+    toast(`섹션당 최대 ${EXP_MAX_BULLETS}개까지 입력할 수 있습니다.`, 'error');
+    return;
+  }
+  el.insertAdjacentHTML('beforeend', renderBulletInput(''));
+}
+
+function removeBullet(btn) {
+  const item = btn.closest('.bullet-item');
+  const list = item.parentElement;
+  if (list.querySelectorAll('.bullet-item').length <= 1) {
+    item.querySelector('input').value = '';
+    return;
+  }
+  item.remove();
+}
+
+function collectBullets(listId) {
+  return Array.from(document.getElementById(listId).querySelectorAll('input'))
+    .map(i => i.value.trim()).filter(Boolean);
+}
+
+async function populateLinkedProjectSelect(selectedId) {
+  const select = document.getElementById('exp-linked-project');
+  try {
+    const res = await fetch(`${API}/api/projects?page=0&size=100`).then(r => r.json());
+    const opts = ['<option value="">— 연결 안 함 —</option>']
+      .concat((res.content || []).map(p =>
+        `<option value="${p.id}"${p.id === selectedId ? ' selected' : ''}>${esc(p.title)}</option>`));
+    select.innerHTML = opts.join('');
+  } catch {
+    select.innerHTML = '<option value="">(프로젝트 목록 불러오기 실패)</option>';
+  }
+}
+
 function showExpEditor(id, data) {
   editingExpId = id || null;
 
   document.getElementById('exp-title').value     = data?.title || '';
-  document.getElementById('exp-situation').value = data?.situation || '';
-  document.getElementById('exp-approach').value  = data?.approach || '';
-  document.getElementById('exp-learned').value   = data?.learned || '';
+  setBullets('exp-situation-list', data?.situation);
+  setBullets('exp-approach-list',  data?.approach);
+  setBullets('exp-learned-list',   data?.learned);
   document.getElementById('exp-stack').value     = (data?.techStack || []).join(', ');
   document.getElementById('exp-image').value     = data?.imageUrl || '';
   document.getElementById('exp-order').value     = data?.sortOrder ?? '';
+  populateLinkedProjectSelect(data?.linkedProjectId ?? null);
 
   const preview = document.getElementById('exp-image-preview');
   if (data?.imageUrl) {
@@ -620,18 +675,23 @@ async function uploadExpImage(event) {
 
 async function saveExp() {
   const title     = document.getElementById('exp-title').value.trim();
-  const situation = document.getElementById('exp-situation').value.trim();
-  const approach  = document.getElementById('exp-approach').value.trim();
-  const learned   = document.getElementById('exp-learned').value.trim();
-  if (!title || !situation || !approach || !learned) { toast('제목·상황·접근·배운 점은 필수입니다.', 'error'); return; }
+  const situation = collectBullets('exp-situation-list');
+  const approach  = collectBullets('exp-approach-list');
+  const learned   = collectBullets('exp-learned-list');
+  if (!title) { toast('제목은 필수입니다.', 'error'); return; }
+  if (!situation.length || !approach.length || !learned.length) {
+    toast('상황·접근·배운 점은 각각 최소 1개 항목이 필요합니다.', 'error'); return;
+  }
   const stackRaw = document.getElementById('exp-stack').value.trim();
   const techStack = stackRaw ? stackRaw.split(',').map(s => s.trim()).filter(Boolean) : [];
+  const linkedRaw = document.getElementById('exp-linked-project').value;
   const body = {
     icon: null,
     title, summary: null,
     situation, approach, learned, techStack,
     imageUrl: document.getElementById('exp-image').value.trim() || null,
     sortOrder: parseInt(document.getElementById('exp-order').value) || 0,
+    linkedProjectId: linkedRaw ? parseInt(linkedRaw) : null,
   };
   const url = editingExpId ? `${API}/api/admin/experiences/${editingExpId}` : `${API}/api/admin/experiences`;
   const method = editingExpId ? 'PUT' : 'POST';
