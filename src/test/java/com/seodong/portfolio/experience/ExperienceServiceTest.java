@@ -23,7 +23,10 @@ class ExperienceServiceTest {
     @DisplayName("역량 목록 조회 시 정렬된 목록을 반환한다")
     void getAll_returnsSortedList() {
         Experience exp = Experience.builder()
-                .title("비관적 락").summary("요약").situation("상황").approach("접근").learned("배운 점").sortOrder(1).build();
+                .title("비관적 락").summary("요약").sortOrder(1).build();
+        exp.replaceSituation(List.of("상황"));
+        exp.replaceApproach(List.of("접근"));
+        exp.replaceLearned(List.of("배운 점"));
         given(experienceRepository.findAllByOrderBySortOrderAsc()).willReturn(List.of(exp));
 
         List<ExperienceResponse> result = experienceService.getAll();

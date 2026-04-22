@@ -343,13 +343,15 @@ class AdminControllerTest {
     // ── Experiences ───────────────────────────────────────────
 
     private ExperienceRequest sampleExpReq() {
-        return new ExperienceRequest(null, "비관적 락", "요약", "상황", "접근", "배운 점",
-                null, List.of("JPA"), 1);
+        return new ExperienceRequest(null, "비관적 락", "요약",
+                List.of("상황"), List.of("접근"), List.of("배운 점"),
+                null, List.of("JPA"), 1, null);
     }
 
     private ExperienceResponse sampleExpResp() {
-        return new ExperienceResponse(1L, null, "비관적 락", "요약", "상황", "접근", "배운 점",
-                null, List.of("JPA"), 1);
+        return new ExperienceResponse(1L, null, "비관적 락", "요약",
+                List.of("상황"), List.of("접근"), List.of("배운 점"),
+                null, List.of("JPA"), 1, null);
     }
 
     @Test
