@@ -54,6 +54,10 @@ body { background: var(--dark); color: var(--text); font-family: 'Inter', sans-s
 }
 .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: var(--primary); }
 .form-group textarea { resize: vertical; min-height: 80px; }
+.bullet-list { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 0.5rem; }
+.bullet-item { display: flex; gap: 0.4rem; align-items: stretch; }
+.bullet-item input { flex: 1; }
+.bullet-item .btn { padding: 0 0.7rem; }
 #login-error {
   color: var(--red); font-size: 0.78rem; text-align: center;
   margin-bottom: 0.8rem; min-height: 1.2rem;

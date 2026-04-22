@@ -10,12 +10,13 @@ public record ExperienceResponse(
         String icon,
         String title,
         String summary,
-        String situation,
-        String approach,
-        String learned,
+        List<String> situation,
+        List<String> approach,
+        List<String> learned,
         String imageUrl,
         List<String> techStack,
-        int sortOrder
+        int sortOrder,
+        Long linkedProjectId
 ) {
     public static ExperienceResponse from(Experience e) {
         return new ExperienceResponse(
@@ -23,12 +24,13 @@ public record ExperienceResponse(
                 e.getIcon(),
                 e.getTitle(),
                 e.getSummary(),
-                e.getSituation(),
-                e.getApproach(),
-                e.getLearned(),
+                List.copyOf(e.getSituation()),
+                List.copyOf(e.getApproach()),
+                List.copyOf(e.getLearned()),
                 e.getImageUrl(),
                 e.getTechStacks().stream().map(ExperienceTechStack::getTech).toList(),
-                e.getSortOrder()
+                e.getSortOrder(),
+                e.getLinkedProjectId()
         );
     }
 }

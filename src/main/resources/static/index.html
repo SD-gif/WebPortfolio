@@ -11,6 +11,32 @@
 </head>
 <body>
 
+  <!-- ── Opening Intro Screen ── -->
+  <div id="intro-screen">
+    <div class="intro-content">
+      <div class="intro-name">어서오세요, 서동준 입니다.</div>
+      <div class="intro-loading"><div class="intro-loading-bar"></div></div>
+    </div>
+    <div class="intro-footer">
+      <label class="intro-dont-show">
+        <input type="checkbox" id="intro-dont-show-today" />
+        <span>오늘 하루 보지 않기</span>
+      </label>
+      <button class="intro-skip" id="intro-skip" type="button">Skip →</button>
+    </div>
+  </div>
+
+  <!-- ── Side Dock (progress rail nav) ── -->
+  <aside id="side-dock" aria-label="섹션 바로가기">
+    <div class="dock-rail"><div class="dock-rail-fill"></div></div>
+    <a href="#about"      data-dock="about"><span class="side-dock-dot"></span><span class="side-dock-label">About</span></a>
+    <a href="#edu-cert"   data-dock="edu-cert"><span class="side-dock-dot"></span><span class="side-dock-label">Education</span></a>
+    <a href="#skills"     data-dock="skills"><span class="side-dock-dot"></span><span class="side-dock-label">Skills</span></a>
+    <a href="#experience" data-dock="experience"><span class="side-dock-dot"></span><span class="side-dock-label">Experience</span></a>
+    <a href="#projects"   data-dock="projects"><span class="side-dock-dot"></span><span class="side-dock-label">Projects</span></a>
+    <a href="#contact"    data-dock="contact"><span class="side-dock-dot"></span><span class="side-dock-label">Contact</span></a>
+  </aside>
+
   <!-- ── Navbar ── -->
   <nav id="navbar">
     <span class="nav-logo">SD<span>.</span></span>
@@ -18,81 +44,14 @@
       <span></span><span></span><span></span>
     </button>
     <ul class="nav-links" id="nav-links">
-      <li><a href="#experience" data-section="experience">Experience</a></li>
-      <li><a href="#projects"   data-section="projects">Projects</a></li>
-      <li><a href="#skills"     data-section="skills">Skills</a></li>
       <li><a href="#about"      data-section="about">About</a></li>
       <li><a href="#edu-cert"   data-section="edu-cert">Education</a></li>
+      <li><a href="#skills"     data-section="skills">Skills</a></li>
+      <li><a href="#experience" data-section="experience">Experience</a></li>
+      <li><a href="#projects"   data-section="projects">Projects</a></li>
       <li><a href="#contact"    class="nav-cta">Contact</a></li>
     </ul>
   </nav>
-
-  <!-- ── Hero ── -->
-  <section id="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-grid"></div>
-    <div class="hero-inner">
-      <div class="hero-photo-wrap">
-        <img class="hero-photo" src="/image/pic1.jpg" alt="서동 프로필 사진" />
-      </div>
-      <div class="hero-text">
-        <div class="hero-badge">Available for opportunities</div>
-        <h1 class="hero-name">
-          안녕하세요, 저는 <span class="highlight" id="hero-name">서동준</span>입니다
-        </h1>
-        <p class="hero-role" id="hero-role">Backend · DevOps Developer</p>
-        <p class="hero-bio" id="hero-bio">SpringBoot를 주력으로 시스템 아키텍쳐에 관심이 많은 백엔드 개발자입니다.</p>
-        <div class="hero-actions">
-          <a href="#projects" class="btn-primary">프로젝트 보기</a>
-          <a href="#contact"  class="btn-soft">연락하기</a>
-        </div>
-      </div>
-    </div>
-    <div class="scroll-hint">SCROLL</div>
-  </section>
-
-  <!-- ── Experience ── -->
-  <section id="experience">
-    <div class="section-inner">
-      <div class="fade-in">
-        <p class="section-label">Experience</p>
-        <div class="section-divider"></div>
-        <h2 class="section-title">Experience</h2>
-        <p class="section-desc">문제 상황과 그에 대한 접근·배운 점을 정리했습니다.</p>
-      </div>
-      <div class="exp-grid fade-in" id="experience-grid">
-        <p style="color:var(--muted);font-size:.875rem">불러오는 중...</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Projects ── -->
-  <section id="projects">
-    <div class="section-inner">
-      <div class="fade-in">
-        <p class="section-label">Portfolio</p>
-        <div class="section-divider"></div>
-        <h2 class="section-title">Projects</h2>
-        <p class="section-desc">다양한 환경에서 진행한 프로젝트들입니다.</p>
-      </div>
-      <div class="proj-grid fade-in" id="projects-grid">
-        <div id="projects-loading">불러오는 중...</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ── Skills ── -->
-  <section id="skills">
-    <div class="section-inner">
-      <div class="fade-in">
-        <p class="section-label">Tech Stack</p>
-        <div class="section-divider"></div>
-        <h2 class="section-title">Skills</h2>
-        <p class="section-desc">주로 사용하는 기술들입니다.</p>
-      </div>
-      <div class="skills-grid fade-in" id="skills-grid"></div>
-    </div>
-  </section>
 
   <!-- ── About ── -->
   <section id="about">
@@ -103,54 +62,22 @@
         <h2 class="section-title">자기소개</h2>
       </div>
       <div class="about-grid fade-in">
-        <div class="about-bio">
-          <p id="about-bio-text">Java/Spring <Boot를></Boot를> 주력으로 클라우드 인프라와 DevOps 자동화에 관심이 많은 백엔드 개발자입니다.</p>
-          <div class="about-stats">
-            <div>
-              <div class="about-stat-val" id="about-stat-projects">20+</div>
-              <div class="about-stat-lbl">프로젝트 완수</div>
-            </div>
-            <div>
-              <div class="about-stat-val" id="about-stat-exp">3년</div>
-              <div class="about-stat-lbl">개발 경력</div>
-            </div>
-          </div>
+        <div class="about-portrait">
+          <img src="/image/pic1.jpg" alt="서동 포트레이트" loading="lazy" />
         </div>
-        <div class="about-info-card">
-          <div class="info-row">
-            <span class="info-icon">
-              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-            </span>
-            <div>
-              <div class="info-title">직무</div>
-              <div class="info-val" id="about-role">Backend / DevOps Developer</div>
-            </div>
-          </div>
-          <div class="info-row">
-            <span class="info-icon">
-              <svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            </span>
-            <div>
-              <div class="info-title">위치</div>
-              <div class="info-val">대한민국, 서울</div>
-            </div>
-          </div>
-          <div class="info-row">
-            <span class="info-icon">
-              <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            </span>
-            <div>
-              <div class="info-title">이메일</div>
-              <div class="info-val" id="about-email">alem6516@gmail.com</div>
-            </div>
-          </div>
-          <div class="info-row">
-            <span class="info-icon">
-              <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
-            </span>
-            <div>
-              <div class="info-title">GitHub</div>
-              <a class="info-val" id="about-github" href="https://github.com" target="_blank" rel="noopener" style="color:var(--primary);text-decoration:none;">github.com</a>
+        <div class="about-narrative">
+          <p class="about-tagline">저는 구조를 먼저 그리는 엔지니어입니다.</p>
+          <p class="about-subtagline">근거로 설계하고, 먼저 움직입니다.</p>
+          <p id="about-bio-text">반갑습니다. 저는 코드를 작성하기 전에 "왜 이 구조여야 하는가"를 먼저 고민하는 백엔드 개발자입니다.</p>
+          <p>화려한 기능보다 변화에도 흔들리지 않는 견고한 설계에 관심이 많고, 기술을 선택할 때는 감이 아닌 근거를 직접 찾아 팀을 설득하는 과정을 좋아합니다. 특히 상황에 맞는 아키텍처를 고민하고 설계하는 과정에서 가장 큰 몰입을 느끼며, 모니터링 환경 구축이나 동시성 제어처럼 서비스의 안정성을 직접 책임지는 영역에 관심이 많습니다.</p>
+          <p>최근에는 Claude Code와 Codex를 오케스트레이션하여 개발과 코드 리뷰를 자동화하는 워크플로우를 실험하고 있으며, AI 도구를 활용하되 설계 판단은 스스로 내리는 개발자를 지향하고 있습니다. 어렵거나 부담스러운 작업일수록 먼저 나서는 편이고, 제가 먼저 움직였을 때 팀원들도 함께 따라와 주는 순간에 가장 큰 보람을 느낍니다.</p>
+          <div class="about-focus">
+            <span class="about-focus-label">Focus</span>
+            <div class="about-focus-tags">
+              <span class="about-focus-tag">아키텍처</span>
+              <span class="about-focus-tag">CI/CD</span>
+              <span class="about-focus-tag">모니터링</span>
+              <span class="about-focus-tag">AI 워크플로우</span>
             </div>
           </div>
         </div>
@@ -182,6 +109,49 @@
           </div>
           <div id="cert-list"><p style="color:var(--muted);font-size:.85rem">불러오는 중...</p></div>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Skills ── -->
+  <section id="skills">
+    <div class="section-inner">
+      <div class="fade-in">
+        <p class="section-label">Tech Stack</p>
+        <div class="section-divider"></div>
+        <h2 class="section-title">Skills</h2>
+        <p class="section-desc">주로 사용하는 기술들입니다.</p>
+      </div>
+      <div class="skills-grid fade-in" id="skills-grid"></div>
+    </div>
+  </section>
+
+  <!-- ── Experience ── -->
+  <section id="experience">
+    <div class="section-inner">
+      <div class="fade-in">
+        <p class="section-label">Experience</p>
+        <div class="section-divider"></div>
+        <h2 class="section-title">Experience</h2>
+        <p class="section-desc">문제 상황과 그에 대한 접근·배운 점을 정리했습니다.</p>
+      </div>
+      <div class="exp-grid fade-in" id="experience-grid">
+        <p style="color:var(--muted);font-size:.875rem">불러오는 중...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Projects ── -->
+  <section id="projects">
+    <div class="section-inner">
+      <div class="fade-in">
+        <p class="section-label">Portfolio</p>
+        <div class="section-divider"></div>
+        <h2 class="section-title">Projects</h2>
+        <p class="section-desc">다양한 환경에서 진행한 프로젝트들입니다.</p>
+      </div>
+      <div class="proj-grid fade-in" id="projects-grid">
+        <div id="projects-loading">불러오는 중...</div>
       </div>
     </div>
   </section>

@@ -235,15 +235,31 @@
             <div class="edit-section">
               <div class="edit-section-title">기본 정보</div>
               <div class="form-row">
-                <div class="form-group"><label>제목 *</label><input id="exp-title" type="text" placeholder="강의 좌석 예약의 데이터 정합성 확보" /></div>
+                <div class="form-group"><label>제목 * (30자 이내)</label><input id="exp-title" type="text" maxlength="30" placeholder="강의 좌석 예약의 데이터 정합성 확보" /></div>
                 <div class="form-group"><label>정렬 순서</label><input id="exp-order" type="number" min="0" placeholder="1" /></div>
+              </div>
+              <div class="form-group">
+                <label>연관 프로젝트 (선택)</label>
+                <select id="exp-linked-project"><option value="">— 연결 안 함 —</option></select>
               </div>
             </div>
             <div class="edit-section">
-              <div class="edit-section-title">상세 내용</div>
-              <div class="form-group"><label>상황 (Situation) * (최대 200자)</label><textarea id="exp-situation" rows="4" maxlength="200" placeholder="어떤 문제 상황이었는지..."></textarea></div>
-              <div class="form-group"><label>접근 (Approach) * (최대 200자)</label><textarea id="exp-approach" rows="4" maxlength="200" placeholder="어떤 선택과 근거로 접근했는지..."></textarea></div>
-              <div class="form-group"><label>배운 점 (Learned) * (최대 150자)</label><textarea id="exp-learned" rows="3" maxlength="150" placeholder="재사용 가능한 원칙, 다음 스텝..."></textarea></div>
+              <div class="edit-section-title">상세 내용 (항목당 130자, 섹션당 최대 3개)</div>
+              <div class="form-group">
+                <label>상황 (Situation) *</label>
+                <div class="bullet-list" id="exp-situation-list"></div>
+                <button type="button" class="btn btn-outline btn-sm" onclick="addBullet('exp-situation-list')">+ 항목 추가</button>
+              </div>
+              <div class="form-group">
+                <label>접근 (Approach) *</label>
+                <div class="bullet-list" id="exp-approach-list"></div>
+                <button type="button" class="btn btn-outline btn-sm" onclick="addBullet('exp-approach-list')">+ 항목 추가</button>
+              </div>
+              <div class="form-group">
+                <label>배운 점 (Learned) *</label>
+                <div class="bullet-list" id="exp-learned-list"></div>
+                <button type="button" class="btn btn-outline btn-sm" onclick="addBullet('exp-learned-list')">+ 항목 추가</button>
+              </div>
             </div>
             <div class="edit-section">
               <div class="edit-section-title">부가 정보</div>

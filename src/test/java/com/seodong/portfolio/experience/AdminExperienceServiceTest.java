@@ -25,8 +25,12 @@ class AdminExperienceServiceTest {
     @InjectMocks AdminExperienceService adminExperienceService;
 
     private ExperienceRequest sampleRequest() {
-        return new ExperienceRequest(null, "비관적 락", "요약", "상황", "접근", "배운 점",
-                null, List.of("JPA", "PostgreSQL"), 1);
+        return new ExperienceRequest(
+                null, "비관적 락", "요약",
+                List.of("상황1 : 문제 설명"),
+                List.of("접근1 : 해결책 설명"),
+                List.of("배운 점1 : 교훈 설명"),
+                null, List.of("JPA", "PostgreSQL"), 1, null);
     }
 
     @Test
@@ -34,14 +38,17 @@ class AdminExperienceServiceTest {
     void create_validRequest_returnsSaved() {
         ExperienceRequest req = sampleRequest();
         Experience saved = Experience.builder()
-                .title(req.title()).summary(req.summary()).situation(req.situation())
-                .approach(req.approach()).learned(req.learned()).sortOrder(req.sortOrder())
+                .title(req.title()).summary(req.summary()).sortOrder(req.sortOrder())
                 .build();
+        saved.replaceSituation(req.situation());
+        saved.replaceApproach(req.approach());
+        saved.replaceLearned(req.learned());
         given(experienceRepository.save(any())).willReturn(saved);
 
         ExperienceResponse response = adminExperienceService.create(req);
 
         assertThat(response.title()).isEqualTo("비관적 락");
+        assertThat(response.situation()).containsExactly("상황1 : 문제 설명");
         then(experienceRepository).should().save(any(Experience.class));
     }
 
@@ -49,13 +56,16 @@ class AdminExperienceServiceTest {
     @DisplayName("존재하는 역량 수정 시 수정된 결과를 반환한다")
     void update_existing_returnsUpdated() {
         Experience existing = Experience.builder()
-                .title("기존").summary("기존 요약").situation("기존 상황")
-                .approach("기존 접근").learned("기존 배운 점").sortOrder(1).build();
+                .title("기존").summary("기존 요약").sortOrder(1).build();
+        existing.replaceSituation(List.of("기존 상황"));
+        existing.replaceApproach(List.of("기존 접근"));
+        existing.replaceLearned(List.of("기존 배운 점"));
         given(experienceRepository.findById(1L)).willReturn(Optional.of(existing));
 
         ExperienceResponse response = adminExperienceService.update(1L, sampleRequest());
 
         assertThat(response.title()).isEqualTo("비관적 락");
+        assertThat(response.situation()).containsExactly("상황1 : 문제 설명");
     }
 
     @Test

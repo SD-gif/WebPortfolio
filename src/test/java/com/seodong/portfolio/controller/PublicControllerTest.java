@@ -152,7 +152,7 @@ class PublicControllerTest {
     @DisplayName("GET /api/experiences - 역량 목록 200 반환")
     void getExperiences_returns200() throws Exception {
         ExperienceResponse exp = new ExperienceResponse(1L, null, "비관적 락", "요약",
-                "상황", "접근", "배운 점", null, List.of("JPA"), 1);
+                List.of("상황"), List.of("접근"), List.of("배운 점"), null, List.of("JPA"), 1, null);
         given(experienceService.getAll()).willReturn(List.of(exp));
 
         mockMvc.perform(get("/api/experiences"))

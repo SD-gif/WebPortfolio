@@ -21,12 +21,13 @@ public class AdminExperienceService {
                 .icon(req.icon())
                 .title(req.title())
                 .summary(req.summary())
-                .situation(req.situation())
-                .approach(req.approach())
-                .learned(req.learned())
                 .imageUrl(req.imageUrl())
                 .sortOrder(req.sortOrder())
+                .linkedProjectId(req.linkedProjectId())
                 .build();
+        experience.replaceSituation(req.situation());
+        experience.replaceApproach(req.approach());
+        experience.replaceLearned(req.learned());
         experience.replaceTechStacks(req.techStack());
         return ExperienceResponse.from(experienceRepository.save(experience));
     }
@@ -35,8 +36,11 @@ public class AdminExperienceService {
     public ExperienceResponse update(Long id, ExperienceRequest req) {
         Experience experience = experienceRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("해당 경험을 찾을 수 없습니다."));
-        experience.update(req.icon(), req.title(), req.summary(), req.situation(),
-                req.approach(), req.learned(), req.imageUrl(), req.sortOrder());
+        experience.update(req.icon(), req.title(), req.summary(),
+                req.imageUrl(), req.sortOrder(), req.linkedProjectId());
+        experience.replaceSituation(req.situation());
+        experience.replaceApproach(req.approach());
+        experience.replaceLearned(req.learned());
         experience.replaceTechStacks(req.techStack());
         return ExperienceResponse.from(experience);
     }
