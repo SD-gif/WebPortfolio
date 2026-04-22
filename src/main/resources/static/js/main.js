@@ -1,5 +1,46 @@
 const API_BASE = '';
 
+/* ── Opening Intro Screen ── */
+(function() {
+  const intro = document.getElementById('intro-screen');
+  if (!intro) return;
+  const today = new Date().toDateString();
+  const dontShowUntil = localStorage.getItem('introDontShowUntil');
+  const seenSession = sessionStorage.getItem('introSeen');
+  if (seenSession === '1' || dontShowUntil === today) {
+    intro.remove();
+    return;
+  }
+  document.body.style.overflow = 'hidden';
+  const AUTO_MS = 3000;
+  let dismissed = false;
+  function dismiss() {
+    if (dismissed) return;
+    dismissed = true;
+    const dontShow = document.getElementById('intro-dont-show-today')?.checked;
+    if (dontShow) localStorage.setItem('introDontShowUntil', today);
+    sessionStorage.setItem('introSeen', '1');
+    intro.classList.add('dismissed');
+    document.body.style.overflow = '';
+    setTimeout(() => intro.remove(), 500);
+  }
+  const autoTimer = setTimeout(dismiss, AUTO_MS);
+  document.getElementById('intro-skip')?.addEventListener('click', () => {
+    clearTimeout(autoTimer); dismiss();
+  });
+  document.addEventListener('keydown', function onEsc(e) {
+    if (e.key === 'Escape') {
+      clearTimeout(autoTimer);
+      document.removeEventListener('keydown', onEsc);
+      dismiss();
+    }
+  });
+  intro.addEventListener('click', e => {
+    if (e.target.closest('.intro-dont-show') || e.target.closest('#intro-skip')) return;
+    clearTimeout(autoTimer); dismiss();
+  });
+})();
+
 /* ── Navbar: scroll effect ── */
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
@@ -8,16 +49,41 @@ window.addEventListener('scroll', () => {
 
 /* ── Navbar: active section highlight ── */
 const navLinks = document.querySelectorAll('.nav-links a[data-section]');
+const dockLinks = Array.from(document.querySelectorAll('#side-dock a[data-dock]'));
+
+function syncDockProgress(activeId) {
+  const activeIdx = dockLinks.findIndex(a => a.dataset.dock === activeId);
+  if (activeIdx < 0) return;
+  dockLinks.forEach((a, i) => {
+    a.classList.toggle('passed', i < activeIdx);
+    a.classList.toggle('active', i === activeIdx);
+  });
+  const dock = document.getElementById('side-dock');
+  const fill = dock?.querySelector('.dock-rail-fill');
+  const rail = dock?.querySelector('.dock-rail');
+  if (!fill || !rail || !dockLinks[activeIdx]) return;
+  const railRect = rail.getBoundingClientRect();
+  const activeDot = dockLinks[activeIdx].querySelector('.side-dock-dot');
+  const dotRect = activeDot.getBoundingClientRect();
+  const fillHeight = Math.max(0, dotRect.top + dotRect.height / 2 - railRect.top);
+  fill.style.height = `${fillHeight}px`;
+}
+
 const sectionObserver = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) {
       navLinks.forEach(a => a.classList.remove('active'));
       const link = document.querySelector(`.nav-links a[data-section="${e.target.id}"]`);
       if (link) link.classList.add('active');
+      syncDockProgress(e.target.id);
     }
   });
 }, { threshold: 0.4 });
-['projects','experience','skills','about','edu-cert','contact'].forEach(id => {
+window.addEventListener('resize', () => {
+  const active = dockLinks.find(a => a.classList.contains('active'));
+  if (active) syncDockProgress(active.dataset.dock);
+});
+['about','edu-cert','skills','experience','projects','contact'].forEach(id => {
   const el = document.getElementById(id);
   if (el) sectionObserver.observe(el);
 });
@@ -56,16 +122,6 @@ async function fetchProfile() {
     if (bio) {
       const aboutBio = document.getElementById('about-bio-text');
       if (aboutBio) aboutBio.textContent = bio;
-    }
-    if (expYears !== undefined) {
-      const v = expYears + '년';
-      const aboutExp = document.getElementById('about-stat-exp');
-      if (aboutExp) aboutExp.textContent = v;
-    }
-    if (projectCount !== undefined) {
-      const v = projectCount + '+';
-      const aboutProj = document.getElementById('about-stat-projects');
-      if (aboutProj) aboutProj.textContent = v;
     }
     if (email) {
       const aboutEmail = document.getElementById('about-email');
@@ -200,6 +256,21 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
+function renderExpBullets(items) {
+  if (!Array.isArray(items) || items.length === 0) return '';
+  const li = items.map(raw => {
+    const item = String(raw);
+    const colonIdx = item.indexOf(':');
+    if (colonIdx > 0) {
+      const head = item.slice(0, colonIdx).trim();
+      const rest = item.slice(colonIdx + 1).trim();
+      return `<li><strong>${escapeHtml(head)}</strong> : ${escapeHtml(rest)}</li>`;
+    }
+    return `<li>${escapeHtml(item)}</li>`;
+  }).join('');
+  return `<ol class="exp-slide-bullets">${li}</ol>`;
+}
+
 let expSlideIndex = 0;
 let expSlideCount = 0;
 
@@ -217,13 +288,24 @@ async function fetchExperiences() {
     expSlideIndex = 0;
 
     const slides = list.map(exp => {
-      const stack = (exp.techStack || []).map(t => `<span class="exp-stack-tag">${escapeHtml(t)}</span>`).join('');
+      const tags = exp.techStack || [];
+      const shownTags = tags.slice(0, 2);
+      const overflow = tags.length - shownTags.length;
+      const stackTags = shownTags.map(t => `<span class="exp-stack-tag">${escapeHtml(t)}</span>`).join('');
+      const hiddenText = escapeHtml(tags.slice(2).join(', '));
+      const overflowTag = overflow > 0
+        ? `<span class="exp-stack-more">+${overflow}<span class="exp-stack-tip">${hiddenText}</span></span>` : '';
+      const linkHtml = exp.linkedProjectId
+        ? `<a class="exp-slide-link" href="/project.html?id=${exp.linkedProjectId}">연관 프로젝트 보기 →</a>` : '';
+      const footer = (tags.length || exp.linkedProjectId)
+        ? `<div class="exp-slide-stack">${stackTags}${overflowTag}${linkHtml}</div>` : '';
       const imgHtml = exp.imageUrl
         ? `<div class="exp-slide-image"><img src="${escapeHtml(exp.imageUrl)}" alt="${escapeHtml(exp.title)}" loading="lazy" /></div>` : '';
       return `
         <div class="exp-slide">
           <div class="exp-slide-inner">
             <div class="exp-slide-header">
+              <span class="exp-slide-eyebrow">TITLE</span>
               <h3 class="exp-slide-title">${escapeHtml(exp.title)}</h3>
               ${exp.summary ? `<p class="exp-slide-summary">${escapeHtml(exp.summary)}</p>` : ''}
             </div>
@@ -231,18 +313,18 @@ async function fetchExperiences() {
             <div class="exp-slide-sections">
               <div class="exp-slide-section section-situation">
                 <span class="exp-slide-label">상황</span>
-                <p class="exp-slide-text">${escapeHtml(exp.situation)}</p>
+                ${renderExpBullets(exp.situation)}
               </div>
               <div class="exp-slide-section section-approach">
                 <span class="exp-slide-label">접근</span>
-                <p class="exp-slide-text">${escapeHtml(exp.approach)}</p>
+                ${renderExpBullets(exp.approach)}
               </div>
               <div class="exp-slide-section section-learned">
                 <span class="exp-slide-label">배운 점</span>
-                <p class="exp-slide-text">${escapeHtml(exp.learned)}</p>
+                ${renderExpBullets(exp.learned)}
               </div>
             </div>
-            ${stack ? `<div class="exp-slide-stack">${stack}</div>` : ''}
+            ${footer}
           </div>
         </div>`;
     }).join('');
@@ -264,6 +346,16 @@ async function fetchExperiences() {
       <div class="exp-dots" id="exp-dots">${dots}</div>
       <div class="exp-counter"><span id="exp-counter-current">1</span> / ${list.length}</div>
     `;
+    expGoTo(0);
+    // One-time wiggle hint on the next card after initial paint
+    if (list.length > 1) {
+      setTimeout(() => {
+        const next = document.querySelector('.exp-slide[data-pos="next"]');
+        if (!next) return;
+        next.classList.add('wiggle');
+        next.addEventListener('animationend', () => next.classList.remove('wiggle'), { once: true });
+      }, 600);
+    }
   } catch (e) {
     container.innerHTML = '<p style="color:var(--muted);font-size:.875rem">역량 정보를 불러오지 못했습니다.</p>';
   }
@@ -271,9 +363,18 @@ async function fetchExperiences() {
 
 function expGoTo(idx) {
   expSlideIndex = Math.max(0, Math.min(idx, expSlideCount - 1));
-  const track = document.getElementById('exp-track');
-  if (track) track.style.transform = `translateX(-${expSlideIndex * 100}%)`; // each slide is 100% of track item
+  document.querySelectorAll('.exp-slide').forEach((slide, i) => {
+    const diff = i - expSlideIndex;
+    slide.dataset.pos = diff === 0 ? 'active'
+                      : diff === 1 ? 'next'
+                      : diff === -1 ? 'prev'
+                      : 'far';
+  });
   document.querySelectorAll('.exp-dot').forEach((d, i) => d.classList.toggle('active', i === expSlideIndex));
+  const leftArrow  = document.querySelector('.exp-arrow-left');
+  const rightArrow = document.querySelector('.exp-arrow-right');
+  if (leftArrow)  leftArrow.disabled  = expSlideIndex === 0;
+  if (rightArrow) rightArrow.disabled = expSlideIndex === expSlideCount - 1;
   const counter = document.getElementById('exp-counter-current');
   if (counter) counter.textContent = expSlideIndex + 1;
 }
