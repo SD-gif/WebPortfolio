@@ -51,6 +51,13 @@ public class AdminSkillController {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminSkillService.addSkill(categoryId, req));
     }
 
+    @PutMapping("/{skillId}")
+    public ResponseEntity<SkillItemResponse> updateSkill(
+            @PathVariable Long skillId,
+            @Valid @RequestBody SkillRequest req) {
+        return ResponseEntity.ok(adminSkillService.updateSkill(skillId, req));
+    }
+
     @DeleteMapping("/{skillId}")
     public ResponseEntity<Void> deleteSkill(@PathVariable Long skillId) {
         adminSkillService.deleteSkill(skillId);
