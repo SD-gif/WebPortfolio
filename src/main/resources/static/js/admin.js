@@ -392,7 +392,8 @@ async function loadSkills() {
             <span style="display:inline-flex;align-items:center;gap:0.4rem;background:rgba(37,99,235,0.05);border:1px solid var(--border);border-radius:2rem;padding:0.25rem 0.7rem;font-size:0.82rem">
               ${esc(s.name)}
               <span style="font-size:0.7rem;color:var(--muted)">${levelLabel[s.level] || 'Lv' + s.level}</span>
-              <button style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.7rem" onclick="deleteSkill(${s.id},'${esc(s.name)}')">✕</button>
+              <button title="수정" style="background:none;border:none;cursor:pointer;color:var(--primary);font-size:0.7rem" onclick='openSkillModal(${cat.id}, ${JSON.stringify({id:s.id,name:s.name,level:s.level,sortOrder:s.sortOrder})})'>✎</button>
+              <button title="삭제" style="background:none;border:none;cursor:pointer;color:var(--muted);font-size:0.7rem" onclick="deleteSkill(${s.id},'${esc(s.name)}')">✕</button>
             </span>`).join('') : '<span style="color:var(--muted);font-size:0.82rem">스킬 없음</span>'}
         </div>
       </div>`).join('');
@@ -499,25 +500,30 @@ async function deleteCategory(id, name) {
   } catch { toast('오류 발생', 'error'); }
 }
 
-function openSkillModal(categoryId) {
+let editingSkillId = null;
+
+function openSkillModal(categoryId, skill) {
   targetCategoryId = categoryId;
-  document.getElementById('skill-name').value  = '';
-  document.getElementById('skill-level').value = '4';
-  document.getElementById('skill-order').value = '';
+  editingSkillId = skill ? skill.id : null;
+  document.getElementById('skill-modal-title').textContent = skill ? '스킬 수정' : '스킬 추가';
+  document.getElementById('skill-name').value  = skill?.name ?? '';
+  document.getElementById('skill-level').value = skill?.level ?? '4';
+  document.getElementById('skill-order').value = skill?.sortOrder ?? '';
   document.getElementById('skill-modal').classList.add('open');
 }
-function closeSkillModal() { document.getElementById('skill-modal').classList.remove('open'); }
+function closeSkillModal() { document.getElementById('skill-modal').classList.remove('open'); editingSkillId = null; }
 
 async function saveSkill() {
   const name = document.getElementById('skill-name').value.trim();
   if (!name) { toast('스킬명을 입력해주세요.', 'error'); return; }
   const body = { name, level: parseInt(document.getElementById('skill-level').value) || 1, sortOrder: parseInt(document.getElementById('skill-order').value) || 0 };
+  const url    = editingSkillId ? `${API}/api/admin/skills/${editingSkillId}` : `${API}/api/admin/skills/categories/${targetCategoryId}/skills`;
+  const method = editingSkillId ? 'PUT' : 'POST';
   try {
-    const res = await adminFetch(`${API}/api/admin/skills/categories/${targetCategoryId}/skills`,
-      { method: 'POST', headers: authHeader(), body: JSON.stringify(body) });
-    if (res.ok) { toast('스킬이 추가되었습니다.'); closeSkillModal(); loadSkills(); }
+    const res = await adminFetch(url, { method, headers: authHeader(), body: JSON.stringify(body) });
+    if (res.ok) { toast(editingSkillId ? '수정되었습니다.' : '스킬이 추가되었습니다.'); closeSkillModal(); loadSkills(); }
     else if (res.status === 401) { toast('인증 만료', 'error'); doLogout(); }
-    else toast('추가 실패', 'error');
+    else toast(editingSkillId ? '수정 실패' : '추가 실패', 'error');
   } catch { toast('오류 발생', 'error'); }
 }
 

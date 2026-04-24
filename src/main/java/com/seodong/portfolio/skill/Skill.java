@@ -27,4 +27,10 @@ public class Skill {
     private int level = 1;
 
     private int sortOrder;
+
+    public void update(String name, int level, int sortOrder) {
+        this.name = name;
+        this.level = level;
+        this.sortOrder = sortOrder;
+    }
 }

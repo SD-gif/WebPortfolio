@@ -62,6 +62,14 @@ public class AdminSkillService {
     }
 
     @Transactional
+    public SkillItemResponse updateSkill(Long skillId, SkillRequest req) {
+        var skill = skillRepository.findById(skillId)
+                .orElseThrow(() -> new ResourceNotFoundException("해당 스킬을 찾을 수 없습니다."));
+        skill.update(req.name(), req.level(), req.sortOrder());
+        return SkillItemResponse.from(skill);
+    }
+
+    @Transactional
     public void deleteSkill(Long skillId) {
         if (!skillRepository.existsById(skillId)) {
             throw new ResourceNotFoundException("해당 스킬을 찾을 수 없습니다.");

@@ -158,6 +158,33 @@ class SkillServiceTest {
     }
 
     @Test
+    @DisplayName("스킬 수정 시 수정된 결과를 반환한다")
+    void updateSkill_existing_returnsUpdated() {
+        // given
+        SkillCategory category = SkillCategory.builder().name("Backend").sortOrder(1).build();
+        Skill existing = category.addSkill("Java", 3, 1);
+        given(skillRepository.findById(1L)).willReturn(Optional.of(existing));
+
+        // when
+        SkillItemResponse response = adminSkillService.updateSkill(1L, new SkillRequest("Java 21", 4, 2));
+
+        // then
+        assertThat(response.name()).isEqualTo("Java 21");
+        assertThat(response.level()).isEqualTo(4);
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 스킬 수정 시 예외가 발생한다")
+    void updateSkill_notFound_throwsException() {
+        // given
+        given(skillRepository.findById(999L)).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> adminSkillService.updateSkill(999L, new SkillRequest("Java", 4, 1)))
+                .isInstanceOf(ResourceNotFoundException.class);
+    }
+
+    @Test
     @DisplayName("스킬 삭제 시 정상 삭제된다")
     void deleteSkill_existing_deletesSuccessfully() {
         // given
